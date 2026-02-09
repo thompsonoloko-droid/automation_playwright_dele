@@ -1,0 +1,27 @@
+{
+  "users": [
+    {
+      "id": "valid_user_1",
+      "name": "Del Test",
+      "email": "sparkko@gmail.com",
+      "password": "Testingpassword123",
+      "valid": true
+    }
+  ],
+  "invalid_credentials": [
+    {
+      "id": "invalid_email_password",
+      "email": "wronguser@example.com",
+      "password": "Wrongpassword123",
+      "valid": false,
+      "error_contains": "Your email or password is incorrect"
+    },
+    {
+      "id": "empty_email",
+      "email": "",
+      "password": "SomePassword123",
+      "valid": false,
+      "error_contains": "Email Address is required"
+    }
+  ]
+}

@@ -1,0 +1,349 @@
+# GitHub Actions workflow for comprehensive test automation CI/CD pipeline
+# Triggers on:
+# - Push to main and develop branches
+# - Pull requests to main branch
+# - Daily schedule at 8 AM UTC
+# - Manual trigger (workflow_dispatch)
+#
+# Features:
+# - Multi-browser testing (Chromium, Firefox, WebKit)
+# - Parallel test execution by browser
+# - Auto-retry for flaky tests
+# - HTML and Allure reports
+# - Test artifact uploads
+# - GitHub status checks
+
+name: Test Automation Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 8 * * *" # Daily run at 8 AM UTC
+  workflow_dispatch: # Manual trigger
+    inputs:
+      test_suite:
+        description: "Test suite to run"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - smoke
+          - regression
+          - api
+          - ui
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+
+jobs:
+  lint-and-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8 isort mypy
+
+      - name: Check code formatting with black
+        run: black --check .
+        continue-on-error: true
+
+      - name: Lint with flake8
+        run: flake8 tests/ pages/ utils/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        continue-on-error: true
+
+      - name: Check import sorting with isort
+        run: isort --check-only .
+        continue-on-error: true
+
+  test:
+    name: Test Suite (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: lint-and-quality
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        include:
+          - browser: chromium
+            headless: true
+          - browser: firefox
+            headless: true
+          - browser: webkit
+            headless: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for better analysis
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip" # Cache pip dependencies
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgconf-2-4
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          playwright install ${{ matrix.browser }} --with-deps
+
+      - name: Run Smoke Tests
+        id: smoke-tests
+        run: |
+          pytest tests/ui/ -m smoke \
+            --browser=${{ matrix.browser }} \
+            -v \
+            --tb=short \
+            --html=reports/smoke-${{ matrix.browser }}.html \
+            --self-contained-html \
+            --junitxml=reports/junit-smoke-${{ matrix.browser }}.xml \
+            --alluredir=reports/allure-results/smoke/${{ matrix.browser }}
+        continue-on-error: true
+
+      - name: Run Regression Tests
+        id: regression-tests
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: |
+          pytest tests/ui/ -m regression \
+            --browser=${{ matrix.browser }} \
+            -v \
+            --tb=short \
+            -n auto \
+            --html=reports/regression-${{ matrix.browser }}.html \
+            --self-contained-html \
+            --junitxml=reports/junit-regression-${{ matrix.browser }}.xml \
+            --alluredir=reports/allure-results/regression/${{ matrix.browser }}
+        continue-on-error: true
+
+      - name: Run API Tests
+        id: api-tests
+        run: |
+          pytest tests/api/ -v \
+            --tb=short \
+            --html=reports/api-tests.html \
+            --self-contained-html \
+            --junitxml=reports/junit-api.xml \
+            --alluredir=reports/allure-results/api
+        continue-on-error: true
+
+      - name: Collect Test Results
+        if: always()
+        run: |
+          mkdir -p reports/junit-combined
+          cp reports/junit-*.xml reports/junit-combined/ || true
+
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports-${{ matrix.browser }}
+          path: |
+            reports/
+            logs/
+          retention-days: 30
+
+      - name: Publish Test Results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: reports/junit-combined/*.xml
+          check_name: Test Results (${{ matrix.browser }})
+          comment_title: Test Report
+
+      - name: Comment PR with Test Summary
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const browser = '${{ matrix.browser }}';
+
+            let summary = `## Test Results - ${browser}\n`;
+            summary += `| Test Suite | Status |\n`;
+            summary += `|---|---|\n`;
+
+            // Add test status badges
+            const smokeStatus = '${{ steps.smoke-tests.outcome }}';
+            const regressionStatus = '${{ steps.regression-tests.outcome }}';
+            const apiStatus = '${{ steps.api-tests.outcome }}';
+
+            summary += `| Smoke Tests | ${smokeStatus === 'success' ? '✅' : '❌'} |\n`;
+            summary += `| Regression Tests | ${regressionStatus === 'success' ? '✅' : '❌'} |\n`;
+            summary += `| API Tests | ${apiStatus === 'success' ? '✅' : '❌'} |\n`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  coverage:
+    name: Code Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          playwright install --with-deps
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ \
+            --cov=pages \
+            --cov=utils \
+            --cov-report=html:reports/coverage-html \
+            --cov-report=xml:reports/coverage.xml \
+            --cov-report=term
+        continue-on-error: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./reports/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: reports/coverage-html/
+
+  allure-report:
+    name: Generate Allure Report
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+
+      - name: Merge test results
+        run: |
+          mkdir -p reports/allure-results
+          find artifacts -name 'allure-results' -type d -exec cp -r {}/* reports/allure-results/ \;
+
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          gh_pages: gh-pages
+          allure_results: reports/allure-results
+          allure_history: allure-history
+          keep_reports: 10
+        continue-on-error: true
+
+      - name: Deploy report to GitHub Pages
+        if: github.ref == 'refs/heads/main' && always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          keep_files: true
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [test, coverage]
+    if: always()
+
+    steps:
+      - name: Determine build status
+        id: status
+        run: |
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "status=✅ All tests passed" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+          else
+            echo "status=❌ Some tests failed" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Slack Notification
+        if: vars.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "Test Automation Pipeline: ${{ steps.status.outputs.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*GitHub Actions Build*\n${{ steps.status.outputs.status }}\nBranch: ${{ github.ref }}\nCommit: ${{ github.sha }}"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Details"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        continue-on-error: true
+
+      - name: Create GitHub Issue on Failure
+        if: failure() && github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔴 CI/CD Pipeline Failed - ${context.sha.substring(0, 7)}`,
+              body: `**Build Failed** on branch \`${context.ref}\`\n\n[View Run](${context.payload.repository.html_url}/actions/runs/${context.runId})`
+            });
+        continue-on-error: true

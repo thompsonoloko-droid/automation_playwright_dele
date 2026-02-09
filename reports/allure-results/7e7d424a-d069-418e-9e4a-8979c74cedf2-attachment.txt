@@ -1,0 +1,5 @@
+[32mINFO    [0m test_user_registration_flow[chromium]:conftest.py:53 Navigated to https://automationexercise.com/
+[32mINFO    [0m tests.conftest:conftest.py:135 Test data loaded from D:\Automation\automation_playwright_dele\tests\..\test_data\test_data.json
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:37 Testing user registration flow...
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:58 Attempting to register user: Del Test_20260209164012 (sparkko_20260209164012@gmail.com)
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:78 ✓ User registered successfully (URL: https://automationexercise.com/signup): Del Test_20260209164012

@@ -1,0 +1,75 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run All Tests",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "tests/", "-v", "--tb=short"],
+      "problemMatcher": ["$python"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run UI Tests",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "tests/ui/", "-v", "--tb=short"],
+      "problemMatcher": ["$python"],
+      "group": "test"
+    },
+    {
+      "label": "Run API Tests",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "tests/api/", "-v", "--tb=short"],
+      "problemMatcher": ["$python"],
+      "group": "test"
+    },
+    {
+      "label": "Run Smoke Tests",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "tests/", "-m", "smoke", "-v", "--tb=short"],
+      "problemMatcher": ["$python"],
+      "group": "test"
+    },
+    {
+      "label": "Install Playwright Browsers",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "playwright", "install"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Run All Tests + Allure Report",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "tests/", "-v", "--tb=short"],
+      "problemMatcher": ["$python"],
+      "group": "test"
+    },
+    {
+      "label": "Generate Allure Report",
+      "type": "shell",
+      "command": "python",
+      "args": ["generate_allure_report.py"],
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "View Latest Allure Report",
+      "type": "shell",
+      "command": "python",
+      "args": ["generate_allure_report.py"],
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ]
+}

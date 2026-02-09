@@ -1,0 +1,3 @@
+[32mINFO    [0m test_homepage_loads[chromium]:conftest.py:53 Navigated to https://automationexercise.com/
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:23 Testing homepage load...
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:29 ✓ Homepage loaded successfully

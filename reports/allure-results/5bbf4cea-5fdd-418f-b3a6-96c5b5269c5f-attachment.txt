@@ -1,0 +1,3 @@
+2026-02-09 16:39:38,467 - test_cart_has_checkout_button[chromium] - INFO - Navigated to https://automationexercise.com/
+2026-02-09 16:39:41,379 - tests.ui.test_checkout - INFO - Testing cart checkout button availability...
+2026-02-09 16:39:41,384 - tests.ui.test_checkout - INFO - ✓ Cart checkout functionality available
