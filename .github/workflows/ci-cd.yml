@@ -40,7 +40,14 @@ env:
   PYTHON_VERSION: "3.11"
   NODE_VERSION: "18"
 
+# ============================================================================
+# JOB 1: QUALITY GATES - Code formatting and linting checks
+# Runs lint, formatting, and static analysis tools
+# Fails fast to prevent low-quality code merges
+# ============================================================================
 jobs:
+  # Check code style, formatting, and import organization
+  # Pre-requisite for all other jobs - runs first
   lint-and-quality:
     name: Code Quality Checks
     runs-on: ubuntu-latest
@@ -69,6 +76,12 @@ jobs:
         run: isort --check-only .
         continue-on-error: true
 
+  # ============================================================================
+  # JOB 2: MULTI-BROWSER TESTING - Parallel test execution across browsers
+  # Runs smoke, regression, and API tests on Chromium, Firefox, and WebKit
+  # Uses matrix strategy for efficient parallel execution
+  # Generates HTML, JUnit, and Allure reports per browser
+  # ============================================================================
   test:
     name: Test Suite (${{ matrix.browser }})
     runs-on: ubuntu-latest
@@ -202,6 +215,12 @@ jobs:
               body: summary
             });
 
+  # ============================================================================
+  # JOB 3: CODE COVERAGE - Measure test coverage and integration
+  # Runs with coverage collection across pages/ and utils/ modules
+  # Enforces minimum 60% coverage threshold
+  # Uploads results to Codecov for tracking and trends
+  # ============================================================================
   coverage:
     name: Code Coverage Report
     runs-on: ubuntu-latest
@@ -247,6 +266,12 @@ jobs:
           name: coverage-report
           path: reports/coverage-html/
 
+  # ============================================================================
+  # JOB 4: ALLURE REPORTING - Generate interactive test report
+  # Downloads and merges test results from all browsers
+  # Generates Allure report and deploys to GitHub Pages
+  # Maintains history of last 10 test runs for trend analysis
+  # ============================================================================
   allure-report:
     name: Generate Allure Report
     runs-on: ubuntu-latest
@@ -284,6 +309,12 @@ jobs:
           publish_dir: ./allure-report
           keep_files: true
 
+  # ============================================================================
+  # JOB 5: NOTIFICATIONS - Slack alerts and GitHub issue creation
+  # Sends test results to Slack webhook (if configured)
+  # Creates GitHub issue on test failures for tracking
+  # Provides quick visibility into pipeline health
+  # ============================================================================
   notify:
     name: Send Notifications
     runs-on: ubuntu-latest

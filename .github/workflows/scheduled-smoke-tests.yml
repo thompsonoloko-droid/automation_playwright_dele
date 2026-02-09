@@ -1,13 +1,26 @@
+# GitHub Actions workflow for continuous health monitoring via scheduled runs
+# Triggers: Every 6 hours + daily at 9 PM UTC (helps detect flaky tests/environment issues)
+# Features:
+# - Multi-browser smoke testing (Chromium, Firefox)
+# - Automatic retry for flaky tests (2 retries with 5-second delay)
+# - Slack notifications on completion
+# - Step timeout (30 seconds per test to catch hangs)
+# - Detailed Allure reporting and HTML reports
+# - 7-day artifact retention
+
 name: Scheduled Smoke Tests
 
 on:
+  # Cron schedules for automated continuous testing
   schedule:
-    # Run smoke tests every 6 hours
+    # Every 6 hours = 4 times per day = regular health checks
     - cron: "0 */6 * * *"
-    # Run at 9 PM daily for night report
+    # Every day at 9 PM = morning report available for team
     - cron: "0 21 * * *"
+  # Manual trigger for on-demand smoke test runs
   workflow_dispatch:
     inputs:
+      # Allow manual override of target environment
       environment:
         description: "Environment to test"
         required: false
@@ -17,6 +30,12 @@ on:
           - staging
           - production
 
+# ============================================================================
+# JOB 1: SMOKE-TESTS - Multi-browser smoke test execution
+# Runs critical path smoke tests on Chromium and Firefox in parallel
+# Auto-retries 2x for flaky tests with 5-second delays
+# Generates reports with 30-second per-test timeout
+# ============================================================================
 jobs:
   smoke-tests:
     name: Smoke Tests - ${{ github.event.inputs.environment || 'staging' }}
@@ -42,6 +61,10 @@ jobs:
           pip install -r requirements.txt
           playwright install ${{ matrix.browser }} --with-deps
 
+      # STEP: Execute smoke tests with auto-retry and detailed reporting
+      # --reruns=2: Automatically retry failed tests twice
+      # --reruns-delay=5: Wait 5 seconds between retries
+      # --timeout=30: Kill test if it takes longer than 30 seconds (catches hangs)
       - name: Run smoke tests (${{ matrix.browser }})
         run: |
           pytest tests/ui/ -m smoke \
@@ -60,6 +83,8 @@ jobs:
           TIMEOUT: 30000
         continue-on-error: true
 
+      # STEP: Store detailed test reports and logs as artifacts
+      # Retained for 7 days for later review and analysis
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,6 +93,12 @@ jobs:
           path: reports/
           retention-days: 7
 
+  # ============================================================================
+  # JOB 2: NOTIFY-SLACK - Send test results to team
+  # Posts Slack notification with pass/fail status
+  # Includes links to full test execution details
+  # Only runs if SLACK_WEBHOOK_URL secret is configured
+  # ============================================================================
   notify-slack:
     name: Slack Notification
     runs-on: ubuntu-latest
@@ -95,6 +126,12 @@ jobs:
             }
         continue-on-error: true
 
+  # ============================================================================
+  # JOB 3: REPORT-SUMMARY - Generate and publish test summary
+  # Downloads artifacts from all test runs
+  # Creates formatted summary visible in GitHub Actions UI
+  # Provides quick overview of smoke test health status
+  # ============================================================================
   report-summary:
     name: Generate Summary
     runs-on: ubuntu-latest
@@ -102,10 +139,13 @@ jobs:
     if: always()
 
     steps:
+      # STEP: Download all test artifacts from smoke-tests job
       - uses: actions/download-artifact@v4
         with:
           path: all-reports/
 
+      # STEP: Format and publish summary to GitHub Actions job summary view
+      # Summary is visible in email notifications and Actions UI
       - name: Create summary
         run: |
           echo "# Scheduled Smoke Test Report" >> $GITHUB_STEP_SUMMARY
