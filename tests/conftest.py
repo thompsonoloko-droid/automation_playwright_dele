@@ -125,12 +125,10 @@ def page(context: BrowserContext, request):
 
             # Try removing the overlay with JavaScript
             try:
-                page.evaluate(
-                    """
+                page.evaluate("""
                     const overlay = document.querySelector('[class*="fc-consent"], [class*="cookiebot"]');
                     if (overlay) overlay.remove();
-                """
-                )
+                """)
             except:
                 pass
 

@@ -11,43 +11,55 @@ from pathlib import Path
 from datetime import datetime
 import platform
 
+
 def run_tests_with_json_report():
     """Run tests and generate JSON report"""
     print(f"\n{'='*70}")
     print("Running tests and generating reports...")
     print(f"{'='*70}\n")
-    
+
     # Run API tests
     print("► Running API tests...")
     api_result = subprocess.run(
-        ["python", "-m", "pytest", "tests/api/", "-v", "--tb=short", "--json-report", "--json-report-file=reports/api-report.json"],
+        [
+            "python",
+            "-m",
+            "pytest",
+            "tests/api/",
+            "-v",
+            "--tb=short",
+            "--json-report",
+            "--json-report-file=reports/api-report.json",
+        ],
         capture_output=True,
-        text=True
+        text=True,
     )
-    
+
     # Fall back to regular pytest if json-report not available
     if "unrecognized arguments" in api_result.stderr:
         print("  (Using standard pytest output)")
         api_result = subprocess.run(
             ["python", "-m", "pytest", "tests/api/", "-v", "--tb=short"],
             capture_output=True,
-            text=True
+            text=True,
         )
-    
+
     if api_result.returncode == 0:
         print("  ✓ API tests passed")
     else:
         print("  ✗ API tests failed")
         print(api_result.stdout)
-    
+
     return api_result.returncode == 0
+
 
 def create_html_report():
     """Create a simple but professional HTML report"""
     report_dir = Path("reports")
     report_dir.mkdir(exist_ok=True)
-    
-    html_content = """<!DOCTYPE html>
+
+    html_content = (
+        """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -278,7 +290,9 @@ def create_html_report():
                     </div>
                     <div class="info-card">
                         <h3>Generated</h3>
-                        <div class="value" style="font-size: 1.2em;">""" + datetime.now().strftime("%Y-%m-%d %H:%M") + """</div>
+                        <div class="value" style="font-size: 1.2em;">"""
+        + datetime.now().strftime("%Y-%m-%d %H:%M")
+        + """</div>
                     </div>
                 </div>
             </div>
@@ -403,18 +417,22 @@ def create_html_report():
         
         <div class="footer">
             <p>Test Report for Automation Exercise</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">Generated on """ + datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S") + """</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Generated on """
+        + datetime.now().strftime("%A, %B %d, %Y at %H:%M:%S")
+        + """</p>
         </div>
     </div>
 </body>
 </html>
 """
-    
+    )
+
     report_file = report_dir / "test-report.html"
-    with open(report_file, 'w', encoding='utf-8') as f:
+    with open(report_file, "w", encoding="utf-8") as f:
         f.write(html_content)
-    
+
     return report_file
+
 
 def view_report(report_file):
     """Open report in browser"""
@@ -422,41 +440,43 @@ def view_report(report_file):
         print(f"\n{'='*70}")
         print(f"Opening Test Report...")
         print(f"{'='*70}\n")
-        
+
         if platform.system() == "Windows":
             os.startfile(str(report_file.absolute()))
         elif platform.system() == "Darwin":
             subprocess.run(["open", str(report_file.absolute())])
         else:
             subprocess.run(["xdg-open", str(report_file.absolute())])
-        
+
         print(f"✓ Report opened: {report_file.absolute()}\n")
     except Exception as e:
         print(f"✓ You can manually open the report at:")
         print(f"  {report_file.absolute()}\n")
+
 
 def main():
     """Main function"""
     print(f"\n{'='*70}")
     print("TEST REPORT GENERATION")
     print(f"{'='*70}")
-    
+
     # Run tests
     test_passed = run_tests_with_json_report()
-    
+
     # Generate HTML report
     print("\n✓ Generating HTML report...")
     report_file = create_html_report()
     print(f"✓ Report created: {report_file}")
-    
+
     # Open report
     view_report(report_file)
-    
+
     print(f"{'='*70}")
     print("Report generation complete!")
     print(f"{'='*70}\n")
-    
+
     return 0 if test_passed else 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
