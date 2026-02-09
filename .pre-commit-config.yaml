@@ -1,0 +1,79 @@
+# .pre-commit-config.yaml
+# Pre-commit hooks configuration for Python code quality, linting, and formatting
+# Hooks run automatically before each commit to maintain code standards
+
+default_language_version:
+  python: python3.14
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.7.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of file
+      - id: check-yaml
+        name: Check YAML syntax
+      - id: check-json
+        name: Check JSON syntax
+      - id: check-added-large-files
+        name: Check for large files
+        args: ["--maxkb=5000"]
+      - id: debug-statements
+        name: Check for debug statements
+      - id: detect-private-key
+        name: Detect private keys
+
+  # Python code formatting (Black)
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        name: Format with Black
+        language_version: python3.14
+        args: ["--line-length=100"]
+
+  # Python linting and code quality (Ruff)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      - id: ruff
+        name: Lint with Ruff
+        args: ["--fix", "--show-fixes"]
+      - id: ruff-format
+        name: Format with Ruff
+
+  # Python type checking (optional but recommended)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        name: Type check with mypy
+        additional_dependencies: ["types-all"]
+        args: ["--ignore-missing-imports"]
+        exclude: |
+          (?x)^(
+            tests/.*|
+            \.venv/.*
+          )$
+
+  # YAML formatting
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.14.0
+    hooks:
+      - id: pretty-format-yaml
+        name: Format YAML
+        args: ["--autofix", "--indent", "2"]
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
