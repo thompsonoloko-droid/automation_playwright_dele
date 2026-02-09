@@ -110,10 +110,10 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: "pip" # Cache pip dependencies
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgconf-2-4
+      # System dependencies are now handled by playwright install --with-deps
+      # libgconf-2-4 is deprecated in modern Ubuntu versions and no longer needed
+      - name: Update system packages
+        run: sudo apt-get update
 
       - name: Install Python dependencies
         run: |
