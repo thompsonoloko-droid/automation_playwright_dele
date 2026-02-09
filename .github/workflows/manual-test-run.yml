@@ -16,22 +16,22 @@ on:
         required: true
         type: choice
         options:
-          - all # All tests in tests/ directory
-          - smoke # Critical path smoke tests only
-          - regression # Full regression test suite
-          - api # API integration tests
-          - ui-only # UI/browser tests only
-          - high-priority # Smoke tests + API tests
+          - all
+          - smoke
+          - regression
+          - api
+          - ui-only
+          - high-priority
       # Browser selection - which browser to test with
       browser:
         description: "Browser to test"
         required: true
         type: choice
         options:
-          - chromium # Chromium/Chrome browser
-          - firefox # Mozilla Firefox
-          - webkit # Safari/WebKit
-          - all-browsers # Run all three browsers sequentially
+          - chromium
+          - firefox
+          - webkit
+          - all-browsers
       # Execution mode - enable parallel test execution for faster runs
       parallel:
         description: "Run tests in parallel"
@@ -44,10 +44,10 @@ on:
         required: false
         type: choice
         options:
-          - 0 # No retries
-          - 1 # Retry once
-          - 2 # Retry twice
-          - 3 # Retry three times
+          - 0
+          - 1
+          - 2
+          - 3
         default: "1"
       # Browser visibility mode - run headless or with UI
       headless:
