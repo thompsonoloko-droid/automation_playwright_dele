@@ -1,3 +1,14 @@
+# GitHub Actions workflow for Pull Request validation and quality gates
+# Triggers on: PR opened, synchronized, or reopened to main/develop branches
+# Features:
+# - Commit message validation (conventional commits)
+# - Sensitive file detection (blocks .env, secrets, credentials)
+# - Smoke test execution on Chromium only
+# - Code coverage enforcement (minimum 60%)
+# - Code quality checks (black, flake8, isort)
+# - Automated PR summary comments
+# - Concurrency control: cancels old runs on new commits
+
 name: Pull Request Checks
 
 on:
@@ -5,10 +16,17 @@ on:
     branches: [main, develop]
     types: [opened, synchronize, reopened]
 
+# Concurrency: Cancel previous PR check runs if a new commit is pushed
+# Prevents wasting CI resources on outdated checks
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+# ============================================================================
+# JOB 1: VALIDATE - Check commit message and file changes
+# Validates conventional commit format for changelogg generation
+# Detects and blocks sensitive files from being committed
+# ============================================================================
 jobs:
   validate:
     name: Validate Changes
@@ -47,6 +65,11 @@ jobs:
             exit 1
           fi
 
+  # ============================================================================
+  # JOB 2: SMOKE-TEST - Run critical functionality tests
+  # Executes smoke tests on Chromium browser only (fast feedback)
+  # Provides quick verification of UI functionality before deeper testing
+  # ============================================================================
   smoke-test:
     name: Smoke Tests (PR)
     runs-on: ubuntu-latest
@@ -85,6 +108,12 @@ jobs:
           name: smoke-test-results
           path: reports/
 
+  # ============================================================================
+  # JOB 3: TEST-COVERAGE - Enforce code coverage minimum threshold
+  # Measures test coverage on pages/ and utils/ modules
+  # Fails if coverage drops below 60% threshold
+  # Integrates with Codecov for tracking coverage trends
+  # ============================================================================
   test-coverage:
     name: Coverage Check
     runs-on: ubuntu-latest
@@ -123,6 +152,13 @@ jobs:
           flags: pr-tests
         continue-on-error: true
 
+  # ============================================================================
+  # JOB 4: CODE-QUALITY - Code style and linting checks
+  # Validates code formatting with black (PEP 8 compliant)
+  # Checks code quality with flake8 (max 120 char lines)
+  # Validates import sort order with isort
+  # Non-blocking: issues are reported but don't fail the check
+  # ============================================================================
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
@@ -151,6 +187,12 @@ jobs:
         run: isort --check-only tests/ pages/ utils/
         continue-on-error: true
 
+  # ============================================================================
+  # JOB 5: SUMMARY - Post automated quality report as PR comment
+  # Aggregates results from all previous checks
+  # Posts human-readable summary comment on PR
+  # Provides quick feedback on PR quality status
+  # ============================================================================
   summary:
     name: PR Summary
     runs-on: ubuntu-latest
