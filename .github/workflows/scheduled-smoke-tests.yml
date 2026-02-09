@@ -77,6 +77,7 @@ jobs:
     steps:
       - name: Send Slack notification
         if: vars.SLACK_WEBHOOK_URL != ''
+        # yamllint disable-line rule:line-length rule:indentation
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
