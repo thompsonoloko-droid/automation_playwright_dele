@@ -163,12 +163,8 @@ jobs:
             --alluredir=reports/allure-results/api
         continue-on-error: true
 
-      - name: Collect Test Results
-        if: always()
-        run: |
-          mkdir -p reports/junit-combined
-          cp reports/junit-*.xml reports/junit-combined/ || true
-
+      # Skip collecting results - junit files are generated in reports/ directory
+      # They are uploaded as artifacts for later processing
       - name: Upload Test Artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -183,7 +179,7 @@ jobs:
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          files: reports/junit-combined/*.xml
+          files: reports/junit-*.xml
           check_name: Test Results (${{ matrix.browser }})
           comment_title: Test Report
 
