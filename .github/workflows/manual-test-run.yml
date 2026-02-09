@@ -1,54 +1,70 @@
+# GitHub Actions workflow for manual on-demand test execution
+# Allows QA teams to trigger specific test suites with custom parameters
+# Supports multiple test suites, browsers, and execution modes
+# Generates comprehensive reports and Slack notifications
+
 name: Manual Test Run
 
+# Workflow trigger: Manual dispatch from GitHub Actions UI (workflow_dispatch)
+# Allows users to provide inputs via web form when triggering manually
 on:
   workflow_dispatch:
     inputs:
+      # Test suite selection - determines which tests to run
       test_suite:
         description: "Test suite to run"
         required: true
         type: choice
         options:
-          - all
-          - smoke
-          - regression
-          - api
-          - ui-only
-          - high-priority
+          - all # All tests in tests/ directory
+          - smoke # Critical path smoke tests only
+          - regression # Full regression test suite
+          - api # API integration tests
+          - ui-only # UI/browser tests only
+          - high-priority # Smoke tests + API tests
+      # Browser selection - which browser to test with
       browser:
         description: "Browser to test"
         required: true
         type: choice
         options:
-          - chromium
-          - firefox
-          - webkit
-          - all-browsers
+          - chromium # Chromium/Chrome browser
+          - firefox # Mozilla Firefox
+          - webkit # Safari/WebKit
+          - all-browsers # Run all three browsers sequentially
+      # Execution mode - enable parallel test execution for faster runs
       parallel:
         description: "Run tests in parallel"
         required: false
         type: boolean
         default: true
+      # Retry configuration - auto-retry flaky tests N times
       retry:
         description: "Number of retries for flaky tests"
         required: false
         type: choice
         options:
-          - 0
-          - 1
-          - 2
-          - 3
+          - 0 # No retries
+          - 1 # Retry once
+          - 2 # Retry twice
+          - 3 # Retry three times
         default: "1"
+      # Browser visibility mode - run headless or with UI
       headless:
         description: "Run in headless mode"
         required: false
         type: boolean
         default: true
+      # Target environment for tests (staging, prod, etc.)
       slug:
         description: "Test environment slug (e.g., staging, prod)"
         required: false
         default: "staging"
 
 jobs:
+  # PRIMARY JOB: Build dynamic pytest command and execute tests
+  # Dynamically constructs the pytest command based on user-provided inputs
+  # Generates HTML, JUnit, and Allure reports
   run-tests:
     name: ${{ github.event.inputs.test_suite }} Tests - ${{ github.event.inputs.browser }}
     runs-on: ubuntu-latest
@@ -67,18 +83,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Selectively install only the specified browser(s) to optimize setup time
+          # Uses playwright install with specific browser or all if "all-browsers" selected
           if [ "${{ github.event.inputs.browser }}" = "all-browsers" ]; then
             playwright install --with-deps
           else
             playwright install ${{ github.event.inputs.browser }} --with-deps
           fi
 
+      # STEP: Build pytest command dynamically based on user inputs
+      # Supports: all, smoke, regression, api, ui-only, high-priority
+      # Outputs complete command to GITHUB_OUTPUT for use in subsequent steps
       - name: Build pytest command
         id: pytest-cmd
         run: |
           CMD="pytest"
 
-          # Add test path based on suite
+          # Select test path and markers based on test suite choice
+          # This switch statement determines which tests to run
           case "${{ github.event.inputs.test_suite }}" in
             smoke)
               CMD="$CMD tests/ui/ -m smoke"
@@ -100,18 +122,24 @@ jobs:
               ;;
           esac
 
-          # Add common options
+          # Build base pytest command with verbosity and short traceback format
           CMD="$CMD -v --tb=short"
+          # Add browser specification if not running all browsers
+          # (all-browsers is handled by running command three times)
           if [ "${{ github.event.inputs.browser }}" != "all-browsers" ]; then
             CMD="$CMD --browser=${{ github.event.inputs.browser }}"
           fi
 
-          # Add parallel execution if requested
+          # Enable pytest-xdist plugin for parallel execution across CPU cores
+          # Significantly speeds up test execution when parallel=true
           if [ "${{ github.event.inputs.parallel }}" = "true" ]; then
             CMD="$CMD -n auto"
           fi
 
-          # Add reporting options
+          # Generate test reports in multiple formats for comprehensive visibility
+          # HTML: Human-readable detailed report with timestamps and logs
+          # JUnit XML: CI/CD platform integration (GitHub, Jenkins, etc.)
+          # Allure: Interactive dashboard with trends, analytics, and attachments
           BROWSER_TAG="${{ github.event.inputs.browser }}"
           if [ "$BROWSER_TAG" = "all-browsers" ]; then BROWSER_TAG="multi"; fi
           CMD="$CMD --html=reports/${{ github.event.inputs.test_suite }}-${BROWSER_TAG}.html"
@@ -121,6 +149,8 @@ jobs:
 
           echo "command=$CMD" >> $GITHUB_OUTPUT
 
+      # STEP: Display the test configuration before execution
+      # Helpful for debugging and verifying correct parameters were passed
       - name: Display test configuration
         run: |
           echo "🧪 Test Configuration"
@@ -134,6 +164,9 @@ jobs:
           echo ""
           echo "Command: ${{ steps.pytest-cmd.outputs.command }}"
 
+      # STEP: Execute the dynamically built pytest command
+      # continue-on-error allows subsequent steps to run even if tests fail
+      # Environment variables are set here for test scenarios
       - name: Run tests
         run: ${{ steps.pytest-cmd.outputs.command }}
         env:
@@ -141,6 +174,9 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.slug }}
         continue-on-error: true
 
+      # STEP: Store test reports and logs as GitHub artifacts for later review
+      # Encrypted and isolated per workflow run
+      # Expires after 30 days by default
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
@@ -151,6 +187,9 @@ jobs:
             logs/
           retention-days: 30
 
+  # SECONDARY JOB: Merge and consolidate all test reports
+  # Runs after run-tests completes, downloads all artifacts and merges reports
+  # Creates final consolidated test report
   generate-report:
     name: Generate Test Report
     runs-on: ubuntu-latest
@@ -160,17 +199,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # STEP: Download all artifacts generated from run-tests job
+      # Artifacts are stored in all-artifacts/ directory for processing
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           path: all-artifacts/
 
+      # STEP: Consolidate all test results from different browsers/suites into single reports
+      # Copies Allure results and HTML reports to final-reports directory
+      # Enables centralized viewing of all test results
       - name: Merge test results
         run: |
           mkdir -p final-reports/allure-results
           find all-artifacts -name "allure-results" -type d -exec cp -r {}/* final-reports/allure-results/ \;
           find all-artifacts -name "*.html" -exec cp {} final-reports/ \;
 
+      # STEP: Archive final consolidated reports
+      # Available for download from GitHub Actions UI for 30 days
       - name: Upload final reports
         uses: actions/upload-artifact@v4
         with:
@@ -178,6 +224,9 @@ jobs:
           path: final-reports/
           retention-days: 30
 
+      # STEP: Generate a summary visible in GitHub Actions UI and workflow run emails
+      # Displays test configuration and links to detailed results
+      # Provides quick overview of test run status
       - name: Create job summary
         run: |
           echo "# Manual Test Run Summary" >> $GITHUB_STEP_SUMMARY
@@ -194,6 +243,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "[📊 View Full Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
 
+  # FINAL JOB: Send status notification to Slack (if configured)
+  # Optional notification only runs if SLACK_WEBHOOK_URL secret is configured
+  # Provides on-demand testing feedback to team
   notify:
     name: Notification
     runs-on: ubuntu-latest
@@ -201,6 +253,9 @@ jobs:
     if: always()
 
     steps:
+      # STEP: Send Slack notification with test run results
+      # Only executes if SLACK_WEBHOOK_URL secret is configured in repository
+      # Includes links to action run for quick access to full results
       - name: Slack notification
         if: vars.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.24.0
