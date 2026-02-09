@@ -4,7 +4,7 @@
 # 
 # Core Testing & Automation
 pytest==8.4.0                      # Test framework with advanced features
-pytest-playwright==0.8.0           # Pytest integration for Playwright
+pytest-playwright==0.7.2           # Pytest integration for Playwright (latest stable version)
 playwright==1.58.0                 # Cross-browser automation library (Chromium, Firefox, WebKit)
 
 # API Testing
@@ -28,7 +28,7 @@ pillow==12.1.0                     # Image processing for screenshot management
 black==26.1.0                      # Code formatter for consistent styling
 flake8==7.3.0                      # Code linter for quality checks
 isort==6.1.0                       # Import statement sorter
-mypy==1.20.0                       # Static type checker for Python
+mypy==1.19.1                       # Static type checker for Python (latest stable)
 
 # Optional: Documentation
 # sphinx==8.5.0                    # Documentation generator (uncomment if needed)
