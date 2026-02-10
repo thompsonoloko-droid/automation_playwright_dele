@@ -257,10 +257,13 @@ jobs:
       # Only executes if SLACK_WEBHOOK_URL secret is configured in repository
       # Includes links to action run for quick access to full results
       - name: Slack notification
-        if: vars.SLACK_WEBHOOK_URL != ''
-        uses: slackapi/slack-github-action@v1.24.0
+        if: env.HAS_SLACK_WEBHOOK == 'true'
+        uses: slackapi/slack-github-action@v1.27.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # Create a helper flag to avoid 'Unrecognized named-value' errors
+          HAS_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
         with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           payload: |
             {
               "text": "Manual Test Run Complete",

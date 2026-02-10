@@ -40,6 +40,15 @@ env:
   PYTHON_VERSION: "3.11"
   NODE_VERSION: "18"
 
+# Define permissions for GitHub Actions - least privilege principle
+# Grants necessary permissions for git operations, PR comments, issue creation, and GitHub Pages deployment
+permissions:
+  contents: write # For git operations and commits
+  pull-requests: write # For PR comments
+  issues: write # For creating issues on failure
+  pages: write # For GitHub Pages deployment
+  id-token: write # For OIDC token generation
+
 # ============================================================================
 # JOB 1: QUALITY GATES - Code formatting and linting checks
 # Runs lint, formatting, and static analysis tools
@@ -277,7 +286,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: always()
-
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -321,6 +333,9 @@ jobs:
     needs: [test, coverage]
     if: always()
 
+    env:
+      SLACK_WEBHOOK_CHECK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
     steps:
       - name: Determine build status
         id: status
@@ -334,10 +349,11 @@ jobs:
           fi
 
       - name: Slack Notification
-        if: vars.SLACK_WEBHOOK_URL != ''
-        uses: slackapi/slack-github-action@v1.24.0
+        if: env.SLACK_WEBHOOK_CHECK != ''
+        uses: slackapi/slack-github-action@v1.27.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           payload: |
             {
               "text": "Test Automation Pipeline: ${{ steps.status.outputs.status }}",
