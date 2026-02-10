@@ -42,12 +42,18 @@ env:
 
 # Define permissions for GitHub Actions - least privilege principle
 # Grants necessary permissions for git operations, PR comments, issue creation, and GitHub Pages deployment
+
 permissions:
   contents: write # For git operations and commits
   pull-requests: write # For PR comments
   issues: write # For creating issues on failure
   pages: write # For GitHub Pages deployment
   id-token: write # For OIDC token generation
+  checks: write # For publishing test results as checks
+
+  on:
+    push:
+      branches: [main, develop]
 
 # ============================================================================
 # JOB 1: QUALITY GATES - Code formatting and linting checks
