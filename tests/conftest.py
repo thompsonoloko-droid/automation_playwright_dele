@@ -103,7 +103,7 @@ def page(context: BrowserContext, request):
     page = context.new_page()
     base_url = "https://automationexercise.com/"
     try:
-        page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
+        page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
     except Exception as e:
         logging.error(f"Failed to navigate to {base_url}: {e}")
         page.close()
