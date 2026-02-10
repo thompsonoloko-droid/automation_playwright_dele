@@ -51,10 +51,6 @@ permissions:
   id-token: write # For OIDC token generation
   checks: write # For publishing test results as checks
 
-  on:
-    push:
-      branches: [main, develop]
-
 # ============================================================================
 # JOB 1: QUALITY GATES - Code formatting and linting checks
 # Runs lint, formatting, and static analysis tools
