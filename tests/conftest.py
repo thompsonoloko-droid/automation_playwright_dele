@@ -110,7 +110,8 @@ def page(context: BrowserContext, request):
 
     yield page
 
-    if hasattr(request.node, "rep_call") and request.node.rep_call.failed:
+    rep = getattr(request.node, "rep_call", None)
+    if rep and getattr(rep, "failed", False):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         screenshot_path = (
             f"./reports/screenshots/failure_{request.node.name}_{timestamp}.png"
@@ -144,10 +145,24 @@ def test_data():
         os.path.dirname(__file__), "..", "test_data", "test_data.json"
     )
 
-    # Fallback data for backward compatibility
-    fallback_data = [{"valid_user": {"name": "Test User", "email": "test@example.com"}}]
+    fallback_data = [
+        {
+            "valid_user": {"name": "Test User", "email": "test@example.com"},
+            "invalid_user": {"name": "Invalid User", "email": "invalid@example.com"},
+        }
+    ]
 
     if os.path.exists(test_data_path):
+        with open(test_data_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Normalize to always return a list for backward compatibility
+        if isinstance(data, dict):
+            return [data]
+        if isinstance(data, list):
+            return data
+        # Fallback if the file content is not in an expected format
+        return fallback_data
         with open(test_data_path, "r", encoding="utf-8") as f:
             return json.load(f)
     return fallback_data

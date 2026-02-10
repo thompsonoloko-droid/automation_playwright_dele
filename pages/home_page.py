@@ -57,8 +57,11 @@ class HomePage(BasePage):
         try:
             self.click(self.SIGNUP_LOGIN_BTN)
             logger.info("Navigated to login page")
+        except AssertionError as ae:
+            logger.error(f"Assertion error during navigation to login: {str(ae)}")
+            raise
         except Exception as e:
-            logger.error(f"Failed to navigate to login: {str(e)}")
+            logger.error(f"Unexpected error during navigation to login: {str(e)}")
             raise
 
     def verify_logged_in(self, username: str) -> None:

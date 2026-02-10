@@ -22,9 +22,7 @@ The test_data.json should contain:
     {"id": "invalid1", "email": "...", "password": "...", "error_contains": "..."}
   ]
 }
-"""   
-
-   
+"""
 import pytest
 import json
 from pathlib import Path
