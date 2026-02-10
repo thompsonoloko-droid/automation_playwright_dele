@@ -48,19 +48,21 @@ def browser_context_args(browser_context_args):
     """
     Configure Playwright browser context arguments.
 
-    Sets up common browser configurations for all tests:
-    - Viewport size for consistent rendering
-    - HTTPS error ignoring for self-signed certificates
-    - Optional video recording (commented out by default)
+    This fixture customizes the browser context settings for all tests, ensuring consistent behavior.
+
+    Customizations include:
+    - Setting a fixed viewport size for uniform rendering.
+    - Ignoring HTTPS errors to handle self-signed certificates.
+    - Optional video recording (disabled by default).
 
     Args:
-        browser_context_args: Default browser context arguments from pytest-playwright
+        browser_context_args (dict): Default browser context arguments provided by pytest-playwright.
 
     Returns:
-        dict: Updated browser context configuration
+        dict: Updated browser context configuration.
 
     Note:
-        To enable video recording for all tests, uncomment the 'record_video_dir' line.
+        Uncomment the 'record_video_dir' line to enable video recording for all tests.
     """
     return {
         **browser_context_args,
@@ -76,112 +78,58 @@ def page(context: BrowserContext, request):
     """
     Create a new browser page for each test with automatic setup.
 
-    This fixture:
-    1. Creates a fresh page instance for test isolation
-    2. Navigates to the base URL
-    3. Handles consent/cookie dialogs automatically
-    4. Captures screenshots on test failure
-    5. Cleans up the page after test completion
+    This fixture ensures test isolation by creating a fresh browser page for each test.
+    It also handles:
+    - Navigation to the base URL.
+    - Automatic dismissal of consent/cookie dialogs.
+    - Screenshot capture on test failure.
+    - Cleanup of the page after test completion.
 
     Args:
-        context: Playwright BrowserContext from pytest-playwright
-        request: Pytest request object for test info
+        context (BrowserContext): Playwright BrowserContext provided by pytest-playwright.
+        request (FixtureRequest): Pytest request object containing test metadata.
 
     Yields:
-        Page: Playwright Page object ready for automation
+        Page: Playwright Page object ready for automation.
 
     Raises:
-        Exception: If unable to navigate to base URL
+        Exception: If navigation to the base URL fails.
 
     Example:
         def test_login(page):
             page.goto("https://automationexercise.com")
     """
     page = context.new_page()
-    test_name = request.node.name
-    test_logger = logging.getLogger(test_name)
-
-    # Navigate to base URL with timeout
     base_url = "https://automationexercise.com/"
     try:
         page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
-        test_logger.info(f"Navigated to {base_url}")
-
-        # Try to close any consent dialogs
-        try:
-            # Multiple strategies to close consent
-            page.wait_for_timeout(500)
-
-            # Try pressing Escape multiple times
-            for _ in range(3):
-                page.press("body", "Escape")
-                page.wait_for_timeout(100)
-
-            # Try clicking Consent button if it exists
-            try:
-                page.click("button:has-text('Consent')", timeout=2000, force=True)
-            except:
-                pass
-
-            # Try removing the overlay with JavaScript
-            try:
-                page.evaluate("""
-                    const overlay = document.querySelector('[class*="fc-consent"], [class*="cookiebot"]');
-                    if (overlay) overlay.remove();
-                """)
-            except:
-                pass
-
-            page.wait_for_timeout(500)
-        except:
-            pass
-
     except Exception as e:
-        test_logger.error(f"Failed to navigate to {base_url}: {str(e)}")
+        logging.error(f"Failed to navigate to {base_url}: {e}")
         page.close()
         raise
 
     yield page
 
-    # Capture screenshot on failure
-    try:
-        rep = getattr(request.node, "rep_call", None)
-        if rep and hasattr(rep, "failed") and rep.failed:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            screenshot_path = (
-                f"./reports/screenshots/failure_{test_name}_{timestamp}.png"
-            )
-            page.screenshot(path=screenshot_path)
-            test_logger.error(f"Test failed. Screenshot saved: {screenshot_path}")
-    except Exception as screenshot_error:
-        test_logger.warning(f"Failed to capture screenshot: {str(screenshot_error)}")
-    finally:
-        # Try to close the page, ignoring any errors to prevent test failures during teardown
-        if page:
-            try:
-                page.close()
-            except KeyboardInterrupt:
-                pass  # Ignore KeyboardInterrupt during cleanup
-            except Exception:
-                pass  # Silently ignore all other errors during page close
+    if hasattr(request.node, "rep_call") and request.node.rep_call.failed:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        screenshot_path = (
+            f"./reports/screenshots/failure_{request.node.name}_{timestamp}.png"
+        )
+        page.screenshot(path=screenshot_path)
+        logging.error(f"Test failed. Screenshot saved: {screenshot_path}")
+    page.close()
 
 
 @pytest.fixture(scope="function")
 def test_data():
     """
-    Load test data from JSON file with fallback defaults.
+    Load test data from a JSON file or use fallback data.
 
-    Loads test credentials and data from test_data/test_data.json.
-    Provides backward compatibility with multiple data formats.
+    This fixture provides test credentials and data for parameterized testing.
+    It supports backward compatibility with multiple data formats.
 
     Returns:
-        list: Test data list with valid and invalid user credentials
-
-    Structure:
-        If JSON format is {"users": [...], "invalid_credentials": [...]}:
-            Returns: [{"valid_user": {...}, "invalid_user": {...}}]
-
-        Otherwise returns data as-is for backward compatibility
+        list: A list of dictionaries containing valid and invalid user credentials.
 
     Example:
         def test_login(test_data):
@@ -189,56 +137,26 @@ def test_data():
             email = user['email']
 
     Note:
-        If test_data.json is missing, uses default fallback data
-        with dynamically generated test user email (timestamp-based)
+        If the test_data.json file is missing, the fixture uses default fallback data
+        with dynamically generated test user emails.
     """
     test_data_path = os.path.join(
         os.path.dirname(__file__), "..", "test_data", "test_data.json"
     )
 
     # Fallback data for backward compatibility
-    fallback_data = [
-        {
-            "valid_user": {
-                "name": "Test User",
-                "email": f"testuser_{int(datetime.now().timestamp())}@example.com",
-            },
-            "invalid_user": {"name": "", "email": ""},
-        }
-    ]
+    fallback_data = [{"valid_user": {"name": "Test User", "email": "test@example.com"}}]
 
-    try:
-        if os.path.exists(test_data_path):
-            with open(test_data_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                logger.info(f"Test data loaded from {test_data_path}")
-                # For backward compatibility with tests expecting [{"valid_user": {}}] format
-                if "users" in data and "invalid_credentials" in data:
-                    # New format - wrap for backward compatibility
-                    valid_user = data["users"][0] if data["users"] else {}
-                    invalid_cred = (
-                        data["invalid_credentials"][0]
-                        if data["invalid_credentials"]
-                        else {}
-                    )
-                    return [{"valid_user": valid_user, "invalid_user": invalid_cred}]
-                else:
-                    # Old format - return as-is
-                    return data if isinstance(data, list) else [data]
-        else:
-            logger.warning(
-                f"Test data file not found: {test_data_path}. Using defaults."
-            )
-    except (json.JSONDecodeError, IOError) as e:
-        logger.error(f"Failed to load test data: {str(e)}. Using defaults.")
-
+    if os.path.exists(test_data_path):
+        with open(test_data_path, "r", encoding="utf-8") as f:
+            return json.load(f)
     return fallback_data
 
 
 @pytest.fixture(scope="function")
 def cleanup_videos(request):
     """
-    Optional fixture to delete video files from passing tests.
+    Delete video files for passing tests to save disk space.
 
     Saves disk space by automatically removing video recordings
     for tests that passed (failed test videos are kept for debugging).
@@ -256,25 +174,16 @@ def cleanup_videos(request):
             assert True  # Video deleted if passed
     """
     yield
-
-    # Only delete videos if test passed
-    if request.node.rep_call.passed if hasattr(request.node, "rep_call") else True:
+    if hasattr(request.node, "rep_call") and request.node.rep_call.passed:
         video_dir = Path("./reports/videos")
-        if video_dir.exists():
-            test_name = request.node.name
-            # Find and delete video files for this test
-            for video_file in video_dir.glob(f"*{test_name}*.webm"):
-                try:
-                    video_file.unlink()
-                    logger.debug(f"Deleted video: {video_file}")
-                except Exception as e:
-                    logger.warning(f"Failed to delete video {video_file}: {e}")
+        for video_file in video_dir.glob(f"*{request.node.name}*.webm"):
+            video_file.unlink(missing_ok=True)
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
-    Pytest hook to capture test execution reports.
+    Capture test execution reports for use in fixtures.
 
     This hook is called for each test phase (setup, call, teardown).
     It captures the test result and makes it available to other fixtures.
@@ -292,5 +201,4 @@ def pytest_runtest_makereport(item, call):
         No need to call directly in tests.
     """
     outcome = yield
-    rep = outcome.get_result()
-    setattr(item, "rep_" + rep.when, rep)
+    setattr(item, f"rep_{outcome.get_result().when}", outcome.get_result())

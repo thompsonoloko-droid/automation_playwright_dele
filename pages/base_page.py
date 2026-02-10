@@ -59,23 +59,23 @@ class BasePage:
         """
         Wait for an element to become visible and return its locator.
 
-        This method is fundamental to reliable automation as it ensures elements are
-        visible before interaction, reducing flaky tests due to timing issues.
+        This method ensures elements are visible before interaction, reducing flaky tests.
 
         Args:
-            selector (str): CSS selector of element to wait for
-            timeout (Optional[int]): Wait timeout in milliseconds (defaults to 30000ms)
+            selector (str): CSS selector of the element to wait for.
+            timeout (Optional[int]): Maximum time to wait for the element to become visible, in milliseconds.
 
         Returns:
-            Locator: Playwright Locator object for the visible element
+            Locator: Playwright Locator object for the visible element.
 
         Raises:
-            TimeoutError: If element doesn't become visible within timeout
+            TimeoutError: If the element does not become visible within the specified timeout.
 
         Example:
             >>> element = page.wait_for_element("button.submit")
             >>> element.click()
         """
+
         timeout = timeout or self.timeout
         locator = self.page.locator(selector)
         locator.wait_for(state="visible", timeout=timeout)
@@ -83,45 +83,78 @@ class BasePage:
 
     def click(self, selector: str, timeout: Optional[int] = None):
         """
-        Wait for element visibility and click it.
+        Wait for an element to be visible and click it.
 
-        This is the primary method for clicking elements in the framework.
-        Combines waiting and clicking in one operation to ensure reliability.
+        This method handles overlays that might block the click action by attempting to dismiss them.
 
         Args:
-            selector (str): CSS selector of element to click
-            timeout (Optional[int]): Wait timeout in milliseconds
+            selector (str): CSS selector of the element to click.
+            timeout (Optional[int]): Maximum time to wait for the element to become visible, in milliseconds.
 
         Raises:
-            AssertionError: If element cannot be clicked (with descriptive error message)
+            AssertionError: If the click action fails after retrying.
 
         Example:
             >>> page_obj.click("a[href='/login']")
         """
+
         try:
             self.wait_for_element(selector, timeout).click()
             logger.debug(f"Clicked element '{selector}'")
         except Exception as e:
-            logger.error(f"Failed to click element '{selector}': {str(e)}")
-            raise AssertionError(f"Failed to click on element '{selector}': {str(e)}")
+            logger.warning(
+                f"Click failed due to overlay: {e}. Attempting to dismiss overlay."
+            )
+            try:
+                # Attempt to remove overlay
+                self.page.evaluate(
+                    """
+                    const overlay = document.querySelector('[class*="fc-dialog-overlay"]');
+                    if (overlay) overlay.remove();
+                """
+                )
+                logger.debug("Overlay dismissed successfully.")
+                self.wait_for_element(selector, timeout).click()
+            except Exception as retry_error:
+                logger.error(
+                    f"Failed to click element '{selector}' after dismissing overlay: {retry_error}"
+                )
+                # Additional retry logic for stubborn overlays
+                try:
+                    self.page.evaluate(
+                        """
+                        const allOverlays = document.querySelectorAll('[class*="overlay"]');
+                        allOverlays.forEach(overlay => overlay.remove());
+                    """
+                    )
+                    logger.debug("All overlays dismissed successfully.")
+                    self.wait_for_element(selector, timeout).click()
+                except Exception as final_error:
+                    logger.critical(
+                        f"Final attempt to click element '{selector}' failed: {final_error}"
+                    )
+                    raise AssertionError(
+                        f"Unable to click element '{selector}' after multiple attempts."
+                    )
 
     def fill(self, selector: str, text: str, timeout: Optional[int] = None):
         """
-        Wait for element visibility and fill it with text.
+        Wait for an input element to be visible and fill it with the specified text.
 
-        Automatically clears any existing text before filling, ensuring clean input.
+        This method ensures any existing text is cleared before filling the input field.
 
         Args:
-            selector (str): CSS selector of the input element
-            text (str): Text to fill into the element
-            timeout (Optional[int]): Wait timeout in milliseconds
+            selector (str): CSS selector of the input element.
+            text (str): The text to input into the field.
+            timeout (Optional[int]): Maximum time to wait for the element to become visible, in milliseconds.
 
         Raises:
-            AssertionError: If element cannot be filled (with descriptive error message)
+            AssertionError: If the input field cannot be filled.
 
         Example:
             >>> page_obj.fill("input[name='email']", "test@example.com")
         """
+
         try:
             self.wait_for_element(selector, timeout).fill(text)
             logger.debug(f"Filled element '{selector}' with text")
@@ -131,25 +164,23 @@ class BasePage:
 
     def get_text(self, selector: str, timeout: Optional[int] = None) -> str:
         """
-        Get text content from an element.
-
-        Retrieves visible text content from the element, handling None gracefully
-        by returning empty string.
+        Retrieve the visible text content of an element.
 
         Args:
-            selector (str): CSS selector of element to retrieve text from
-            timeout (Optional[int]): Wait timeout in milliseconds
+            selector (str): CSS selector of the element to retrieve text from.
+            timeout (Optional[int]): Maximum time to wait for the element to become visible, in milliseconds.
 
         Returns:
-            str: Text content of the element, or empty string if None
+            str: The visible text content of the element, or an empty string if no text is found.
 
         Raises:
-            AssertionError: If element text cannot be retrieved
+            AssertionError: If the text content cannot be retrieved.
 
         Example:
             >>> error_msg = page_obj.get_text("p.error")
             >>> assert "Invalid" in error_msg
         """
+
         try:
             text = self.wait_for_element(selector, timeout).text_content()
             result = text.strip() if text else ""
@@ -165,18 +196,21 @@ class BasePage:
         """
         Capture a screenshot of the current page state.
 
-        Screenshots are automatically timestamped and saved to the reports directory.
-        Useful for debugging test failures and validating visual state.
+        Screenshots are saved with a timestamp in the reports directory, making them useful for debugging.
 
         Args:
-            name (str): Descriptive name for the screenshot (will be timestamped automatically)
+            name (str): A descriptive name for the screenshot (timestamp is appended automatically).
 
         Returns:
-            str: Path to the saved screenshot file
+            str: The file path of the saved screenshot.
+
+        Raises:
+            Exception: If the screenshot cannot be captured.
 
         Example:
-            >>> screenshot_path = page_obj.take_screenshot("login_page_error")
+            >>> screenshot_path = page_obj.take_screenshot("login_error")
         """
+
         try:
             timestamp = int(time.time())
             screenshot_path = f"./reports/screenshots/{name}_{timestamp}.png"
@@ -189,16 +223,16 @@ class BasePage:
 
     def verify_url_contains(self, text: str, timeout: Optional[int] = None):
         """
-        Verify that the current page URL contains specified text.
+        Verify that the current page URL contains the specified text.
 
-        Useful for verifying page navigation and URL-based assertions.
+        This method is useful for validating navigation and ensuring the correct page is loaded.
 
         Args:
-            text (str): Text that should be present in the URL
-            timeout (Optional[int]): Wait timeout in milliseconds
+            text (str): The text that should be present in the URL.
+            timeout (Optional[int]): Maximum time to wait for the URL to contain the text, in milliseconds.
 
         Raises:
-            AssertionError: If URL doesn't contain the specified text
+            AssertionError: If the URL does not contain the specified text within the timeout.
 
         Example:
             >>> page_obj.verify_url_contains("/dashboard")
