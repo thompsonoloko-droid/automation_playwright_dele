@@ -23,13 +23,15 @@ The test_data.json should contain:
   ]
 }
 """
-import pytest
 import json
-from pathlib import Path
-from playwright.sync_api import Page, expect
-from pages.login_page import LoginPage
-from pages.home_page import HomePage
 import logging
+from pathlib import Path
+
+import pytest
+from playwright.sync_api import Page, expect
+
+from pages.home_page import HomePage
+from pages.login_page import LoginPage
 
 logger = logging.getLogger(__name__)
 

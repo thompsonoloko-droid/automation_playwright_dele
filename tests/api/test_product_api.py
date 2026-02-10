@@ -14,10 +14,11 @@ Example:
     pytest tests/api/test_product_api.py::TestProductAPI::test_get_products_list -v
 """
 
-import pytest
 import logging
+
+import pytest
 import requests
-from requests.exceptions import RequestException, Timeout, ConnectionError
+from requests.exceptions import ConnectionError, RequestException, Timeout
 
 logger = logging.getLogger(__name__)
 

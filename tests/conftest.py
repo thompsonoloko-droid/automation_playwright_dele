@@ -21,14 +21,15 @@ Key Fixtures:
 - cleanup_videos: Optional video cleanup after test pass
 """
 
-import pytest
-from playwright.sync_api import Page, BrowserContext
-from typing import Dict, List
-import logging
-from datetime import datetime
 import json
+import logging
 import os
+from datetime import datetime
 from pathlib import Path
+from typing import Dict, List
+
+import pytest
+from playwright.sync_api import BrowserContext, Page
 
 logger = logging.getLogger(__name__)
 

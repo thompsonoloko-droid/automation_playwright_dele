@@ -17,12 +17,13 @@ Example:
     api.verify_status_code(response, 200)
 """
 
-import requests
 import json
 import logging
 import os
 from typing import Dict, Optional, Union
 from urllib.parse import urljoin
+
+import requests
 
 logger = logging.getLogger(__name__)
 

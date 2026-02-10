@@ -12,10 +12,12 @@ Example:
     pytest tests/ui/test_checkout.py -v
 """
 
-import pytest
 import logging
-from pages.home_page import HomePage
+
+import pytest
+
 from pages.cart_page import CartPage
+from pages.home_page import HomePage
 
 logger = logging.getLogger(__name__)
 

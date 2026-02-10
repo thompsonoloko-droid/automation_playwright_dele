@@ -13,8 +13,9 @@ Example:
     product_page.add_product_to_cart(0)
 """
 
-from pages.base_page import BasePage
 import logging
+
+from pages.base_page import BasePage
 
 logger = logging.getLogger(__name__)
 

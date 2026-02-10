@@ -14,9 +14,11 @@ Example:
     home_page.verify_logged_in("John Doe")
 """
 
-from playwright.sync_api import expect
-from pages.base_page import BasePage
 import logging
+
+from playwright.sync_api import expect
+
+from pages.base_page import BasePage
 
 logger = logging.getLogger(__name__)
 

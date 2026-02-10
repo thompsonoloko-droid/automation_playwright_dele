@@ -13,8 +13,9 @@ Example:
     login_page.login("user@example.com", "password123")
 """
 
-from pages.base_page import BasePage
 import logging
+
+from pages.base_page import BasePage
 
 logger = logging.getLogger(__name__)
 
