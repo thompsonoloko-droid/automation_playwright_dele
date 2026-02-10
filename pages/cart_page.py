@@ -14,8 +14,9 @@ Example:
     cart_page.proceed_to_checkout()
 """
 
-from pages.base_page import BasePage
 import logging
+
+from pages.base_page import BasePage
 
 logger = logging.getLogger(__name__)
 

@@ -21,10 +21,11 @@ Example:
     web_utils.fill_field("input[name='email']", "test@example.com")
 """
 
-import time
-from typing import Optional, List
-from playwright.sync_api import Page, Locator
 import logging
+import time
+from typing import List, Optional
+
+from playwright.sync_api import Locator, Page
 
 logger = logging.getLogger(__name__)
 
