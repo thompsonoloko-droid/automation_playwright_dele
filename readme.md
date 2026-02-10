@@ -1,4 +1,5 @@
 # automation_playwright_dele
+# Playwright | PyTest | Python Automation Test Framework
 
 [![Tests Status](https://img.shields.io/badge/tests-maintained-brightgreen)]()
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)]()

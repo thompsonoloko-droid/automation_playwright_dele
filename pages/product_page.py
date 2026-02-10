@@ -43,23 +43,23 @@ class ProductPage(BasePage):
         """
         Add a product to the shopping cart by index.
 
-        This method:
-        1. Locates the product by index
-        2. Hovers over it to make add-to-cart button visible
-        3. Clicks the add-to-cart button
-        4. Handles the success modal/popup
-        5. Navigates to the cart view
+        This method performs the following steps:
+        1. Locates the product by its index on the product listing page.
+        2. Hovers over the product to reveal the add-to-cart button.
+        3. Clicks the add-to-cart button to add the product to the cart.
+        4. Handles the success modal or popup that appears after adding the product.
+        5. Navigates to the cart view to verify the product was added successfully.
 
         Args:
-            product_index (int): Zero-based index of the product to add (default: 0, first product)
+            product_index (int): Zero-based index of the product to add (default: 0, first product).
 
         Raises:
-            AssertionError: If unable to add product to cart
-            IndexError: If product index is out of range
+            AssertionError: If unable to add the product to the cart due to an error.
+            IndexError: If the specified product index is out of range.
 
         Example:
-            >>> product_page.add_product_to_cart(0)  # Add first product
-            >>> product_page.add_product_to_cart(2)  # Add third product
+            >>> product_page.add_product_to_cart(0)  # Add the first product.
+            >>> product_page.add_product_to_cart(2)  # Add the third product.
         """
         try:
             products = self.page.locator(self.PRODUCT_ITEM)
@@ -91,15 +91,29 @@ class ProductPage(BasePage):
             except:
                 # If modal doesn't appear with primary selector, try alternatives
                 try:
-                    self.page.wait_for_selector(
-                        "button:has-text('Continue Shopping')", timeout=10000
+                    # Attempt to dismiss overlay blocking the click
+                    self.page.evaluate(
+                        """
+                        const overlay = document.querySelector('[class*="fc-dialog-overlay"]');
+                        if (overlay) overlay.remove();
+                    """
                     )
-                    logger.debug("Continue shopping button found, clicking it...")
-                    self.click("button:has-text('Continue Shopping')")
-                except:
-                    # If neither button works, navigate directly to cart
-                    logger.debug("Navigating directly to cart...")
+                    logger.debug("Overlay dismissed successfully.")
+
+                    # Retry clicking the cart link
                     self.click("a[href='/view_cart']:has-text('View Cart')")
+
+                except Exception as overlay_error:
+                    logger.warning(f"Failed to dismiss overlay: {overlay_error}")
+
+                # Retry clicking the cart link
+                try:
+                    self.click("a[href='/view_cart']:has-text('View Cart')")
+                except Exception:
+                    logger.warning(
+                        "Automatic navigation to cart failed. Navigating manually."
+                    )
+                    self.page.goto("https://automationexercise.com/view_cart")
 
             logger.info(f"Product {product_index} added to cart successfully")
 
