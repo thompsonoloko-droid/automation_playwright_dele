@@ -1,1 +1,0 @@
-2026-02-09 16:39:48,055 - test_valid_login[chromium-valid_user_1-sparkko@gmail.com-Testingpassword123] - INFO - Navigated to https://automationexercise.com/

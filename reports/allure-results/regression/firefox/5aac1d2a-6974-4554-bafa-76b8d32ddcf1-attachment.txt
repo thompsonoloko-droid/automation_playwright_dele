@@ -1,7 +1,0 @@
-[32mINFO    [0m test_add_to_cart_flow[firefox]:conftest.py:108 Navigated to https://automationexercise.com/
-[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:153 Testing add to cart flow...
-[32mINFO    [0m pages.home_page:home_page.py:98 Navigated to products page
-[32mINFO    [0m pages.product_page:product_page.py:73 Adding product at index 0 to cart...
-[32mINFO    [0m pages.product_page:product_page.py:104 Product 0 added to cart successfully
-[32mINFO    [0m pages.cart_page:cart_page.py:62 Cart items count: 1
-[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:177 ✓ Add to cart flow successful - 1 items in cart

@@ -1,4 +1,0 @@
-[32mINFO    [0m test_cart_item_count_returns_integer[firefox-int]:conftest.py:108 Navigated to https://automationexercise.com/
-[32mINFO    [0m tests.ui.test_checkout:test_checkout.py:79 Testing cart item count returns correct type...
-[32mINFO    [0m pages.cart_page:cart_page.py:62 Cart items count: 0
-[32mINFO    [0m tests.ui.test_checkout:test_checkout.py:87 ✓ Cart item count is valid integer: 0

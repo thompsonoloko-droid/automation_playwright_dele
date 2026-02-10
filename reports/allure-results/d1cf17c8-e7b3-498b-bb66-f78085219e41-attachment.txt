@@ -1,1 +1,0 @@
-2026-02-09 16:39:57,215 - test_invalid_login[chromium-invalid_email_password-wronguser@example.com-Wrongpassword123-Your email or password is incorrect] - INFO - Navigated to https://automationexercise.com/

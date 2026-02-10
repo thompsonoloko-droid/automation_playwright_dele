@@ -1,3 +1,0 @@
-[32mINFO    [0m test_cart_has_checkout_button[firefox]:conftest.py:108 Navigated to https://automationexercise.com/
-[32mINFO    [0m tests.ui.test_checkout:test_checkout.py:45 Testing cart checkout button availability...
-[32mINFO    [0m tests.ui.test_checkout:test_checkout.py:56 ✓ Cart checkout functionality available

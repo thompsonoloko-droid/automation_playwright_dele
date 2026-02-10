@@ -1,3 +1,0 @@
-2026-02-09 16:40:22,226 - test_add_to_cart_flow[chromium] - INFO - Navigated to https://automationexercise.com/
-2026-02-09 16:40:25,353 - tests.ui.test_smoke - INFO - Testing add to cart flow...
-2026-02-09 16:40:30,156 - tests.ui.test_smoke - INFO - ✓ Add to cart flow successful - 1 items in cart

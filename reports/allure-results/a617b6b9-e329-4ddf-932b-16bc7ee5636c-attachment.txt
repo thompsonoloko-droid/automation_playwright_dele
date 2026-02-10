@@ -1,1 +1,0 @@
-[32mINFO    [0m test_invalid_login[chromium-empty_email--SomePassword123-Email Address is required]:conftest.py:53 Navigated to https://automationexercise.com/

@@ -1,4 +1,0 @@
-2026-02-10 11:05:10,386 - test_invalid_login[firefox-invalid_email_password-wronguser@example.com-Wrongpassword123-Your email or password is incorrect] - INFO - Navigated to https://automationexercise.com/
-2026-02-10 11:05:14,457 - tests.ui.test_login - INFO - Testing invalid login: invalid_email_password
-2026-02-10 11:05:15,837 - pages.home_page - INFO - Navigated to login page
-2026-02-10 11:05:19,493 - tests.ui.test_login - INFO - ✓ Invalid credentials properly rejected with error: Your email or password is incorrect

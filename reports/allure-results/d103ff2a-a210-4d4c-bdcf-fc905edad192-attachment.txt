@@ -1,3 +1,0 @@
-[32mINFO    [0m test_add_to_cart_flow[chromium]:conftest.py:53 Navigated to https://automationexercise.com/
-[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:87 Testing add to cart flow...
-[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:109 ✓ Add to cart flow successful - 1 items in cart

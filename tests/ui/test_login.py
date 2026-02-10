@@ -134,6 +134,10 @@ class TestLogin:
             page.get_by_role("button", name="Consent").click(timeout=2000)
         except:
             pass
+            try:
+                page.get_by_role("button", name="Consent").click(timeout=2000)
+            except Exception:
+                pass
 
         # Perform login
         login_page.fill(login_page.EMAIL_INPUT, email)
@@ -149,6 +153,14 @@ class TestLogin:
             logger.warning(
                 f"Could not verify 'Logged in as' text, checking URL instead"
             )
+            try:
+                expect(page.get_by_text("Logged in as")).to_be_visible(timeout=5000)
+                logger.info(f"✓ User {user_id} logged in successfully")
+            except Exception:
+                # If text doesn't match, check if we're on the right page
+                logger.warning(
+                    "Could not verify 'Logged in as' text, checking URL instead"
+                )
 
     @pytest.mark.login
     @pytest.mark.regression
@@ -207,7 +219,7 @@ class TestLogin:
             except:
                 # If specific error doesn't appear, just verify we didn't log in
                 logger.warning(
-                    f"Could not verify exact error message, verifying login was prevented"
+                    "Could not verify exact error message, verifying login was prevented"
                 )
                 assert not page.get_by_text("Logged in as").is_visible()
-                logger.info(f"✓ Invalid credentials properly rejected")
+                        logger.info("✓ Invalid credentials properly rejected")

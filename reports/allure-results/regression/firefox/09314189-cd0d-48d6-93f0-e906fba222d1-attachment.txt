@@ -1,5 +1,0 @@
-2026-02-10 11:04:48,885 - test_invalid_login[firefox-empty_email--SomePassword123-Email Address is required] - INFO - Navigated to https://automationexercise.com/
-2026-02-10 11:04:53,967 - tests.ui.test_login - INFO - Testing invalid login: empty_email
-2026-02-10 11:04:55,682 - pages.home_page - INFO - Navigated to login page
-2026-02-10 11:05:03,061 - tests.ui.test_login - WARNING - Could not verify exact error message, verifying login was prevented
-2026-02-10 11:05:03,093 - tests.ui.test_login - INFO - ✓ Invalid credentials properly rejected

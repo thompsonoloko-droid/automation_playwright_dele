@@ -1,1 +1,0 @@
-[32mINFO    [0m test_invalid_login[chromium-invalid_email_password-wronguser@example.com-Wrongpassword123-Your email or password is incorrect]:conftest.py:53 Navigated to https://automationexercise.com/

@@ -1,1 +1,0 @@
-[32mINFO    [0m test_valid_login[chromium-valid_user_1-sparkko@gmail.com-Testingpassword123]:conftest.py:53 Navigated to https://automationexercise.com/

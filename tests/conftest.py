@@ -26,10 +26,10 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+
 
 import pytest
-from playwright.sync_api import BrowserContext, Page
+from playwright.sync_api import BrowserContext
 
 logger = logging.getLogger(__name__)
 
