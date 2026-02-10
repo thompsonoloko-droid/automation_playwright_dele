@@ -15,9 +15,6 @@
 
 name: Test Automation Pipeline
 
-on:
-  push:
-    branches: [main, develop]
   pull_request:
     branches: [main]
   schedule:
@@ -149,7 +146,7 @@ jobs:
             --html=reports/smoke-${{ matrix.browser }}.html \
             --self-contained-html \
             --junitxml=reports/junit-smoke-${{ matrix.browser }}.xml \
-            --alluredir=reports/allure-results/smoke/${{ matrix.browser }}
+            # --alluredir=reports/allure-results/smoke/${{ matrix.browser }}   ## allure report is disabled here  ## allure report is disabled here
         continue-on-error: true
 
       - name: Run Regression Tests
@@ -164,7 +161,7 @@ jobs:
             --html=reports/regression-${{ matrix.browser }}.html \
             --self-contained-html \
             --junitxml=reports/junit-regression-${{ matrix.browser }}.xml \
-            --alluredir=reports/allure-results/regression/${{ matrix.browser }}
+            # --alluredir=reports/allure-results/regression/${{ matrix.browser }}     ## allure report is disabled here
         continue-on-error: true
 
       - name: Run API Tests
@@ -175,7 +172,7 @@ jobs:
             --html=reports/api-tests.html \
             --self-contained-html \
             --junitxml=reports/junit-api.xml \
-            --alluredir=reports/allure-results/api
+            # --alluredir=reports/allure-results/api    ## allure report is disabled here
         continue-on-error: true
 
       # Skip collecting results - junit files are generated in reports/ directory
@@ -302,10 +299,14 @@ jobs:
         with:
           path: artifacts/
 
-      - name: Merge test results
+      - name: Merge all Allure results
         run: |
           mkdir -p reports/allure-results
-          find artifacts -name 'allure-results' -type d -exec cp -r {}/* reports/allure-results/ \;
+          for dir in $(find artifacts -type d -path "*/allure-results"); do
+            echo "Merging $dir"
+            cp -r "$dir"/* reports/allure-results/ || true
+          done
+          echo "All Allure results merged into reports/allure-results"
 
       - name: Generate Allure Report
         uses: simple-elf/allure-report-action@master
