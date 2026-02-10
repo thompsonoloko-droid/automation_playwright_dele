@@ -1,0 +1,3 @@
+2026-02-10 11:03:56,091 - test_homepage_loads[firefox] - INFO - Navigated to https://automationexercise.com/
+2026-02-10 11:04:11,605 - tests.ui.test_smoke - INFO - Testing homepage load...
+2026-02-10 11:04:12,172 - tests.ui.test_smoke - INFO - ✓ Homepage loaded successfully

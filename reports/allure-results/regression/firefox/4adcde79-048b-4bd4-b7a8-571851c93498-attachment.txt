@@ -1,0 +1,87 @@
+[32mINFO    [0m test_user_registration_flow[firefox]:conftest.py:108 Navigated to https://automationexercise.com/
+[32mINFO    [0m tests.conftest:conftest.py:214 Test data loaded from D:\Automation\automation_playwright_dele\tests\..\test_data\test_data.json
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:87 Testing user registration flow...
+[32mINFO    [0m tests.ui.test_smoke:test_smoke.py:108 Attempting to register user: Del Test_20260210110433 (sparkko_20260210110433@gmail.com)
+[32mINFO    [0m pages.home_page:home_page.py:59 Navigated to login page
+[32mINFO    [0m pages.login_page:login_page.py:93 Attempting to register user: Del Test_20260210110433 (sparkko_20260210110433@gmail.com)
+[1m[31mERROR   [0m pages.base_page:base_page.py:105 Failed to click element 'button[data-qa='signup-button']': Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[data-qa='signup-button']")
+    - locator resolved to <button type="submit" data-qa="signup-button" class="btn btn-default">Signup</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    41 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+
+[1m[31mERROR   [0m pages.login_page:login_page.py:99 Registration failed for Del Test_20260210110433: Failed to click on element 'button[data-qa='signup-button']': Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[data-qa='signup-button']")
+    - locator resolved to <button type="submit" data-qa="signup-button" class="btn btn-default">Signup</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    41 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+
+[1m[31mERROR   [0m tests.ui.test_smoke:test_smoke.py:133 ✗ User registration test failed: Failed to register user: Failed to click on element 'button[data-qa='signup-button']': Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[data-qa='signup-button']")
+    - locator resolved to <button type="submit" data-qa="signup-button" class="btn btn-default">Signup</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    41 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <span class="fc-stack-name">Personalised advertising and content, advertising…</span> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+[1m[31mERROR   [0m test_user_registration_flow[firefox]:conftest.py:155 Test failed. Screenshot saved: ./reports/screenshots/failure_test_user_registration_flow[firefox]_20260210_110512.png

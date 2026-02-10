@@ -1,0 +1,30 @@
+[32mINFO    [0m test_valid_login[firefox-valid_user_1-sparkko@gmail.com-Testingpassword123]:conftest.py:108 Navigated to https://automationexercise.com/
+[32mINFO    [0m tests.ui.test_login:test_login.py:126 Testing login for user: valid_user_1
+[32mINFO    [0m pages.home_page:home_page.py:59 Navigated to login page
+[1m[31mERROR   [0m pages.base_page:base_page.py:105 Failed to click element 'button[data-qa='login-button']': Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[data-qa='login-button']")
+    - locator resolved to <button type="submit" data-qa="login-button" class="btn btn-default">Login</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="fc-dialog-overlay"></div> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="fc-dialog-overlay"></div> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    37 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div class="fc-dialog-overlay"></div> from <div class="fc-consent-root">…</div> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+[1m[31mERROR   [0m test_valid_login[firefox-valid_user_1-sparkko@gmail.com-Testingpassword123]:conftest.py:155 Test failed. Screenshot saved: ./reports/screenshots/failure_test_valid_login[firefox-valid_user_1-sparkko@gmail.com-Testingpassword123]_20260210_110506.png

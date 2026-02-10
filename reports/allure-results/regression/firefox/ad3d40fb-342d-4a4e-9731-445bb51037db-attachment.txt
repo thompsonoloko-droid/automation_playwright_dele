@@ -1,0 +1,5 @@
+[32mINFO    [0m test_invalid_login[firefox-empty_email--SomePassword123-Email Address is required]:conftest.py:108 Navigated to https://automationexercise.com/
+[32mINFO    [0m tests.ui.test_login:test_login.py:179 Testing invalid login: empty_email
+[32mINFO    [0m pages.home_page:home_page.py:59 Navigated to login page
+[33mWARNING [0m tests.ui.test_login:test_login.py:208 Could not verify exact error message, verifying login was prevented
+[32mINFO    [0m tests.ui.test_login:test_login.py:212 ✓ Invalid credentials properly rejected

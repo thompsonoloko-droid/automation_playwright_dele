@@ -101,6 +101,7 @@ class TestLogin:
     """
 
     @pytest.mark.login
+    @pytest.mark.regression
     @pytest.mark.parametrize("user_id,email,password", get_valid_users())
     def test_valid_login(
         self, page: Page, user_id: str, email: str, password: str
@@ -149,6 +150,7 @@ class TestLogin:
             )
 
     @pytest.mark.login
+    @pytest.mark.regression
     @pytest.mark.parametrize(
         "cred_id,email,password,error_msg", get_invalid_credentials()
     )

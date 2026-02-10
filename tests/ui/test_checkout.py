@@ -28,6 +28,7 @@ class TestCheckout:
     """
 
     @pytest.mark.checkout
+    @pytest.mark.regression
     def test_cart_has_checkout_button(self, page):
         """
         Verify cart page has checkout functionality available.
@@ -58,6 +59,7 @@ class TestCheckout:
             raise
 
     @pytest.mark.checkout
+    @pytest.mark.regression
     @pytest.mark.parametrize("expected_type", [int])
     def test_cart_item_count_returns_integer(self, page, expected_type):
         """

@@ -39,6 +39,7 @@ class TestSmoke:
     """
 
     @pytest.mark.smoke
+    @pytest.mark.regression
     def test_homepage_loads(self, page):
         """
         Verify homepage loads successfully.
@@ -66,6 +67,7 @@ class TestSmoke:
             raise
 
     @pytest.mark.smoke
+    @pytest.mark.regression
     def test_user_registration_flow(self, page, test_data):
         """
         Verify user registration flow works end-to-end.
@@ -132,6 +134,7 @@ class TestSmoke:
             raise
 
     @pytest.mark.smoke
+    @pytest.mark.regression
     @pytest.mark.cart
     def test_add_to_cart_flow(self, page):
         """

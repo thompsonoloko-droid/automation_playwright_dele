@@ -1,0 +1,7 @@
+2026-02-10 11:04:17,184 - test_add_to_cart_flow[firefox] - INFO - Navigated to https://automationexercise.com/
+2026-02-10 11:04:29,355 - tests.ui.test_smoke - INFO - Testing add to cart flow...
+2026-02-10 11:04:35,353 - pages.home_page - INFO - Navigated to products page
+2026-02-10 11:04:40,788 - pages.product_page - INFO - Adding product at index 0 to cart...
+2026-02-10 11:04:44,778 - pages.product_page - INFO - Product 0 added to cart successfully
+2026-02-10 11:04:45,563 - pages.cart_page - INFO - Cart items count: 1
+2026-02-10 11:04:45,564 - tests.ui.test_smoke - INFO - ✓ Add to cart flow successful - 1 items in cart

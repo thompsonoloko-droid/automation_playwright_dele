@@ -1,0 +1,4 @@
+2026-02-10 11:04:30,312 - test_cart_item_count_returns_integer[firefox-int] - INFO - Navigated to https://automationexercise.com/
+2026-02-10 11:04:39,815 - tests.ui.test_checkout - INFO - Testing cart item count returns correct type...
+2026-02-10 11:04:39,910 - pages.cart_page - INFO - Cart items count: 0
+2026-02-10 11:04:39,911 - tests.ui.test_checkout - INFO - ✓ Cart item count is valid integer: 0
