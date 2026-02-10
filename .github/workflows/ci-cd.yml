@@ -292,6 +292,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download test artifacts
         uses: actions/download-artifact@v4
@@ -320,6 +322,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
           keep_files: true
+          force_orphan: true
 
   # ============================================================================
   # JOB 5: NOTIFICATIONS - Slack alerts and GitHub issue creation
