@@ -211,6 +211,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate, smoke-test, test-coverage, code-quality]
     if: always()
+    permissions:
+      pull-requests: write
+      issues: write
 
     steps:
       - name: Create summary comment
