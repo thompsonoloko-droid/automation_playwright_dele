@@ -131,13 +131,11 @@ class TestLogin:
 
         # Handle optional consent button
         try:
-            page.get_by_role("button", name="Consent").click(timeout=2000)
-        except:
-            pass
-            try:
-                page.get_by_role("button", name="Consent").click(timeout=2000)
-            except Exception:
-                pass
+            consent_button = page.locator("button", has_text="Consent")
+            if consent_button.is_visible():
+                consent_button.click()
+        except Exception as consent_error:
+            logger.debug(f"Failed to close consent screen: {consent_error}")
 
         # Perform login
         login_page.fill(login_page.EMAIL_INPUT, email)
@@ -222,4 +220,4 @@ class TestLogin:
                     "Could not verify exact error message, verifying login was prevented"
                 )
                 assert not page.get_by_text("Logged in as").is_visible()
-                        logger.info("✓ Invalid credentials properly rejected")
+                logger.info("✓ Invalid credentials properly rejected")

@@ -112,9 +112,11 @@ class TestSmoke:
 
             # Handle optional consent button
             try:
-                page.get_by_role("button", name="Consent").click(timeout=2000)
-            except:
-                pass
+                consent_button = page.locator("button", has_text="Consent")
+                if consent_button.is_visible():
+                    consent_button.click()
+            except Exception as consent_error:
+                logger.debug(f"Failed to close consent screen: {consent_error}")
 
             login_page.register_new_user(unique_name, unique_email)
 
