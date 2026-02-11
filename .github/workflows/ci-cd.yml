@@ -95,6 +95,7 @@ jobs:
     permissions:
       checks: write
       pull-requests: write
+      issues: write
     strategy:
       fail-fast: false
       matrix:
