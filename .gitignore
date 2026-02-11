@@ -27,5 +27,8 @@ reports/*.html
 Thumbs.db
 .DS_Store
 
+# Secrets
+.env
+
 # Misc
 README_temp.md

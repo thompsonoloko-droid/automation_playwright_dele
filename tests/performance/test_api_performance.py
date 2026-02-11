@@ -16,6 +16,7 @@ Example:
 
 import json
 import logging
+import os
 import time
 from pathlib import Path
 
@@ -42,11 +43,27 @@ def _load_api_base_url() -> str:
         return json.load(f)["api"]["base_url"]
 
 
+def _resolve_env_vars(data: dict | None) -> dict | None:
+    """Resolve $ENV_VAR references in data dict values."""
+    if not data:
+        return data
+    return {
+        k: os.environ.get(v[1:], v) if isinstance(v, str) and v.startswith("$") else v
+        for k, v in data.items()
+    }
+
+
 def _api_endpoints() -> list[tuple[str, str, str, dict | None, int]]:
     """Return parametrize-ready tuples for API endpoint performance tests."""
     cfg = _load_perf_config()
     return [
-        (ep["name"], ep["method"], ep["path"], ep.get("data"), ep["max_ms"])
+        (
+            ep["name"],
+            ep["method"],
+            ep["path"],
+            _resolve_env_vars(ep.get("data")),
+            ep["max_ms"],
+        )
         for ep in cfg["api_endpoints"]
     ]
 

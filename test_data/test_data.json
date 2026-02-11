@@ -1,10 +1,8 @@
 {
+  "_credential_note": "Valid user credentials are loaded from environment variables (TEST_USER_NAME, TEST_USER_EMAIL, TEST_USER_PASSWORD). Set in .env locally or as CI secrets. See .env.example.",
   "users": [
     {
       "id": "valid_user_1",
-      "name": "Del Test",
-      "email": "sparkko@gmail.com",
-      "password": "Testingpassword123",
       "valid": true
     }
   ],
@@ -38,7 +36,7 @@
       },
       {
         "id": "wrong_password",
-        "email": "sparkko@gmail.com",
+        "email": "$TEST_USER_EMAIL",
         "password": "TotallyWrongPass",
         "expected_code": 404,
         "expected_message": "not found"
@@ -96,7 +94,7 @@
       {"name": "productsList", "method": "GET", "path": "/productsList", "max_ms": 5000, "_comment": "Returns full product catalogue JSON. Typical: 800-1500ms."},
       {"name": "brandsList", "method": "GET", "path": "/brandsList", "max_ms": 5000, "_comment": "Returns all brand objects. Typical: 600-1200ms. Peak observed: 3685ms."},
       {"name": "searchProduct", "method": "POST", "path": "/searchProduct", "data": {"search_product": "Top"}, "max_ms": 5000, "_comment": "Full-text product search. Typical: 800-2000ms. Peak observed: 4737ms."},
-      {"name": "verifyLogin", "method": "POST", "path": "/verifyLogin", "data": {"email": "sparkko@gmail.com", "password": "Testingpassword123"}, "max_ms": 5000, "_comment": "Auth verification. Typical: 500-1500ms. Peak observed: 3479ms."}
+      {"name": "verifyLogin", "method": "POST", "path": "/verifyLogin", "data": {"email": "$TEST_USER_EMAIL", "password": "$TEST_USER_PASSWORD"}, "max_ms": 5000, "_comment": "Auth verification. Typical: 500-1500ms. Peak observed: 3479ms. Credentials resolved from env vars at runtime."}
     ],
     "pages": [
       {"name": "home", "path": "/", "max_ms": 8000, "_comment": "Homepage with carousel, ads, featured products. Typical: 2000-4000ms. Peak observed: 6305ms."},

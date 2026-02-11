@@ -75,12 +75,16 @@ class TestSmoke:
         cart_page = CartPage(page)
 
         homepage.navigate_to_products()
-        page.wait_for_selector(".product-image-wrapper", timeout=5000)
+        page.locator(".product-image-wrapper").first.wait_for(
+            state="visible", timeout=5000
+        )
 
         product_page.add_product_to_cart(0)
 
         # Verify at least one item in the cart
-        page.wait_for_selector("#cart_items tbody tr", timeout=3000)
+        page.locator("#cart_items tbody tr").first.wait_for(
+            state="visible", timeout=3000
+        )
         cart_count = cart_page.get_cart_items_count()
         assert cart_count >= 1, f"Expected at least 1 item in cart, got {cart_count}"
         logger.info(f"✓ Add to cart flow successful - {cart_count} items in cart")

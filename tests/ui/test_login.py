@@ -2,6 +2,7 @@
 """Data-driven login tests — valid and invalid credentials from test_data.json."""
 import json
 import logging
+import os
 from pathlib import Path
 
 import pytest
@@ -24,10 +25,14 @@ def load_test_data():
 
 
 def get_valid_users():
-    """Return (user_id, email, password) tuples for valid users."""
+    """Return (user_id, email, password) tuples for valid users from env vars."""
     data = load_test_data()
     return [
-        (user["id"], user["email"], user["password"])
+        (
+            user["id"],
+            os.environ.get("TEST_USER_EMAIL", ""),
+            os.environ.get("TEST_USER_PASSWORD", ""),
+        )
         for user in data.get("users", [])
         if user.get("valid", False)
     ]
@@ -94,8 +99,8 @@ class TestLogin:
         if not email:
             login_page.click(login_page.LOGIN_BTN)
             # Check that the email input triggers native validation (required field)
-            is_invalid = page.eval_on_selector(
-                login_page.EMAIL_INPUT, "el => !el.validity.valid"
+            is_invalid = page.locator(login_page.EMAIL_INPUT).evaluate(
+                "el => !el.validity.valid"
             )
             assert is_invalid, "Expected email field to be invalid when empty"
             assert not page.get_by_text("Logged in as").is_visible()

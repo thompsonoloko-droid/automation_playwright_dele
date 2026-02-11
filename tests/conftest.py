@@ -16,9 +16,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-
+from dotenv import load_dotenv
 import pytest
 from playwright.sync_api import BrowserContext
+
+# Load .env from project root before any tests run (git-ignored, safe for secrets)
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
 
