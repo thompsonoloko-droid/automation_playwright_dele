@@ -94,8 +94,6 @@ jobs:
     needs: lint-and-quality
     permissions:
       checks: write
-      pull-requests: write
-      issues: write
     strategy:
       fail-fast: false
       matrix:
@@ -215,34 +213,20 @@ jobs:
           check_name: Test Results (${{ matrix.browser }})
           comment_title: Test Report
 
-      - name: Comment PR with Test Summary
-        if: github.event_name == 'pull_request' && always()
-        continue-on-error: true
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const fs = require('fs');
-            const browser = '${{ matrix.browser }}';
+      - name: Write Test Summary
+        if: always()
+        run: |
+          SMOKE='${{ steps.smoke-tests.outcome }}'
+          REGRESSION='${{ steps.regression-tests.outcome }}'
+          API='${{ steps.api-tests.outcome }}'
 
-            let summary = `## Test Results - ${browser}\n`;
-            summary += `| Test Suite | Status |\n`;
-            summary += `|---|---|\n`;
-
-            // Add test status badges
-            const smokeStatus = '${{ steps.smoke-tests.outcome }}';
-            const regressionStatus = '${{ steps.regression-tests.outcome }}';
-            const apiStatus = '${{ steps.api-tests.outcome }}';
-
-            summary += `| Smoke Tests | ${smokeStatus === 'success' ? '✅' : '❌'} |\n`;
-            summary += `| Regression Tests | ${regressionStatus === 'success' ? '✅' : '❌'} |\n`;
-            summary += `| API Tests | ${apiStatus === 'success' ? '✅' : '❌'} |\n`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: summary
-            });
+          echo "## Test Results - ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | $([ "$SMOKE" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Regression Tests | $([ "$REGRESSION" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Tests | $([ "$API" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
 
   # ============================================================================
   # JOB 3: CODE COVERAGE - Measure test coverage and integration
