@@ -1,25 +1,5 @@
 # web_utils.py
-"""
-Web Automation Utilities Module
-
-This module provides the WebUtils class with a comprehensive set of utility functions
-for common web automation operations using Playwright. It includes wrappers for:
-- Element interaction (click, fill, get text)
-- Screenshot capture
-- Wait conditions (visibility, URL changes)
-- Element navigation (scroll, go back, refresh)
-- Element queries and lists
-
-These utilities are used throughout the automation framework to provide consistent,
-reliable web automation operations with built-in error handling and logging.
-
-Example:
-    from utils.web_utils import WebUtils
-
-    web_utils = WebUtils(page)
-    web_utils.wait_and_click("button.submit")
-    web_utils.fill_field("input[name='email']", "test@example.com")
-"""
+"""Playwright helper utilities — click, fill, wait, scroll, screenshot, etc."""
 
 import logging
 import time
@@ -31,47 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 class WebUtils:
-    """
-    Utility class for common web automation operations using Playwright.
-
-    Provides a collection of helper methods for reliable element interactions,
-    waits, navigation, and validation. All methods include built-in error handling
-    and logging.
-
-    Attributes:
-        page (Page): Playwright Page object for browser interactions
-
-    Example:
-        >>> utils = WebUtils(page)
-        >>> utils.wait_and_click("button.submit")
-    """
+    """Convenience wrappers around Playwright's Page API with built-in waits and logging."""
 
     def __init__(self, page: Page):
-        """
-        Initialize WebUtils with a Playwright Page object.
-
-        Args:
-            page (Page): The Playwright Page object to interact with
-        """
+        """Wrap a Playwright Page instance."""
         self.page = page
 
     def wait_and_click(self, selector: str, timeout: int = 30000) -> None:
-        """
-        Wait for element visibility and click it.
-
-        Locates element by selector, waits for it to be visible within timeout,
-        then clicks it. Includes error handling and logging.
-
-        Args:
-            selector (str): CSS selector to locate the element
-            timeout (int): Wait timeout in milliseconds (default: 30000ms)
-
-        Raises:
-            Exception: If element cannot be clicked
-
-        Example:
-            >>> utils.wait_and_click("button.submit")
-        """
+        """Wait for element to be visible, then click it."""
         try:
             element = self.page.locator(selector).first
             element.wait_for(state="visible", timeout=timeout)
@@ -82,23 +29,7 @@ class WebUtils:
             raise
 
     def fill_field(self, selector: str, text: str, timeout: int = 30000) -> None:
-        """
-        Wait for input field and fill it with text.
-
-        Locates input element, waits for visibility, then fills with provided text.
-        Includes error handling and logging.
-
-        Args:
-            selector (str): CSS selector for input element
-            text (str): Text to fill into the field
-            timeout (int): Wait timeout in milliseconds (default: 30000ms)
-
-        Raises:
-            Exception: If field cannot be filled
-
-        Example:
-            >>> utils.fill_field("input[name='email']", "test@example.com")
-        """
+        """Wait for input to be visible and fill it with *text*."""
         try:
             element = self.page.locator(selector).first
             element.wait_for(state="visible", timeout=timeout)
@@ -109,25 +40,7 @@ class WebUtils:
             raise
 
     def get_element_text(self, selector: str, timeout: int = 30000) -> str:
-        """
-        Get text content from an element.
-
-        Waits for element visibility and retrieves its text content.
-        Automatically strips whitespace.
-
-        Args:
-            selector (str): CSS selector for element
-            timeout (int): Wait timeout in milliseconds (default: 30000ms)
-
-        Returns:
-            str: Element's text content (empty string if no text)
-
-        Raises:
-            Exception: If element cannot be accessed
-
-        Example:
-            >>> text = utils.get_element_text("p.error-message")
-        """
+        """Return trimmed text content of the first matching element."""
         try:
             element = self.page.locator(selector).first
             element.wait_for(state="visible", timeout=timeout)
@@ -138,22 +51,7 @@ class WebUtils:
             raise
 
     def take_screenshot(self, name: Optional[str] = None) -> str:
-        """
-        Capture a screenshot of the current page.
-
-        Takes a screenshot and saves it with optional naming.
-        Automatically timestamps all screenshots.
-
-        Args:
-            name (Optional[str]): Descriptive name for screenshot.
-                                If None, uses timestamp only.
-
-        Returns:
-            str: Full path to saved screenshot file
-
-        Example:
-            >>> screenshot = utils.take_screenshot("login_success")
-        """
+        """Save a screenshot to reports/screenshots/ and return the file path."""
         if not name:
             name = f"screenshot_{int(time.time())}"
 
@@ -163,21 +61,7 @@ class WebUtils:
         return screenshot_path
 
     def wait_for_url_contains(self, text: str, timeout: int = 30000) -> None:
-        """
-        Wait for URL to contain specific text.
-
-        Useful for verifying navigation and URL-based assertions.
-
-        Args:
-            text (str): Text that must appear in the URL
-            timeout (int): Wait timeout in milliseconds (default: 30000ms)
-
-        Raises:
-            Exception: If URL doesn't contain text within timeout
-
-        Example:
-            >>> utils.wait_for_url_contains("/dashboard")
-        """
+        """Block until the current URL contains *text*."""
         try:
             self.page.wait_for_url(f"**{text}**", timeout=timeout)
         except Exception as e:
@@ -185,55 +69,16 @@ class WebUtils:
             raise
 
     def scroll_to_element(self, selector: str) -> None:
-        """
-        Scroll element into view.
-
-        Scrolls the page to make the element visible in the viewport.
-
-        Args:
-            selector (str): CSS selector for element to scroll to
-
-        Example:
-            >>> utils.scroll_to_element("button.submit")
-        """
+        """Scroll the first matching element into the viewport."""
         element = self.page.locator(selector).first
         element.scroll_into_view_if_needed()
 
     def get_all_elements(self, selector: str) -> List[Locator]:
-        """
-        Get all elements matching a selector.
-
-        Retrieves all elements that match the specified selector.
-
-        Args:
-            selector (str): CSS selector for elements
-
-        Returns:
-            list: List of Locator objects matching selector
-
-        Example:
-            >>> items = utils.get_all_elements("li.product-item")
-        """
+        """Return all Locator objects matching *selector*."""
         return self.page.locator(selector).all()
 
     def is_element_visible(self, selector: str, timeout: int = 5000) -> bool:
-        """
-        Check if element is visible within timeout.
-
-        Non-blocking check that returns True/False without raising exceptions.
-        Useful for conditional logic.
-
-        Args:
-            selector (str): CSS selector for element
-            timeout (int): Wait timeout in milliseconds (default: 5000ms)
-
-        Returns:
-            bool: True if element is visible, False otherwise
-
-        Example:
-            >>> if utils.is_element_visible("div.success"):
-            ...     print("Operation successful")
-        """
+        """Return True if the element is visible within *timeout* ms, else False."""
         try:
             self.page.locator(selector).first.wait_for(state="visible", timeout=timeout)
             return True
@@ -241,26 +86,11 @@ class WebUtils:
             return False
 
     def refresh_page(self) -> None:
-        """
-        Refresh the current page.
-
-        Reloads the page and waits for network idle state.
-
-        Example:
-            >>> utils.refresh_page()
-        """
+        """Reload the page and wait for network idle."""
         self.page.reload()
         self.page.wait_for_load_state("networkidle")
 
     def go_back(self) -> None:
-        """
-        Navigate back in browser history.
-
-        Goes back one page in browser history and waits for
-        network idle state before returning.
-
-        Example:
-            >>> utils.go_back()
-        """
+        """Navigate back one page and wait for network idle."""
         self.page.go_back()
         self.page.wait_for_load_state("networkidle")

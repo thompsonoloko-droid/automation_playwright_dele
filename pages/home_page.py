@@ -1,17 +1,9 @@
 # pages/home_page.py
 """
-Home Page Object Module
+Home Page Object — interactions for the main landing page.
 
-This module contains the HomePage class, which encapsulates all interactions
-and elements specific to the application's home page. It provides methods for
-navigation, verification, and common home page operations.
-
-Example:
-    from pages.home_page import HomePage
-
-    home_page = HomePage(page)
-    home_page.navigate_to_login()
-    home_page.verify_logged_in("John Doe")
+Provides navigation to login, products, cart, and contact pages,
+plus verification that a user is logged in.
 """
 
 import logging
@@ -48,91 +40,34 @@ class HomePage(BasePage):
     CONTACT_US_BTN = "a[href='/contact_us']"
 
     def navigate_to_login(self) -> None:
-        """
-        Navigate to the login/signup page.
-
-        Clicks the Sign Up/Login button to navigate to the authentication page.
-
-        Example:
-            >>> home_page.navigate_to_login()
-        """
-        try:
-            self.click(self.SIGNUP_LOGIN_BTN)
-            logger.info("Navigated to login page")
-        except AssertionError as ae:
-            logger.error(f"Assertion error during navigation to login: {str(ae)}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error during navigation to login: {str(e)}")
-            raise
+        """Click the Sign Up / Login link to open the auth page."""
+        self.click(self.SIGNUP_LOGIN_BTN)
+        logger.info("Navigated to login page")
 
     def verify_logged_in(self, username: str) -> None:
         """
-        Verify that a user is logged in with the specified username.
-
-        This assertion confirms the user is authenticated and viewing
-        the dashboard/home page in logged-in state.
+        Assert that the page shows 'Logged in as <username>'.
 
         Args:
-            username (str): Username to verify is logged in
+            username: The display name expected after login.
 
         Raises:
-            AssertionError: If username is not found in logged-in indicator
-
-        Example:
-            >>> home_page.verify_logged_in("john_doe")
+            AssertionError: If the logged-in indicator is missing.
         """
-        try:
-            expect(self.page.locator(self.LOGGED_IN_USER)).to_contain_text(username)
-            logger.info(f"User '{username}' verified as logged in")
-        except Exception as e:
-            logger.error(f"User '{username}' not logged in: {str(e)}")
-            raise AssertionError(f"User '{username}' not logged in: {str(e)}")
+        expect(self.page.locator(self.LOGGED_IN_USER)).to_contain_text(username)
+        logger.info(f"User '{username}' verified as logged in")
 
     def navigate_to_products(self) -> None:
-        """
-        Navigate to the products listing page.
-
-        Clicks the products button to view all available products.
-
-        Example:
-            >>> home_page.navigate_to_products()
-        """
-        try:
-            self.click(self.PRODUCTS_BTN)
-            logger.info("Navigated to products page")
-        except Exception as e:
-            logger.error(f"Failed to navigate to products: {str(e)}")
-            raise
+        """Open the Products listing page."""
+        self.click(self.PRODUCTS_BTN)
+        logger.info("Navigated to products page")
 
     def navigate_to_cart(self) -> None:
-        """
-        Navigate to the shopping cart page.
-
-        Clicks the cart button to view the shopping cart contents.
-
-        Example:
-            >>> home_page.navigate_to_cart()
-        """
-        try:
-            self.click(self.CART_BTN)
-            logger.info("Navigated to cart page")
-        except Exception as e:
-            logger.error(f"Failed to navigate to cart: {str(e)}")
-            raise
+        """Open the Shopping Cart page."""
+        self.click(self.CART_BTN)
+        logger.info("Navigated to cart page")
 
     def navigate_to_contact_us(self) -> None:
-        """
-        Navigate to the contact us page.
-
-        Clicks the contact us button to go to the contact form.
-
-        Example:
-            >>> home_page.navigate_to_contact_us()
-        """
-        try:
-            self.click(self.CONTACT_US_BTN)
-            logger.info("Navigated to contact us page")
-        except Exception as e:
-            logger.error(f"Failed to navigate to contact us: {str(e)}")
-            raise
+        """Open the Contact Us page."""
+        self.click(self.CONTACT_US_BTN)
+        logger.info("Navigated to contact us page")

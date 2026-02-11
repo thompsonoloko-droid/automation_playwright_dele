@@ -1,16 +1,9 @@
 # pages/login_page.py
 """
-Login Page Object Module
+Login Page Object — interactions for the login and signup forms.
 
-This module contains the LoginPage class, which encapsulates all interactions
-and elements specific to the login and registration pages. It provides methods for
-user authentication, signup, and form validation.
-
-Example:
-    from pages.login_page import LoginPage
-
-    login_page = LoginPage(page)
-    login_page.login("user@example.com", "password123")
+Provides methods to log in with existing credentials or
+register a new user account.
 """
 
 import logging
@@ -50,52 +43,28 @@ class LoginPage(BasePage):
 
     def login(self, email: str, password: str) -> None:
         """
-        Perform user login with email and password.
-
-        Fills in the login credentials and submits the login form.
+        Submit the login form with the given credentials.
 
         Args:
-            email (str): User email address
-            password (str): User password
-
-        Raises:
-            AssertionError: If login form interaction fails
-
-        Example:
-            >>> login_page.login("user@example.com", "securePassword123")
+            email: User’s email address.
+            password: User’s password.
         """
-        try:
-            logger.info(f"Attempting login with email: {email}")
-            self.fill(self.EMAIL_INPUT, email)
-            self.fill(self.PASSWORD_INPUT, password)
-            self.click(self.LOGIN_BTN)
-            logger.info(f"Login submitted for: {email}")
-        except Exception as e:
-            logger.error(f"Login failed for {email}: {str(e)}")
-            raise AssertionError(f"Failed to login: {str(e)}")
+        logger.info(f"Logging in as: {email}")
+        self.fill(self.EMAIL_INPUT, email)
+        self.fill(self.PASSWORD_INPUT, password)
+        self.click(self.LOGIN_BTN)
+        logger.info(f"Login submitted for: {email}")
 
     def register_new_user(self, name: str, email: str) -> None:
         """
-        Register a new user with name and email.
-
-        Fills in the signup form with user details and submits the registration.
+        Submit the signup form with name and email.
 
         Args:
-            name (str): Full name of the new user
-            email (str): Email address for the new account
-
-        Raises:
-            AssertionError: If registration form interaction fails
-
-        Example:
-            >>> login_page.register_new_user("John Doe", "john@example.com")
+            name: Full name for the new account.
+            email: Email address for the new account.
         """
-        try:
-            logger.info(f"Attempting to register user: {name} ({email})")
-            self.fill(self.SIGNUP_NAME_INPUT, name)
-            self.fill(self.SIGNUP_EMAIL_INPUT, email)
-            self.click(self.SIGNUP_BTN)
-            logger.info(f"Registration submitted for: {name}")
-        except Exception as e:
-            logger.error(f"Registration failed for {name}: {str(e)}")
-            raise AssertionError(f"Failed to register user: {str(e)}")
+        logger.info(f"Registering user: {name} ({email})")
+        self.fill(self.SIGNUP_NAME_INPUT, name)
+        self.fill(self.SIGNUP_EMAIL_INPUT, email)
+        self.click(self.SIGNUP_BTN)
+        logger.info(f"Registration submitted for: {name}")

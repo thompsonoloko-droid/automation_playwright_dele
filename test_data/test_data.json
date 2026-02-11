@@ -23,5 +23,87 @@
       "valid": false,
       "error_contains": "Email Address is required"
     }
-  ]
+  ],
+  "api": {
+    "base_url": "https://automationexercise.com/api",
+    "timeout": 10,
+    "search_terms": ["Top", "Dress", "Jeans"],
+    "invalid_login_attempts": [
+      {
+        "id": "nonexistent_user",
+        "email": "nonexistent_user_xyz@example.com",
+        "password": "InvalidPassword999",
+        "expected_code": 404,
+        "expected_message": "not found"
+      },
+      {
+        "id": "wrong_password",
+        "email": "sparkko@gmail.com",
+        "password": "TotallyWrongPass",
+        "expected_code": 404,
+        "expected_message": "not found"
+      }
+    ],
+    "test_user_template": {
+      "name": "API Test User",
+      "password": "TestPass123",
+      "title": "Mr",
+      "birth_date": "15",
+      "birth_month": "6",
+      "birth_year": "1990",
+      "firstname": "API",
+      "lastname": "Tester",
+      "company": "Test Ltd",
+      "address1": "123 Test Street",
+      "address2": "",
+      "country": "United Kingdom",
+      "zipcode": "SW1A 1AA",
+      "state": "West Midlands",
+      "city": "Coventry",
+      "mobile_number": "0551234567"
+    },
+    "update_user_template": {
+      "name": "Updated Name",
+      "title": "Mrs",
+      "birth_date": "20",
+      "birth_month": "3",
+      "birth_year": "1985",
+      "firstname": "Updated",
+      "lastname": "User",
+      "company": "UpdatedCorp",
+      "address1": "456 Updated Ave",
+      "address2": "Suite 2",
+      "country": "Canada",
+      "zipcode": "M5V 1J2",
+      "state": "Ontario",
+      "city": "Toronto",
+      "mobile_number": "0559876543"
+    }
+  },
+  "performance": {
+    "_comment_thresholds": "All thresholds are tuned for automationexercise.com (free shared hosting). Expect response times of 1-3s under normal load, with occasional spikes to 4-5s during peak traffic. Thresholds are set at ~2x typical response times to avoid flaky failures while still catching genuine regressions. Adjust values down for faster/dedicated infrastructure.",
+
+    "api_response_time_ms": 5000,
+    "_comment_api_response_time_ms": "Global ceiling for API response time. Typical: 500-2000ms. Burst/peak observed: 3500-4700ms. Set to 5000ms to absorb network variability on shared hosting.",
+
+    "page_load_time_ms": 8000,
+    "_comment_page_load_time_ms": "Global ceiling for DOMContentLoaded. Typical: 2000-4000ms. Peak observed: 6300ms. Set to 8000ms to account for ad scripts, consent overlays, and CDN latency.",
+
+    "cls_threshold": 0.35,
+    "_comment_cls_threshold": "Cumulative Layout Shift. Google 'good' threshold is 0.1, 'needs improvement' is 0.25. Set to 0.35 because the site loads dynamic ad banners that cause layout shifts beyond our control.",
+
+    "api_endpoints": [
+      {"name": "productsList", "method": "GET", "path": "/productsList", "max_ms": 5000, "_comment": "Returns full product catalogue JSON. Typical: 800-1500ms."},
+      {"name": "brandsList", "method": "GET", "path": "/brandsList", "max_ms": 5000, "_comment": "Returns all brand objects. Typical: 600-1200ms. Peak observed: 3685ms."},
+      {"name": "searchProduct", "method": "POST", "path": "/searchProduct", "data": {"search_product": "Top"}, "max_ms": 5000, "_comment": "Full-text product search. Typical: 800-2000ms. Peak observed: 4737ms."},
+      {"name": "verifyLogin", "method": "POST", "path": "/verifyLogin", "data": {"email": "sparkko@gmail.com", "password": "Testingpassword123"}, "max_ms": 5000, "_comment": "Auth verification. Typical: 500-1500ms. Peak observed: 3479ms."}
+    ],
+    "pages": [
+      {"name": "home", "path": "/", "max_ms": 8000, "_comment": "Homepage with carousel, ads, featured products. Typical: 2000-4000ms. Peak observed: 6305ms."},
+      {"name": "products", "path": "/products", "max_ms": 8000, "_comment": "Product listing with images. Typical: 2000-3500ms."},
+      {"name": "login", "path": "/login", "max_ms": 8000, "_comment": "Login/signup form. Typical: 1500-3000ms."},
+      {"name": "contact_us", "path": "/contact_us", "max_ms": 8000, "_comment": "Contact form page. Typical: 1500-3000ms. Historically slowest due to captcha scripts."},
+      {"name": "test_cases", "path": "/test_cases", "max_ms": 8000, "_comment": "Static test cases page. Typical: 1500-2500ms."}
+    ]
+  }
 }

@@ -1,16 +1,8 @@
 # pages/product_page.py
 """
-Product Page Object Module
+Product Page Object — interactions for the product listing.
 
-This module contains the ProductPage class, which encapsulates all interactions
-and elements specific to the product listing and detail pages. It provides methods for
-product browsing, searching, and adding items to cart.
-
-Example:
-    from pages.product_page import ProductPage
-
-    product_page = ProductPage(page)
-    product_page.add_product_to_cart(0)
+Provides methods to browse products and add items to the cart.
 """
 
 import logging
@@ -73,6 +65,9 @@ class ProductPage(BasePage):
 
             logger.info(f"Adding product at index {product_index} to cart...")
 
+            # Dismiss any lingering overlays before interacting
+            self._dismiss_overlays()
+
             # Hover over product to reveal add-to-cart button
             products.nth(product_index).hover()
             logger.debug(f"Hovered over product {product_index}")
@@ -83,38 +78,18 @@ class ProductPage(BasePage):
             )
             logger.debug(f"Clicked add-to-cart button for product {product_index}")
 
-            # Wait for and handle the success modal
+            # Wait for the "Added!" modal and click View Cart
             try:
-                self.page.wait_for_selector(self.VIEW_CART_MODAL, timeout=15000)
-                self.page.wait_for_timeout(500)  # Give modal time to fully render
-                logger.debug("Cart modal appeared, clicking view cart...")
-                self.click(self.VIEW_CART_MODAL)
-            except:
-                # If modal doesn't appear with primary selector, try alternatives
-                try:
-                    # Attempt to dismiss overlay blocking the click
-                    self.page.evaluate(
-                        """
-                        const overlay = document.querySelector('[class*="fc-dialog-overlay"]');
-                        if (overlay) overlay.remove();
-                    """
-                    )
-                    logger.debug("Overlay dismissed successfully.")
-
-                    # Retry clicking the cart link
-                    self.click("a[href='/view_cart']:has-text('View Cart')")
-
-                except Exception as overlay_error:
-                    logger.warning(f"Failed to dismiss overlay: {overlay_error}")
-
-                # Retry clicking the cart link
-                try:
-                    self.click("a[href='/view_cart']:has-text('View Cart')")
-                except Exception:
-                    logger.warning(
-                        "Automatic navigation to cart failed. Navigating manually."
-                    )
-                    self.page.goto("https://automationexercise.com/view_cart")
+                view_cart = self.page.locator(self.VIEW_CART_MODAL)
+                view_cart.wait_for(state="visible", timeout=10000)
+                self.page.wait_for_timeout(300)
+                view_cart.click()
+                logger.debug("Clicked 'View Cart' in modal")
+            except Exception as modal_error:
+                logger.warning(
+                    f"View Cart modal not available ({modal_error}). Navigating directly to cart."
+                )
+                self.page.goto("https://automationexercise.com/view_cart")
 
             logger.info(f"Product {product_index} added to cart successfully")
 
