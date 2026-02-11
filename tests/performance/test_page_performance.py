@@ -61,18 +61,15 @@ class TestPageLoadPerformance:
         # Navigate and wait for DOM content loaded
         page.goto(url, wait_until="domcontentloaded", timeout=60000)
 
-        # Measure via Navigation Timing API
+        # Measure via Navigation Timing Level 2 API (L1 performance.timing is deprecated)
         timing = page.evaluate(
             """() => {
-            const t = performance.timing;
+            const [entry] = performance.getEntriesByType('navigation');
             return {
-                navigationStart: t.navigationStart,
-                domContentLoaded: t.domContentLoadedEventEnd,
-                loadComplete: t.loadEventEnd,
-                firstByte: t.responseStart - t.navigationStart,
-                domInteractive: t.domInteractive - t.navigationStart,
-                domContentLoadedMs: t.domContentLoadedEventEnd - t.navigationStart,
-                fullLoadMs: t.loadEventEnd - t.navigationStart
+                domContentLoadedMs: Math.round(entry.domContentLoadedEventEnd - entry.startTime),
+                fullLoadMs: Math.round(entry.loadEventEnd - entry.startTime),
+                firstByte: Math.round(entry.responseStart - entry.startTime),
+                domInteractive: Math.round(entry.domInteractive - entry.startTime)
             };
         }"""
         )

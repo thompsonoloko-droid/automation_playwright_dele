@@ -3,6 +3,7 @@
 
 import json
 import logging
+import os
 from pathlib import Path
 
 import pytest
@@ -27,11 +28,22 @@ def _api_config() -> dict:
     return _load_test_data()["api"]
 
 
+def _resolve_env(value: str) -> str:
+    """Resolve $ENV_VAR references in strings."""
+    if isinstance(value, str) and value.startswith("$"):
+        return os.environ.get(value[1:], value)
+    return value
+
+
 def _valid_users() -> list[tuple[str, str, str]]:
     """Return parametrize-ready tuples (id, email, password) for valid users."""
     data = _load_test_data()
     return [
-        (u["id"], u["email"], u["password"])
+        (
+            u["id"],
+            os.environ.get("TEST_USER_EMAIL", ""),
+            os.environ.get("TEST_USER_PASSWORD", ""),
+        )
         for u in data.get("users", [])
         if u.get("valid")
     ]
@@ -41,7 +53,13 @@ def _invalid_login_attempts() -> list[tuple[str, str, str, int, str]]:
     """Return parametrize-ready tuples for invalid API login attempts."""
     api = _api_config()
     return [
-        (a["id"], a["email"], a["password"], a["expected_code"], a["expected_message"])
+        (
+            a["id"],
+            _resolve_env(a["email"]),
+            a["password"],
+            a["expected_code"],
+            a["expected_message"],
+        )
         for a in api.get("invalid_login_attempts", [])
     ]
 
