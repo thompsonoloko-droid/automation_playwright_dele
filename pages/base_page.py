@@ -1,28 +1,14 @@
 # pages/base_page.py
 """
-Base Page Object Module for Playwright-based UI Automation
+Base Page Object — foundation for all Page Object Models (POM).
 
-This module provides the BasePage class which serves as the foundation for all Page Object Models (POM)
-in the automation framework. It encapsulates common web interaction patterns and provides a consistent
-interface for page actions across all page objects.
+Every page class (LoginPage, HomePage, etc.) inherits from BasePage.
+It provides shared helpers: click, fill, get_text, screenshot, URL checks.
 
-Key Responsibilities:
-- Element waiting and visibility checks
-- User interaction methods (click, fill, get text)
-- Screenshot capture
-- URL verification
-- Error handling and logging
-
-All page objects should inherit from BasePage to benefit from these common utilities.
-
-Example:
-    from pages.base_page import BasePage
-
+Usage:
     class LoginPage(BasePage):
-        EMAIL_INPUT = "input[data-qa='email']"
-
-        def enter_email(self, email: str):
-            self.fill(self.EMAIL_INPUT, email)
+        EMAIL = "input[data-qa='email']"
+        def enter_email(self, email): self.fill(self.EMAIL, email)
 """
 
 import logging
@@ -86,26 +72,23 @@ class BasePage:
         self,
         selector: str,
         timeout: Optional[int] = None,
-        max_retries: int = 5,
+        max_retries: int = 3,
         retry_delay: float = 1.0,
     ):
         """
-        Wait for an element to be visible and click it, with robust overlay and popup handling.
+        Click an element after waiting for it to be visible.
+
+        Retries automatically if overlays (e.g. consent banners) block the click.
 
         Args:
-            selector (str): CSS selector of the element to click.
-            timeout (Optional[int]): Maximum time to wait for the element to become visible, in milliseconds.
-            max_retries (int): Number of retry attempts if click fails due to overlays.
-            retry_delay (float): Delay in seconds between retries.
+            selector: CSS selector of the element to click.
+            timeout: Max wait time in ms (defaults to self.timeout).
+            max_retries: Retry attempts if click is blocked.
+            retry_delay: Seconds between retries.
 
         Raises:
-            AssertionError: If the click action fails after all retries.
-
-        Example:
-            >>> page_obj.click("a[href='/login']")
+            AssertionError: If click fails after all retries.
         """
-        import time
-
         last_error = None
         for attempt in range(1, max_retries + 1):
             try:
@@ -115,137 +98,54 @@ class BasePage:
             except Exception as e:
                 last_error = e
                 logger.warning(f"Click attempt {attempt} failed for '{selector}': {e}")
-                # Try to dismiss overlays/popups/consent dialogs
-                try:
-                    # Remove known overlays
-                    self.page.evaluate(
-                        """
-                        const overlays = document.querySelectorAll('[class*="overlay"], [class*="fc-dialog-overlay"], .modal, .popup, .backdrop');
-                        overlays.forEach(overlay => overlay.remove());
-                    """
-                    )
-                    # Try to click common consent/close buttons
-                    for btn_selector in [
-                        "button[aria-label='Close']",
-                        "button[aria-label='Dismiss']",
-                        "button[aria-label='Consent']",
-                        "button:has-text('Close')",
-                        "button:has-text('Dismiss')",
-                        "button:has-text('Consent')",
-                        ".close-button",
-                        ".cookie-consent-accept",
-                    ]:
-                        btns = self.page.locator(btn_selector)
-                        if btns.count() > 0:
-                            try:
-                                btns.first.click(timeout=2000)
-                                logger.info(
-                                    f"Clicked overlay/consent button: {btn_selector}"
-                                )
-                            except Exception:
-                                pass
-                except Exception as overlay_error:
-                    logger.debug(f"Overlay/popup cleanup failed: {overlay_error}")
-                # Handle consent screen overlay
-                try:
-                    consent_button = self.page.locator("button:has-text('Accept')")
-                    if consent_button.is_visible():
-                        consent_button.click()
-                        logger.info("Dismissed consent screen overlay.")
-                except Exception as consent_error:
-                    logger.debug(f"Failed to dismiss consent screen: {consent_error}")
-                # Close consent screen if visible
-                try:
-                    consent_button = self.page.locator("button", has_text="Consent")
-                    if consent_button.is_visible():
-                        consent_button.click()
-                        logger.debug("Consent screen closed successfully.")
-                except Exception as consent_error:
-                    logger.debug(f"Failed to close consent screen: {consent_error}")
-                # Additional strategy: Scroll into view before retrying
-                try:
-                    self.page.locator(selector).scroll_into_view_if_needed()
-                    logger.debug(
-                        f"Scrolled element '{selector}' into view before retrying click"
-                    )
-                except Exception as scroll_error:
-                    logger.debug(f"Scrolling failed for '{selector}': {scroll_error}")
-                # Capture screenshot for debugging
-                try:
-                    screenshot_path = f"debug_screenshot_{int(time.time())}.png"
-                    self.page.screenshot(path=screenshot_path)
-                    logger.debug(f"Screenshot captured: {screenshot_path}")
-                except Exception as screenshot_error:
-                    logger.debug(f"Failed to capture screenshot: {screenshot_error}")
-                # Capture full page content for debugging
-                page_content = self.page.content()
-                logger.debug(f"Full page content: {page_content[:1000]}...")
-                # Log the visibility state of the element
-                is_visible = self.page.locator(selector).is_visible()
-                logger.debug(f"Visibility state of '{selector}': {is_visible}")
-                # Log the current DOM structure for debugging
-                dom_snapshot = self.page.content()
-                logger.debug(f"DOM snapshot captured: {dom_snapshot[:1000]}...")
-                # Log network activity during retries
-                try:
-                    network_logs = self.page.evaluate(
-                        "() => performance.getEntriesByType('resource')"
-                    )
-                    logger.debug(f"Network activity: {network_logs}")
-                except Exception as network_error:
-                    logger.debug(f"Failed to capture network activity: {network_error}")
-                # Add a robust wait for dynamic content
-                try:
-                    self.page.wait_for_load_state("networkidle")
-                    logger.debug("Page reached network idle state.")
-                except Exception as load_error:
-                    logger.debug(f"Failed to wait for network idle state: {load_error}")
-                # Add explicit wait for the View Cart link
-                refined_selector = "a[href='/view_cart']"
-                # Increase timeout for waiting for the View Cart link
-                try:
-                    self.page.wait_for_selector(
-                        refined_selector,
-                        state="visible",
-                        timeout=60000,  # Increased timeout
-                    )
-                    logger.debug(
-                        "Refined selector: View Cart link is now visible after increased timeout."
-                    )
-                except Exception as refined_selector_error:
-                    logger.debug(
-                        f"Refined selector still failed for View Cart link after increased timeout: {refined_selector_error}"
-                    )
-                # Debugging for JavaScript errors
-                try:
-                    js_errors = self.page.evaluate("() => window.jsErrors")
-                    if js_errors:
-                        logger.debug(f"JavaScript errors detected: {js_errors}")
-                    else:
-                        logger.debug("No JavaScript errors detected.")
-                except Exception as js_error_debug:
-                    logger.debug(
-                        f"Failed to capture JavaScript errors: {js_error_debug}"
-                    )
 
+                # Try to dismiss consent/overlay dialogs
+                self._dismiss_overlays()
+
+                # Wait before retrying
                 time.sleep(retry_delay)
-                logger.debug(
-                    f"Retrying click for '{selector}' after {retry_delay} seconds"
-                )
                 logger.debug(
                     f"Attempt {attempt}/{max_retries}: Retrying click for '{selector}'"
                 )
-                logger.debug(
-                    "Attempting additional cleanup strategies before retrying..."
-                )
-                # Additional cleanup strategies can be added here
                 continue
+
         logger.critical(
             f"Final attempt to click element '{selector}' failed after {max_retries} retries: {last_error}"
         )
         raise AssertionError(
             f"Unable to click element '{selector}' after {max_retries} attempts: {last_error}"
         )
+
+    def _dismiss_overlays(self):
+        """Remove known overlays and dismiss consent/cookie dialogs."""
+        # Remove overlay DOM elements
+        try:
+            self.page.evaluate(
+                """
+                document.querySelectorAll(
+                    '.fc-consent-root, .fc-dialog-overlay, [class*="overlay"], .modal-backdrop'
+                ).forEach(el => el.remove());
+            """
+            )
+        except Exception:
+            pass
+
+        # Click common consent/close buttons
+        for btn_selector in [
+            "button[aria-label='Consent']",
+            "button[aria-label='Close']",
+            "button:has-text('Consent')",
+            "button:has-text('Accept')",
+            ".fc-cta-consent",
+        ]:
+            try:
+                btn = self.page.locator(btn_selector)
+                if btn.first.is_visible(timeout=1000):
+                    btn.first.click(timeout=2000)
+                    logger.info(f"Dismissed overlay via: {btn_selector}")
+                    break
+            except Exception:
+                pass
 
     def fill(self, selector: str, text: str, timeout: Optional[int] = None):
         """

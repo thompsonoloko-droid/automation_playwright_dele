@@ -1,50 +1,40 @@
 # =====================================
 # Test Automation Framework Dependencies
 # =====================================
-# 
+#
 # Core Testing & Automation
-pytest==8.4.0                      # Test framework with advanced features
-pytest-playwright==0.7.2           # Pytest integration for Playwright (latest stable version)
-playwright==1.58.0                 # Cross-browser automation library (Chromium, Firefox, WebKit)
+pytest==8.4.0                      # Test framework
+pytest-playwright==0.7.2           # Playwright integration for pytest
+playwright==1.58.0                 # Cross-browser automation (Chromium, Firefox, WebKit)
 
 # API Testing
-requests==2.32.5                   # HTTP client for API testing and REST endpoints
+requests==2.32.5                   # HTTP client for REST API testing
 
-# Test Reporting & Visualization
-pytest-html==4.2.0                 # HTML report generation with detailed results
-allure-pytest==2.15.3              # Allure test report integration for beautiful dashboards
+# Test Reporting
+pytest-html==4.2.0                 # HTML test reports
+allure-pytest==2.15.3              # Allure reporting integration
 
 # Environment & Configuration
-python-dotenv==1.2.1               # Load environment variables from .env files
+python-dotenv==1.2.1               # Load .env files
 
-# Quality & Performance Tools
-pytest-cov==6.1.0                  # Code coverage measurement and reporting
-pytest-xdist==3.8.0                # Parallel test execution for faster runs
-pytest-timeout==2.4.0              # Test timeout management to prevent hanging tests
-pytest-retry==1.7.0                # Automatic retry of flaky tests
-pillow==12.1.0                     # Image processing for screenshot management
+# Test Execution Plugins
+pytest-cov==6.1.0                  # Code coverage
+pytest-xdist==3.8.0                # Parallel test execution
+pytest-timeout==2.4.0              # Timeout management
+pytest-retry==1.7.0                # Retry flaky tests
+pytest-base-url==2.1.0             # Configurable base URLs
+pytest-metadata==3.1.1             # Test run metadata
 
-# Code Quality & Style
-black==26.1.0                      # Code formatter for consistent styling
-flake8==7.3.0                      # Code linter for quality checks
-isort==6.1.0                       # Import statement sorter
-mypy==1.19.1                       # Static type checker for Python (latest stable)
+# Image Processing
+pillow==12.1.0                     # Screenshot management
 
-# Optional: Documentation
-# sphinx==8.5.0                    # Documentation generator (uncomment if needed)
+# Code Quality (dev only)
+black==26.1.0                      # Code formatter
+flake8==7.3.0                      # Linter
+isort==6.1.0                       # Import sorter
+mypy==1.19.1                       # Static type checker
 
 # =====================================
-# Installation Instructions
-# =====================================
-# Install all dependencies:
-#   pip install -r requirements.txt
-#
-# Install only core testing libraries:
-#   pip install pytest playwright pytest-playwright requests
-#
-# Update specific package:
-#   pip install --upgrade <package-name>
-#
-# Check outdated packages:
-#   pip list --outdated
+# Install:  pip install -r requirements.txt
+# Browsers: python -m playwright install
 # =====================================
