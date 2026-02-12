@@ -72,7 +72,9 @@ def test_order_flow(page: Page) -> None:
                 page.goto("/products")
             except Exception:
                 # Fail with clear message so logs show why navigation failed
-                raise RuntimeError("Could not navigate to 'Men' products - tried role, text, and /products fallback")
+                raise RuntimeError(
+                    "Could not navigate to 'Men' products - tried role, text, and /products fallback"
+                )
     page.get_by_role("link", name="Jeans").click()
     add_btn = page.locator(".productinfo .add-to-cart").first
     add_btn.scroll_into_view_if_needed()
