@@ -1,5 +1,4 @@
-History rewrite performed on `develop`
-=====================================
+# History rewrite performed on `develop`
 
 On Feb 12, 2026 the repository history for branch `develop` was rewritten to
 remove sensitive test artifacts committed in the past. Files removed from
@@ -8,21 +7,21 @@ history:
 - `test_data/test_data.json`
 - `reports/allure-results/` (all files)
 
-What changed
------------
+## What changed
+
 - `develop` was force-updated with a cleaned history.
 - A backup branch named `backup-before-history-clean` was created and pushed
   to the remote before the rewrite. Do not delete that branch unless you are
   certain you no longer need the original commits.
 
-What you must do
-----------------
+## What you must do
+
 1. If you have a local clone with branches that track `develop`, please
    re-clone the repository or reset your local branches. Easiest:
 
-   ```powershell
-   git clone https://github.com/thompsonoloko-droid/automation_playwright_dele.git
-   ```
+    ```powershell
+    git clone https://github.com/thompsonoloko-droid/automation_playwright_dele.git
+    ```
 
 2. Rotate any credentials or secrets that might have been present in the
    removed artifacts (test accounts, card numbers, API keys).
@@ -31,8 +30,8 @@ What you must do
    that commits changed due to the rewrite. Ask reviewers to rebase their
    branches or re-open PRs if necessary.
 
-Contact
--------
+## Contact
+
 If you want me to also rewrite other branches that contain the same
 artifacts, reply with `clean branches` and I'll list the candidate branches
 and proceed after your confirmation.
