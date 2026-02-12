@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"Test login with invalid credentials from test_data.json","2999","test_invalid_login[chromium-invalid_email_password-wronguser@example.com-Wrongpassword123-Your email or password is incorrect]","tests.ui","Mon Feb 09 16:39:59 UTC 2026","passed","Mon Feb 09 16:40:02 UTC 2026","TestLogin","test_login","",""
