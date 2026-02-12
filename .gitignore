@@ -17,6 +17,8 @@ venv/
 reports/screenshots/
 reports/videos/
 reports/allure-results/
+reports/coverage/
+reports/coverage-html/
 reports/*.html
 
 # IDE
