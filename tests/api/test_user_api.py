@@ -60,9 +60,11 @@ class TestUserAccountAPI:
         logger.info(f"Creating test user: {email}")
 
         data = _create_test_user(email)
-        logger.info(f"Create user response: {data}")
+        # Sanitize response data for logging (remove sensitive fields)
+        safe_data = {k: v for k, v in data.items() if k not in ["password", "userPassword"]}
+        logger.info(f"Create user response: {safe_data}")
         assert data.get("responseCode") == 201, (
-            f"Expected 201, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+            f"Expected 201, got {data.get('responseCode')}: {data.get('message', '')}"
         )
         logger.info("✓ User account created successfully")
         # Cleanup

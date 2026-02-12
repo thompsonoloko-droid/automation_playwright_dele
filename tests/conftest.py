@@ -149,7 +149,8 @@ def cleanup_videos(request):
     if hasattr(request.node, "rep_call") and request.node.rep_call.passed:
         video_dir = Path("./reports/videos")
         if video_dir.exists():
-            for video_file in video_dir.glob("*.webm"):
+            # Only delete videos for this specific test to avoid removing failure evidence from other tests
+            for video_file in video_dir.glob(f"*{request.node.name}*.webm"):
                 video_file.unlink(missing_ok=True)
 
 
