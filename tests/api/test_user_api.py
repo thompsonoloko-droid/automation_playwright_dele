@@ -61,9 +61,9 @@ class TestUserAccountAPI:
 
         data = _create_test_user(email)
         logger.info(f"Create user response: {data}")
-        assert (
-            data.get("responseCode") == 201
-        ), f"Expected 201, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        assert data.get("responseCode") == 201, (
+            f"Expected 201, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        )
         logger.info("✓ User account created successfully")
         # Cleanup
         cleanup = _delete_test_user(email)
@@ -82,9 +82,9 @@ class TestUserAccountAPI:
         logger.info(f"Deleting test user: {email}")
         data = _delete_test_user(email)
         logger.info(f"Delete user response: {data}")
-        assert (
-            data.get("responseCode") == 200
-        ), f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        assert data.get("responseCode") == 200, (
+            f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        )
         logger.info("✓ User account deleted successfully")
 
     @pytest.mark.api
@@ -107,9 +107,9 @@ class TestUserAccountAPI:
         response = requests.put(f"{BASE_URL}/updateAccount", data=update_payload, timeout=TIMEOUT)
         data = response.json()
         logger.info(f"Update user response: {data}")
-        assert (
-            data.get("responseCode") == 200
-        ), f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        assert data.get("responseCode") == 200, (
+            f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        )
         logger.info("✓ User account updated successfully")
         # Cleanup
         cleanup = _delete_test_user(email, password)
@@ -134,9 +134,9 @@ class TestUserAccountAPI:
         )
         data = response.json()
         logger.info(f"Get user detail response: {data}")
-        assert (
-            data.get("responseCode") == 200
-        ), f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        assert data.get("responseCode") == 200, (
+            f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
+        )
         assert "user" in data, "Response missing 'user' field"
         user = data["user"]
         assert user["email"] == email, f"Expected {email}, got {user['email']}"

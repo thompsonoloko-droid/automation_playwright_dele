@@ -86,6 +86,8 @@ def test_order_flow(page: Page) -> None:
     page.get_by_text("Proceed To Checkout").click()
 
     # Payment — card details from env vars, never hardcoded
+    # Wait for 'Place Order' link to be visible before clicking
+    page.get_by_role("link", name="Place Order").wait_for(state="visible", timeout=15000)
     page.get_by_role("link", name="Place Order").click()
     page.locator('input[name="name_on_card"]').fill(card["name"])
     page.locator('input[name="card_number"]').fill(card["number"])
