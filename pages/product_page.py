@@ -47,7 +47,7 @@ class ProductPage(BasePage):
             product_index (int): Zero-based index of the product to add (default: 0, first product).
 
         Raises:
-            AssertionError: If unable to add the product to the cart due to an error.
+            RuntimeError: If unable to add the product to the cart due to an error.
             IndexError: If the specified product index is out of range.
 
         Example:
@@ -73,9 +73,7 @@ class ProductPage(BasePage):
             logger.debug(f"Hovered over product {product_index}")
 
             # Click add-to-cart button with force to bypass any overlays
-            products.nth(product_index).locator(self.ADD_TO_CART_BTN).first.click(
-                force=True
-            )
+            products.nth(product_index).locator(self.ADD_TO_CART_BTN).first.click(force=True)
             logger.debug(f"Clicked add-to-cart button for product {product_index}")
 
             # Wait for the "Added!" modal and click View Cart
@@ -89,10 +87,10 @@ class ProductPage(BasePage):
                 logger.warning(
                     f"View Cart modal not available ({modal_error}). Navigating directly to cart."
                 )
-                self.page.goto("https://automationexercise.com/view_cart")
+                self.page.goto("/view_cart")
 
             logger.info(f"Product {product_index} added to cart successfully")
 
         except Exception as e:
             logger.error(f"Failed to add product to cart: {str(e)}")
-            raise AssertionError(f"Failed to add product to cart: {str(e)}")
+            raise RuntimeError(f"Failed to add product to cart: {str(e)}")

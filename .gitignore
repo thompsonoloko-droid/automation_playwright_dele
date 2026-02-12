@@ -17,8 +17,12 @@ venv/
 reports/screenshots/
 reports/videos/
 reports/allure-results/
+reports/coverage/
+reports/coverage-html/
 reports/*.html
 
+# Test data
+test_data/*.json
 # IDE
 .vscode/
 .idea/
@@ -32,3 +36,8 @@ Thumbs.db
 
 # Misc
 README_temp.md
+.forks_list.txt
+.git_history_*.txt
+.remote_branch*.txt
+listing.txt
+uncommitted_files.txt

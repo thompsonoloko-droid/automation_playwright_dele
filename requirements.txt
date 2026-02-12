@@ -28,12 +28,6 @@ pytest-metadata==3.1.1             # Test run metadata
 # Image Processing
 pillow==12.1.1                     # Screenshot management
 
-# Code Quality (dev only)
-black==26.1.0                      # Code formatter
-flake8==7.3.0                      # Linter
-isort==7.0.0                       # Import sorter
-mypy==1.19.1                       # Static type checker
-
 # =====================================
 # Install:  pip install -r requirements.txt
 # Browsers: python -m playwright install

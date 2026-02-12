@@ -1,28 +1,14 @@
 # tests/api/test_brands_api.py
 """API tests for brand endpoints (API 3 & 4) — data-driven from test_data.json."""
 
-import json
 import logging
-from pathlib import Path
 
 import pytest
 import requests
 
+from tests.api.conftest import BASE_URL, TIMEOUT
+
 logger = logging.getLogger(__name__)
-
-# Load config from test_data.json for consistency with other API test files
-_DATA_FILE = Path(__file__).parent.parent.parent / "test_data" / "test_data.json"
-
-
-def _load_api_config() -> dict:
-    """Load the 'api' section from test_data.json."""
-    with open(_DATA_FILE) as f:
-        return json.load(f)["api"]
-
-
-_cfg = _load_api_config()
-BASE_URL = _cfg["base_url"]
-TIMEOUT = _cfg["timeout"]
 
 
 class TestBrandsAPI:

@@ -16,8 +16,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from dotenv import load_dotenv
 import pytest
+from dotenv import load_dotenv
 from playwright.sync_api import BrowserContext
 
 # Load .env from project root before any tests run (git-ignored, safe for secrets)
@@ -88,7 +88,7 @@ def page(context: BrowserContext, request):
     """
     )
 
-    base_url = "https://automationexercise.com/"
+    base_url = os.environ.get("BASE_URL", "https://automationexercise.com/")
     try:
         page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
     except Exception as e:
@@ -101,9 +101,7 @@ def page(context: BrowserContext, request):
     rep = getattr(request.node, "rep_call", None)
     if rep and getattr(rep, "failed", False):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        screenshot_path = (
-            f"./reports/screenshots/failure_{request.node.name}_{timestamp}.png"
-        )
+        screenshot_path = f"./reports/screenshots/failure_{request.node.name}_{timestamp}.png"
         page.screenshot(path=screenshot_path)
         logging.error(f"Test failed. Screenshot saved: {screenshot_path}")
     page.close()
@@ -117,9 +115,7 @@ def test_data():
     Returns a list of dicts for backward-compatible parametrisation.
     Falls back to dummy data if the JSON file is missing.
     """
-    test_data_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "test_data.json"
-    )
+    test_data_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "test_data.json")
 
     fallback_data = [
         {
@@ -152,8 +148,9 @@ def cleanup_videos(request):
     yield
     if hasattr(request.node, "rep_call") and request.node.rep_call.passed:
         video_dir = Path("./reports/videos")
-        for video_file in video_dir.glob(f"*{request.node.name}*.webm"):
-            video_file.unlink(missing_ok=True)
+        if video_dir.exists():
+            for video_file in video_dir.glob("*.webm"):
+                video_file.unlink(missing_ok=True)
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)

@@ -4,7 +4,7 @@
     {
       "label": "Run All Tests",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["-m", "pytest", "tests/", "-v", "--tb=short"],
       "problemMatcher": ["$python"],
       "group": {
@@ -15,7 +15,7 @@
     {
       "label": "Run UI Tests",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["-m", "pytest", "tests/ui/", "-v", "--tb=short"],
       "problemMatcher": ["$python"],
       "group": "test"
@@ -23,7 +23,7 @@
     {
       "label": "Run API Tests",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["-m", "pytest", "tests/api/", "-v", "--tb=short"],
       "problemMatcher": ["$python"],
       "group": "test"
@@ -31,22 +31,14 @@
     {
       "label": "Run Smoke Tests",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["-m", "pytest", "tests/", "-m", "smoke", "-v", "--tb=short"],
-      "problemMatcher": ["$python"],
-      "group": "test"
-    },
-    {
-      "label": "Install Playwright Browsers",
-      "type": "shell",
-      "command": "python",
-      "args": ["-m", "playwright", "install"],
       "problemMatcher": []
     },
     {
       "label": "Run All Tests + Allure Report",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["-m", "pytest", "tests/", "-v", "--tb=short"],
       "problemMatcher": ["$python"],
       "group": "test"
@@ -54,7 +46,7 @@
     {
       "label": "Generate Allure Report",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["generate_allure_report.py"],
       "problemMatcher": [],
       "group": "test",
@@ -66,7 +58,7 @@
     {
       "label": "View Latest Allure Report",
       "type": "shell",
-      "command": "python",
+      "command": ".venv/Scripts/python.exe",
       "args": ["generate_allure_report.py"],
       "problemMatcher": [],
       "group": "test"

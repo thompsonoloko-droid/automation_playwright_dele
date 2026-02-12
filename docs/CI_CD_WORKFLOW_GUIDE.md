@@ -64,15 +64,15 @@ Your project includes **4 automated workflows**:
 All dependencies are in `requirements.txt`:
 
 ```bash
-pytest==8.4.0
+pytest==9.0.2
 pytest-playwright==0.7.2
 playwright==1.58.0
 allure-pytest==2.15.3
 pytest-html==4.2.0
-pytest-cov==6.1.0
+pytest-cov==7.0.0
 black==26.1.0
 flake8==7.3.0
-isort==6.1.0
+isort==7.0.0
 ```
 
 ---
