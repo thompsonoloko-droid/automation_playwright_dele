@@ -16,8 +16,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from dotenv import load_dotenv
 import pytest
+from dotenv import load_dotenv
 from playwright.sync_api import BrowserContext
 
 # Load .env from project root before any tests run (git-ignored, safe for secrets)

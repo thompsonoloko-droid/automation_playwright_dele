@@ -7,7 +7,7 @@ import os
 import pytest
 import requests
 
-from tests.api.conftest import BASE_URL, TIMEOUT, _load_test_data, _load_api_config, _resolve_env
+from tests.api.conftest import BASE_URL, TIMEOUT, _load_api_config, _load_test_data, _resolve_env
 
 logger = logging.getLogger(__name__)
 
