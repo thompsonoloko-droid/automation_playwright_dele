@@ -132,6 +132,22 @@ jobs:
         run: |
           playwright install ${{ matrix.browser }} --with-deps
 
+      - name: Verify required secrets present
+        run: |
+          MISSING=0
+          for v in TEST_USER_NAME TEST_USER_EMAIL TEST_USER_PASSWORD CARD_NAME CARD_NUMBER CARD_CVC CARD_EXPIRY_MONTH CARD_EXPIRY_YEAR; do
+            if [ -z "${!v}" ]; then
+              echo "MISSING: $v"
+              MISSING=1
+            else
+              echo "FOUND: $v"
+            fi
+          done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "One or more required secrets are missing. Please add them in repository Secrets." 
+            exit 1
+          fi
+
       - name: Run Smoke Tests
         id: smoke-tests
         env:
