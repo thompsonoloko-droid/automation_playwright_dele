@@ -88,6 +88,8 @@ def page(context: BrowserContext, request):
     """
     )
 
+    # Allow test environment override via BASE_URL environment variable
+    # Default: https://automationexercise.com/
     base_url = os.environ.get("BASE_URL", "https://automationexercise.com/")
     try:
         page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
