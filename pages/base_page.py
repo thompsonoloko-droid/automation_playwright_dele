@@ -102,7 +102,7 @@ class BasePage:
                 # Try to dismiss consent/overlay dialogs
                 self._dismiss_overlays()
 
-                # Wait before retrying (non-blocking Playwright wait)
+                # Wait before retrying (using Playwright's wait to stay within event loop)
                 self.page.wait_for_timeout(int(retry_delay * 1000))
                 logger.debug(f"Attempt {attempt}/{max_retries}: Retrying click for '{selector}'")
                 continue
