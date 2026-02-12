@@ -100,7 +100,7 @@ jobs:
         with:
           name: reports-${{ matrix.browser }}
           path: |
-            reports/smoke-${{ matrix.browser }}.html
+            reports/smoke-${{ matrix.browser }}-*.html
             reports/allure-results/${{ matrix.browser }}
           retention-days: 7
 

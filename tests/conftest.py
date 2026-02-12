@@ -149,7 +149,7 @@ def cleanup_videos(request):
     if hasattr(request.node, "rep_call") and request.node.rep_call.passed:
         video_dir = Path("./reports/videos")
         if video_dir.exists():
-            for video_file in video_dir.glob("*.webm"):
+            for video_file in video_dir.glob(f"*{request.node.name}*.webm"):
                 video_file.unlink(missing_ok=True)
 
 
