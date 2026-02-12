@@ -187,7 +187,7 @@ jobs:
       # Expires after 30 days by default
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-results-${{ github.event.inputs.test_suite }}-${{ github.event.inputs.browser }}
           path: |
@@ -226,7 +226,7 @@ jobs:
       # STEP: Archive final consolidated reports
       # Available for download from GitHub Actions UI for 30 days
       - name: Upload final reports
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-final
           path: final-reports/
