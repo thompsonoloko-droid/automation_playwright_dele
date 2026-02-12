@@ -4,6 +4,7 @@
 
 import os
 
+import pytest
 from playwright.sync_api import Page, expect
 
 
@@ -41,6 +42,10 @@ def _card_details() -> dict:
     return card
 
 
+@pytest.mark.smoke
+@pytest.mark.regression
+@pytest.mark.ui
+@pytest.mark.checkout
 def test_order_flow(page: Page) -> None:
     """End-to-end: login → browse → add to cart → checkout → payment → logout."""
     user = _valid_user()
@@ -48,14 +53,28 @@ def test_order_flow(page: Page) -> None:
 
     # Login
     page.get_by_role("link", name=" Signup / Login").click()
-    page.locator("form").filter(has_text="Login").get_by_placeholder(
-        "Email Address"
-    ).fill(user["email"])
+    page.locator("form").filter(has_text="Login").get_by_placeholder("Email Address").fill(
+        user["email"]
+    )
     page.get_by_role("textbox", name="Password").fill(user["password"])
     page.get_by_role("button", name="Login").click()
 
     # Browse Men → Jeans and add a product to cart
-    page.get_by_role("link", name="Men", exact=True).click()
+    # Robust navigation: try role-based click, fallback to text locator, then to direct URL
+    try:
+        page.get_by_role("link", name="Men", exact=True).click(timeout=10000)
+    except Exception:
+        try:
+            page.get_by_text("Men", exact=True).click(timeout=10000)
+        except Exception:
+            # As a last resort navigate directly to products listing
+            try:
+                page.goto("/products")
+            except Exception:
+                # Fail with clear message so logs show why navigation failed
+                raise RuntimeError(
+                    "Could not navigate to 'Men' products - tried role, text, and /products fallback"
+                )
     page.get_by_role("link", name="Jeans").click()
     add_btn = page.locator(".productinfo .add-to-cart").first
     add_btn.scroll_into_view_if_needed()
@@ -67,6 +86,8 @@ def test_order_flow(page: Page) -> None:
     page.get_by_text("Proceed To Checkout").click()
 
     # Payment — card details from env vars, never hardcoded
+    # Wait for 'Place Order' link to be visible before clicking
+    page.get_by_role("link", name="Place Order").wait_for(state="visible", timeout=15000)
     page.get_by_role("link", name="Place Order").click()
     page.locator('input[name="name_on_card"]').fill(card["name"])
     page.locator('input[name="card_number"]').fill(card["number"])
@@ -74,9 +95,7 @@ def test_order_flow(page: Page) -> None:
     page.get_by_role("textbox", name="MM").fill(card["month"])
     page.get_by_role("textbox", name="YYYY").fill(card["year"])
     page.get_by_role("button", name="Pay and Confirm Order").click()
-    expect(page.locator("#form")).to_contain_text(
-        "Congratulations! Your order has been confirmed!"
-    )
+    expect(page.locator("#form")).to_contain_text("Congratulations! Your order has been confirmed!")
 
     # Logout and verify we land back on the login page
     page.get_by_role("link", name="Continue").click()

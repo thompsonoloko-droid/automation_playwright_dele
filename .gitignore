@@ -17,7 +17,12 @@ venv/
 reports/screenshots/
 reports/videos/
 reports/allure-results/
+reports/coverage/
+reports/coverage-html/
 reports/*.html
+
+# Test data
+test_data/*.json
 
 # IDE
 .vscode/
@@ -29,6 +34,12 @@ Thumbs.db
 
 # Secrets
 .env
+
+# Temporary files
+*.txt
+!requirements*.txt
+!LICENSE
+!CHANGELOG.md
 
 # Misc
 README_temp.md

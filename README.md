@@ -1,7 +1,7 @@
 # automation_playwright_dele
 
 [![Tests Status](https://img.shields.io/badge/tests-maintained-brightgreen)]()
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)]()
+[![Python Version](https://img.shields.io/badge/python-3.11%2B-blue)]()
 [![Playwright Version](https://img.shields.io/badge/playwright-latest-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
 
@@ -41,7 +41,7 @@ A **professional-grade, production-ready Playwright-based test automation framew
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.11 or higher
 - pip (Python package manager)
 - Git (for cloning the repository)
 
@@ -147,10 +147,11 @@ automation_playwright_dele/
 │   │   └── __init__.py
 │   │
 │   ├── api/                        # REST API tests
+│   │   ├── conftest.py            # Shared API fixtures (BASE_URL, TIMEOUT)
 │   │   ├── test_product_api.py    # Product endpoint tests
 │   │   └── __init__.py
 │   │
-│   └── performance/                # Performance tests (future)
+│   └── performance/                # API & page-load performance tests
 │
 ├── utils/                          # Utility modules
 │   ├── __init__.py
@@ -159,8 +160,7 @@ automation_playwright_dele/
 │   └── helpers/                    # Additional helpers (future)
 │
 ├── test_data/                      # Test data and fixtures
-│   ├── test_data.json             # Test credentials and data
-│   └── test_data.csv              # Alternative CSV format
+│   └── test_data.json             # Test credentials and data
 │
 ├── reports/                        # Test execution reports
 │   ├── screenshots/               # Failure screenshots
@@ -169,8 +169,6 @@ automation_playwright_dele/
 │   └── allure-results/           # Allure report data
 │
 ├── docs/                          # Documentation
-│   ├── generate_allure_report.py
-│   ├── generate_test_report.py
 │   └── *.md                       # Various guides
 │
 ├── .vscode/                       # VS Code configuration
@@ -190,7 +188,9 @@ automation_playwright_dele/
 ├── .env.example                   # Template for credentials (committed)
 ├── .env                           # Actual credentials (git-ignored)
 ├── .gitignore
+├── pyproject.toml                  # Unified tool config (black, ruff, isort, mypy, pytest)
 ├── pytest.ini                     # Pytest configuration
+├── generate_allure_report.py      # Allure report generator script
 ├── requirements.txt               # Python dependencies
 └── README.md                      # This file
 ```
@@ -293,7 +293,7 @@ Tests are organized by scope:
 - **UI Tests** - Full UI/E2E coverage
 - **API Tests** - REST API verification
 - **Integration Tests** - Full workflow testing
-- **Performance Tests** - Load and stress testing (future)
+- **Performance Tests** - API response-time and page-load benchmarks
 
 ## 📄 Page Objects
 
@@ -647,10 +647,10 @@ Pytest fixtures:
 
 Automated code quality hooks:
 
-- Black formatting
-- Ruff linting
+- Ruff formatting & linting
 - Type checking with mypy
 - YAML validation
+- Trailing whitespace & end-of-file fixes
 
 ## 📝 Data-Driven Testing
 
@@ -750,21 +750,26 @@ allure serve reports/allure-results
 - ✅ Docstrings on all classes/methods
 - ✅ Error handling with meaningful messages
 - ✅ Logging throughout test execution
-- ✅ Code formatted with Black
-- ✅ Linted with Ruff
+- ✅ Code formatted & linted with Ruff
+- ✅ Checked with Black (CI `--check --diff`)
 - ✅ Pre-commit hooks enabled
 
 ## 📦 Dependencies
 
 | Package           | Version | Purpose               |
 | ----------------- | ------- | --------------------- |
-| pytest            | 8.4.0   | Test framework        |
+| pytest            | 9.0.2   | Test framework        |
 | playwright        | 1.58.0  | Browser automation    |
 | pytest-playwright | 0.7.2   | Pytest integration    |
 | python-dotenv     | 1.2.1   | Load .env credentials |
-| allure-pytest     | 2.13.5  | Advanced reporting    |
-| requests          | 2.32.3  | HTTP requests         |
-| pytest-html       | 4.1.1   | HTML reports          |
+| allure-pytest     | 2.15.3  | Advanced reporting    |
+| requests          | 2.32.5  | HTTP requests         |
+| pytest-html       | 4.2.0   | HTML reports          |
+| pytest-cov        | 7.0.0   | Code coverage         |
+| pytest-retry      | 1.7.0   | Retry flaky tests     |
+| black             | 26.1.0  | Code formatter        |
+| isort             | 7.0.0   | Import sorter         |
+| ruff              | latest  | Linter & formatter    |
 
 ## 🔐 Security
 
@@ -815,6 +820,6 @@ MIT License
 
 ---
 
-**Last Updated:** February 11, 2026  
+**Last Updated:** February 12, 2026  
 **Playwright Version:** 1.58.0  
-**Python Version:** 3.14+
+**Python Version:** 3.11+
