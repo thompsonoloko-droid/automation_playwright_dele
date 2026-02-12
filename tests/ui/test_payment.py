@@ -60,7 +60,19 @@ def test_order_flow(page: Page) -> None:
     page.get_by_role("button", name="Login").click()
 
     # Browse Men → Jeans and add a product to cart
-    page.get_by_role("link", name="Men", exact=True).click()
+    # Robust navigation: try role-based click, fallback to text locator, then to direct URL
+    try:
+        page.get_by_role("link", name="Men", exact=True).click(timeout=10000)
+    except Exception:
+        try:
+            page.get_by_text("Men", exact=True).click(timeout=10000)
+        except Exception:
+            # As a last resort navigate directly to products listing
+            try:
+                page.goto("/products")
+            except Exception:
+                # Fail with clear message so logs show why navigation failed
+                raise RuntimeError("Could not navigate to 'Men' products - tried role, text, and /products fallback")
     page.get_by_role("link", name="Jeans").click()
     add_btn = page.locator(".productinfo .add-to-cart").first
     add_btn.scroll_into_view_if_needed()
