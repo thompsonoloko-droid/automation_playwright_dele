@@ -30,6 +30,9 @@ on:
           - staging
           - production
 
+permissions:
+  contents: read
+
 # ============================================================================
 # JOB 1: SMOKE-TESTS - Multi-browser smoke test execution
 # Runs critical path smoke tests on Chromium and Firefox in parallel
@@ -62,8 +65,7 @@ jobs:
           playwright install ${{ matrix.browser }} --with-deps
 
       # STEP: Execute smoke tests with auto-retry and detailed reporting
-      # --reruns=2: Automatically retry failed tests twice
-      # --reruns-delay=5: Wait 5 seconds between retries
+      # --retries=2: Automatically retry failed tests twice (pytest-retry)
       # --timeout=30: Kill test if it takes longer than 30 seconds (catches hangs)
       - name: Run smoke tests (${{ matrix.browser }})
         run: |
@@ -72,8 +74,7 @@ jobs:
             -v \
             --tb=short \
             --timeout=30 \
-            --reruns=2 \
-            --reruns-delay=5 \
+            --retries=2 \
             --html=reports/smoke-${{ matrix.browser }}-${{ github.run_id }}.html \
             --self-contained-html \
             --junitxml=reports/junit-smoke-${{ matrix.browser }}.xml \
@@ -98,7 +99,8 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: reports-${{ matrix.browser }}
-          path: reports/smoke-${{ matrix.browser }}.html
+          path: |
+            reports/smoke-${{ matrix.browser }}.html
             reports/allure-results/${{ matrix.browser }}
           retention-days: 7
 
@@ -168,5 +170,10 @@ jobs:
           echo "**Status**: ${{ needs.smoke-tests.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Chromium: ✅" >> $GITHUB_STEP_SUMMARY
-          echo "- Firefox: ✅" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.smoke-tests.result }}" == "success" ]; then
+            echo "- Chromium: ✅" >> $GITHUB_STEP_SUMMARY
+            echo "- Firefox: ✅" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Chromium: ❌ (check logs)" >> $GITHUB_STEP_SUMMARY
+            echo "- Firefox: ❌ (check logs)" >> $GITHUB_STEP_SUMMARY
+          fi

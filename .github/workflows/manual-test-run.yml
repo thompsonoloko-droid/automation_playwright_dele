@@ -61,6 +61,9 @@ on:
         required: false
         default: "staging"
 
+permissions:
+  contents: read
+
 jobs:
   # PRIMARY JOB: Build dynamic pytest command and execute tests
   # Dynamically constructs the pytest command based on user-provided inputs
@@ -259,6 +262,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: generate-report
     if: always()
+    timeout-minutes: 5
+
+    env:
+      HAS_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
 
     steps:
       # STEP: Send Slack notification with test run results
@@ -269,8 +276,6 @@ jobs:
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          # Create a helper flag to avoid 'Unrecognized named-value' errors
-          HAS_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
         with:
           payload: |
             {
