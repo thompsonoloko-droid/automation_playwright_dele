@@ -3,7 +3,7 @@
 # =====================================
 #
 # Core Testing & Automation
-pytest==8.4.0                      # Test framework
+pytest==9.0.2                      # Test framework
 pytest-playwright==0.7.2           # Playwright integration for pytest
 playwright==1.58.0                 # Cross-browser automation (Chromium, Firefox, WebKit)
 
@@ -18,7 +18,7 @@ allure-pytest==2.15.3              # Allure reporting integration
 python-dotenv==1.2.1               # Load .env files
 
 # Test Execution Plugins
-pytest-cov==6.1.0                  # Code coverage
+pytest-cov==7.0.0                  # Code coverage
 pytest-xdist==3.8.0                # Parallel test execution
 pytest-timeout==2.4.0              # Timeout management
 pytest-retry==1.7.0                # Retry flaky tests
@@ -26,12 +26,12 @@ pytest-base-url==2.1.0             # Configurable base URLs
 pytest-metadata==3.1.1             # Test run metadata
 
 # Image Processing
-pillow==12.1.0                     # Screenshot management
+pillow==12.1.1                     # Screenshot management
 
 # Code Quality (dev only)
 black==26.1.0                      # Code formatter
 flake8==7.3.0                      # Linter
-isort==6.1.0                       # Import sorter
+isort==7.0.0                       # Import sorter
 mypy==1.19.1                       # Static type checker
 
 # =====================================

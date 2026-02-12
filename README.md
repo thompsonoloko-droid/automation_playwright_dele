@@ -486,6 +486,21 @@ pipeline {
 }
 ```
 
+## 🚀 CI/CD Integration
+
+### GitHub Actions
+
+Four workflow files in `.github/workflows/`:
+
+| Workflow                    | Trigger                    | Purpose                                                             |
+| --------------------------- | -------------------------- | ------------------------------------------------------------------- |
+| `ci-cd.yml`                 | Push, PR, schedule, manual | Full pipeline: lint → multi-browser test → coverage → Allure report |
+| `pr-checks.yml`             | Pull request               | Validate commits, smoke tests, coverage gate (60%)                  |
+| `scheduled-smoke-tests.yml` | Every 6 hours              | Continuous health monitoring with Slack alerts                      |
+| `manual-test-run.yml`       | Manual dispatch            | On-demand runs with suite/browser/parallel selection                |
+
+All actions are **pinned to commit SHAs** and use **least-privilege permissions**.
+
 ## 📊 Reports
 
 ### HTML Report
@@ -760,21 +775,6 @@ allure serve reports/allure-results
 - **Least-privilege CI permissions** — each job declares only the permissions it needs
 - **Dependabot enabled** — weekly vulnerability scanning for pip packages and GitHub Actions
 - HTTPS errors ignored only in test context (`ignore_https_errors: True`)
-
-## 🚀 CI/CD Integration
-
-### GitHub Actions
-
-Four workflow files in `.github/workflows/`:
-
-| Workflow                    | Trigger                    | Purpose                                                             |
-| --------------------------- | -------------------------- | ------------------------------------------------------------------- |
-| `ci-cd.yml`                 | Push, PR, schedule, manual | Full pipeline: lint → multi-browser test → coverage → Allure report |
-| `pr-checks.yml`             | Pull request               | Validate commits, smoke tests, coverage gate (60%)                  |
-| `scheduled-smoke-tests.yml` | Every 6 hours              | Continuous health monitoring with Slack alerts                      |
-| `manual-test-run.yml`       | Manual dispatch            | On-demand runs with suite/browser/parallel selection                |
-
-All actions are **pinned to commit SHAs** and use **least-privilege permissions**.
 
 ### Required Repository Secrets
 
