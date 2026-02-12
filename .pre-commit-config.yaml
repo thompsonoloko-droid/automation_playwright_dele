@@ -6,6 +6,13 @@ default_language_version:
   python: python3.14
 
 repos:
+  # Secret detection (from gh-pages)
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets-hook
+        args: ['--baseline', '.secrets.baseline']
+
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.7.0

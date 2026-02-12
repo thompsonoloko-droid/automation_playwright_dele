@@ -32,3 +32,14 @@ Thumbs.db
 
 # Misc
 README_temp.md
+
+# Allure report files (from gh-pages, should not be in main)
+/index.html
+/app.js
+/styles.css
+/favicon.ico
+/data/
+/export/
+/history/
+/plugin/
+/widgets/
