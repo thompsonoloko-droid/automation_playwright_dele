@@ -3,6 +3,7 @@
 
 import logging
 from datetime import datetime
+from urllib.parse import urlparse
 
 import pytest
 from playwright.sync_api import expect
@@ -57,7 +58,8 @@ class TestSmoke:
 
         # Verify we're still on the site after registration completes
         current_url = page.url
-        assert "automationexercise.com" in current_url, (
+        parsed_url = urlparse(current_url)
+        assert parsed_url.netloc == "automationexercise.com" or parsed_url.netloc == "www.automationexercise.com", (
             f"Expected to be on automationexercise.com, got {current_url}"
         )
         logger.info(f"✓ User registered successfully: {unique_name}")
