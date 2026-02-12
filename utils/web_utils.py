@@ -3,6 +3,7 @@
 
 import logging
 import time
+import warnings
 from typing import List, Optional
 
 from playwright.sync_api import Locator, Page
@@ -11,10 +12,21 @@ logger = logging.getLogger(__name__)
 
 
 class WebUtils:
-    """Convenience wrappers around Playwright's Page API with built-in waits and logging."""
+    """Convenience wrappers around Playwright's Page API with built-in waits and logging.
+
+    .. deprecated::
+        This class is not currently used by any test or page object.
+        Prefer using methods on :class:`pages.base_page.BasePage` instead.
+        Retained for reference; may be removed in a future cleanup.
+    """
 
     def __init__(self, page: Page):
         """Wrap a Playwright Page instance."""
+        warnings.warn(
+            "WebUtils is deprecated — use BasePage helpers instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.page = page
 
     def wait_and_click(self, selector: str, timeout: int = 30000) -> None:
@@ -82,7 +94,7 @@ class WebUtils:
         try:
             self.page.locator(selector).first.wait_for(state="visible", timeout=timeout)
             return True
-        except:
+        except Exception:
             return False
 
     def refresh_page(self) -> None:

@@ -1,31 +1,20 @@
 # tests/api/test_user_api.py
 """API tests for user account CRUD (API 11–14) — data-driven from test_data.json."""
 
-import json
 import logging
-import time
-from pathlib import Path
+import uuid
 
 import pytest
 import requests
+
+from tests.api.conftest import BASE_URL, TIMEOUT, _load_api_config
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Data loading
 # ---------------------------------------------------------------------------
-_DATA_FILE = Path(__file__).parent.parent.parent / "test_data" / "test_data.json"
-
-
-def _load_api_config() -> dict:
-    """Load the 'api' section from test_data.json."""
-    with open(_DATA_FILE) as f:
-        return json.load(f)["api"]
-
-
 _cfg = _load_api_config()
-BASE_URL = _cfg["base_url"]
-TIMEOUT = _cfg["timeout"]
 _USER_TEMPLATE = _cfg["test_user_template"]
 _UPDATE_TEMPLATE = _cfg["update_user_template"]
 
@@ -34,8 +23,8 @@ _UPDATE_TEMPLATE = _cfg["update_user_template"]
 # Helpers
 # ---------------------------------------------------------------------------
 def _unique_email() -> str:
-    """Generate a unique test email to avoid collisions."""
-    return f"testbot_{int(time.time())}@example.com"
+    """Generate a unique test email using UUID to avoid collisions in parallel runs."""
+    return f"testbot_{uuid.uuid4().hex[:12]}@example.com"
 
 
 def _create_test_user(email: str, password: str | None = None) -> dict:
@@ -50,9 +39,7 @@ def _delete_test_user(email: str, password: str | None = None) -> dict:
     """Delete a user account."""
     password = password or _USER_TEMPLATE["password"]
     payload = {"email": email, "password": password}
-    response = requests.delete(
-        f"{BASE_URL}/deleteAccount", data=payload, timeout=TIMEOUT
-    )
+    response = requests.delete(f"{BASE_URL}/deleteAccount", data=payload, timeout=TIMEOUT)
     return response.json()
 
 
@@ -118,9 +105,7 @@ class TestUserAccountAPI:
             "email": email,
             "password": password,
         }
-        response = requests.put(
-            f"{BASE_URL}/updateAccount", data=update_payload, timeout=TIMEOUT
-        )
+        response = requests.put(f"{BASE_URL}/updateAccount", data=update_payload, timeout=TIMEOUT)
         data = response.json()
         assert (
             data["responseCode"] == 200

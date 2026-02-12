@@ -4,6 +4,7 @@
 
 import os
 
+import pytest
 from playwright.sync_api import Page, expect
 
 
@@ -41,6 +42,10 @@ def _card_details() -> dict:
     return card
 
 
+@pytest.mark.smoke
+@pytest.mark.regression
+@pytest.mark.ui
+@pytest.mark.checkout
 def test_order_flow(page: Page) -> None:
     """End-to-end: login → browse → add to cart → checkout → payment → logout."""
     user = _valid_user()
@@ -48,9 +53,9 @@ def test_order_flow(page: Page) -> None:
 
     # Login
     page.get_by_role("link", name=" Signup / Login").click()
-    page.locator("form").filter(has_text="Login").get_by_placeholder(
-        "Email Address"
-    ).fill(user["email"])
+    page.locator("form").filter(has_text="Login").get_by_placeholder("Email Address").fill(
+        user["email"]
+    )
     page.get_by_role("textbox", name="Password").fill(user["password"])
     page.get_by_role("button", name="Login").click()
 
@@ -74,9 +79,7 @@ def test_order_flow(page: Page) -> None:
     page.get_by_role("textbox", name="MM").fill(card["month"])
     page.get_by_role("textbox", name="YYYY").fill(card["year"])
     page.get_by_role("button", name="Pay and Confirm Order").click()
-    expect(page.locator("#form")).to_contain_text(
-        "Congratulations! Your order has been confirmed!"
-    )
+    expect(page.locator("#form")).to_contain_text("Congratulations! Your order has been confirmed!")
 
     # Logout and verify we land back on the login page
     page.get_by_role("link", name="Continue").click()
