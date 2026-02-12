@@ -58,8 +58,8 @@ TIMEOUT: int = _cfg["timeout"]
 
 @pytest.fixture(scope="session")
 def api_config() -> dict:
-    """Session-scoped fixture that returns the ``api`` config dict."""
-    return _cfg
+    """Session-scoped fixture that returns a copy of the ``api`` config dict to prevent test pollution."""
+    return _cfg.copy()
 
 
 @pytest.fixture(scope="session")

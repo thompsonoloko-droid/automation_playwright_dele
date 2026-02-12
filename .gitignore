@@ -38,8 +38,6 @@ Thumbs.db
 # Temporary files
 *.txt
 !requirements*.txt
-!LICENSE
-!CHANGELOG.md
 
 # Misc
 README_temp.md

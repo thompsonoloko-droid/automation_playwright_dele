@@ -37,7 +37,7 @@ Thank you for considering contributing! Here's how to get started.
 
 - **Formatter / Linter**: [Ruff](https://docs.astral.sh/ruff/) (enforced via pre-commit)
 - **Type Checking**: mypy (strict on `pages/` and `utils/`)
-- **Line Length**: 120 characters max
+- **Line Length**: 100 characters max
 - **Imports**: sorted by Ruff (isort-compatible)
 
 ## Reporting Bugs
