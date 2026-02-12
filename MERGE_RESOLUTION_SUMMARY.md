@@ -101,6 +101,7 @@ These exclusions were enforced by updating `.gitignore` with additional patterns
    - Fixed .env.example to use placeholder credentials
    - Fixed video cleanup to be test-specific (not delete all videos)
    - Fixed artifact upload path pattern to match actual report filenames
+5. **CodeQL Security Scan**: ✅ 0 alerts (fixed 1 URL validation vulnerability)
 
 ## Key Changes Integrated
 
@@ -121,8 +122,16 @@ These exclusions were enforced by updating `.gitignore` with additional patterns
 1. ✅ The merge is complete and validated
 2. ✅ All conflicts were resolved systematically
 3. ✅ Code quality checks pass
-4. ⚠️ Consider running full test suite if tests exist to ensure integration correctness
-5. ✅ The .gitignore has been updated to prevent future issues with temporary files
+4. ✅ Security scan passes with 0 alerts
+5. ⚠️ Consider running full test suite if tests exist to ensure integration correctness
+6. ✅ The .gitignore has been updated to prevent future issues with temporary files
+
+## Security Summary
+
+- Fixed 1 URL validation vulnerability in `tests/ui/test_smoke.py`
+- Changed from substring check to proper domain validation using `urlparse`
+- This prevents URL injection attacks where malicious URLs could contain the domain as a substring
+- All other security checks passed
 
 ## Merge Commit
 
