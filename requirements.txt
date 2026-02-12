@@ -31,7 +31,7 @@ pillow==12.1.1                     # Screenshot management
 # Code Quality (dev only)
 black==26.1.0                      # Code formatter
 flake8==7.3.0                      # Linter
-isort==6.1.0                       # Import sorter
+isort==7.0.0                       # Import sorter
 mypy==1.19.1                       # Static type checker
 
 # =====================================
