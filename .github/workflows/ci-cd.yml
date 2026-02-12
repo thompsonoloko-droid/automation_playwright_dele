@@ -379,7 +379,7 @@ jobs:
       issues: write
 
     env:
-      SLACK_WEBHOOK_CHECK: ${{ secrets.SLACK_WEBHOOK_URL || '' }}
+      SLACK_WEBHOOK_CHECK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
       - name: Determine build status
@@ -397,7 +397,7 @@ jobs:
         if: env.SLACK_WEBHOOK_CHECK != ''
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL || '' }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {

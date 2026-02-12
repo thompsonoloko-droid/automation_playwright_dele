@@ -60,15 +60,14 @@ class TestUserAccountAPI:
         logger.info(f"Creating test user: {email}")
 
         data = _create_test_user(email)
-        assert data["responseCode"] == 201, (
-            f"Expected 201, got {data['responseCode']}: {data.get('message', '')}"
-        )
-
+        logger.info(f"Create user response: {data}")
+        assert (
+            data.get("responseCode") == 201
+        ), f"Expected 201, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
         logger.info("✓ User account created successfully")
-
         # Cleanup
-        _delete_test_user(email)
-        logger.info("✓ Test user cleaned up")
+        cleanup = _delete_test_user(email)
+        logger.info(f"✓ Test user cleaned up, delete response: {cleanup}")
 
     @pytest.mark.api
     def test_delete_user_account(self):
@@ -78,14 +77,14 @@ class TestUserAccountAPI:
         Creates a user first, then verifies deletion returns responseCode 200.
         """
         email = _unique_email()
-        _create_test_user(email)
+        create_resp = _create_test_user(email)
+        logger.info(f"Create user response: {create_resp}")
         logger.info(f"Deleting test user: {email}")
-
         data = _delete_test_user(email)
-        assert data["responseCode"] == 200, (
-            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
-        )
-
+        logger.info(f"Delete user response: {data}")
+        assert (
+            data.get("responseCode") == 200
+        ), f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
         logger.info("✓ User account deleted successfully")
 
     @pytest.mark.api
@@ -97,9 +96,9 @@ class TestUserAccountAPI:
         """
         email = _unique_email()
         password = _USER_TEMPLATE["password"]
-        _create_test_user(email, password)
+        create_resp = _create_test_user(email, password)
+        logger.info(f"Create user response: {create_resp}")
         logger.info(f"Updating test user: {email}")
-
         update_payload = {
             **_UPDATE_TEMPLATE,
             "email": email,
@@ -107,15 +106,14 @@ class TestUserAccountAPI:
         }
         response = requests.put(f"{BASE_URL}/updateAccount", data=update_payload, timeout=TIMEOUT)
         data = response.json()
-        assert data["responseCode"] == 200, (
-            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
-        )
-
+        logger.info(f"Update user response: {data}")
+        assert (
+            data.get("responseCode") == 200
+        ), f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
         logger.info("✓ User account updated successfully")
-
         # Cleanup
-        _delete_test_user(email, password)
-        logger.info("✓ Test user cleaned up")
+        cleanup = _delete_test_user(email, password)
+        logger.info(f"✓ Test user cleaned up, delete response: {cleanup}")
 
     @pytest.mark.api
     def test_get_user_detail_by_email(self):
@@ -126,30 +124,28 @@ class TestUserAccountAPI:
         """
         email = _unique_email()
         password = _USER_TEMPLATE["password"]
-        _create_test_user(email, password)
+        create_resp = _create_test_user(email, password)
+        logger.info(f"Create user response: {create_resp}")
         logger.info(f"Fetching user details for: {email}")
-
         response = requests.get(
             f"{BASE_URL}/getUserDetailByEmail",
             params={"email": email},
             timeout=TIMEOUT,
         )
         data = response.json()
-        assert data["responseCode"] == 200, (
-            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
-        )
+        logger.info(f"Get user detail response: {data}")
+        assert (
+            data.get("responseCode") == 200
+        ), f"Expected 200, got {data.get('responseCode')}: {data.get('message', '')} | Full response: {data}"
         assert "user" in data, "Response missing 'user' field"
-
         user = data["user"]
         assert user["email"] == email, f"Expected {email}, got {user['email']}"
         for field in ["id", "name", "email", "title", "first_name", "last_name"]:
             assert field in user, f"User object missing '{field}' field"
-
-        logger.info(f"✓ User details retrieved: {user['name']}")
-
+        logger.info(f"✓ User details retrieved: {user.get('name', user.get('email'))}")
         # Cleanup
-        _delete_test_user(email, password)
-        logger.info("✓ Test user cleaned up")
+        cleanup = _delete_test_user(email, password)
+        logger.info(f"✓ Test user cleaned up, delete response: {cleanup}")
 
     @pytest.mark.api
     def test_get_user_detail_nonexistent_email(self):
