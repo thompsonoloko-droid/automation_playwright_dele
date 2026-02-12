@@ -21,6 +21,9 @@ reports/coverage/
 reports/coverage-html/
 reports/*.html
 
+# Test data
+test_data/*.json
+
 # IDE
 .vscode/
 .idea/
