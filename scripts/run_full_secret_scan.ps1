@@ -4,7 +4,11 @@ Write-Host "Installing detect-secrets (local user)..."
 python -m pip install --user --upgrade pip detect-secrets
 
 Write-Host "Running detect-secrets scan (including ignored files)..."
-detect-secrets scan --all-files > .secrets.baseline
+detect-secrets scan --all-files `
+    --exclude-files '\.venv/.*' `
+    --exclude-files '\.git/.*' `
+    --exclude-files 'node_modules/.*' `
+    > .secrets.baseline
 
 if (Test-Path .secrets.baseline) {
     Write-Host ".secrets.baseline written — size:" (Get-Item .secrets.baseline).Length
