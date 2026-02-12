@@ -30,7 +30,21 @@ def main():
     if not BASELINE.exists():
         print(".secrets.baseline not found")
         return
-    data = json.loads(BASELINE.read_text(encoding="utf-8"))
+    # Read as bytes and decode defensively to handle possible BOMs
+    raw = BASELINE.read_bytes()
+    # detect common BOM/encoding
+    if raw.startswith(b"\xff\xfe"):
+        text = raw.decode("utf-16")
+    elif raw.startswith(b"\xfe\xff"):
+        text = raw.decode("utf-16")
+    else:
+        # fallback to utf-8 with replacement
+        text = raw.decode("utf-8", errors="replace")
+    try:
+        data = json.loads(text)
+    except Exception as exc:
+        print("Failed to parse .secrets.baseline as JSON:", exc)
+        return
     results = data.get("results", {})
     removed = 0
     kept = 0
