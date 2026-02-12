@@ -21,12 +21,12 @@ class TestCheckout:
         logger.info("Testing cart checkout button availability...")
         cart_page = CartPage(page)
 
-        assert hasattr(
-            cart_page, "proceed_to_checkout"
-        ), "Cart page missing proceed_to_checkout method"
-        assert callable(
-            getattr(cart_page, "proceed_to_checkout")
-        ), "proceed_to_checkout should be callable"
+        assert hasattr(cart_page, "proceed_to_checkout"), (
+            "Cart page missing proceed_to_checkout method"
+        )
+        assert callable(getattr(cart_page, "proceed_to_checkout")), (
+            "proceed_to_checkout should be callable"
+        )
         logger.info("✓ Cart checkout functionality available")
 
     @pytest.mark.checkout
@@ -38,7 +38,7 @@ class TestCheckout:
         cart_page = CartPage(page)
 
         item_count = cart_page.get_cart_items_count()
-        assert isinstance(
-            item_count, expected_type
-        ), f"Expected {expected_type}, got {type(item_count)}"
+        assert isinstance(item_count, expected_type), (
+            f"Expected {expected_type}, got {type(item_count)}"
+        )
         logger.info(f"✓ Cart item count is valid integer: {item_count}")

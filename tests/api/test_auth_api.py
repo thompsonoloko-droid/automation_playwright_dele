@@ -66,9 +66,9 @@ class TestVerifyLoginAPI:
 
         assert response.status_code == 200
         data = response.json()
-        assert (
-            data["responseCode"] == 200
-        ), f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        assert data["responseCode"] == 200, (
+            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        )
 
         logger.info(f"✓ Valid credentials verified for {user_id}")
 
@@ -128,9 +128,9 @@ class TestVerifyLoginAPI:
 
         assert response.status_code == 200
         data = response.json()
-        assert (
-            data["responseCode"] == expected_code
-        ), f"Expected {expected_code}, got {data['responseCode']}"
+        assert data["responseCode"] == expected_code, (
+            f"Expected {expected_code}, got {data['responseCode']}"
+        )
         assert expected_msg.lower() in data.get("message", "").lower()
 
         logger.info(f"✓ Invalid login [{cred_id}] correctly returns {expected_code}")
