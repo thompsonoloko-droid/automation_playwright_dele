@@ -24,7 +24,7 @@
   ],
   "api": {
     "base_url": "https://automationexercise.com/api",
-    "timeout": 10,
+    "timeout": 30,
     "search_terms": ["Top", "Dress", "Jeans"],
     "invalid_login_attempts": [
       {

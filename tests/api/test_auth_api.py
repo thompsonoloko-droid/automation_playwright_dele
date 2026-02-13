@@ -9,6 +9,8 @@ from pathlib import Path
 import pytest
 import requests
 
+from .api_helpers import get_api_session
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -84,7 +86,8 @@ class TestProductAPIEdgeCases:
         Verifies the endpoint rejects POST with responseCode 405.
         """
         logger.info("Testing POST to products list (unsupported)...")
-        response = requests.post(f"{BASE_URL}/productsList", timeout=TIMEOUT)
+        session = get_api_session()
+        response = session.post(f"{BASE_URL}/productsList", timeout=TIMEOUT)
 
         assert response.status_code == 200
         data = response.json()
@@ -102,7 +105,8 @@ class TestProductAPIEdgeCases:
         search parameter is omitted.
         """
         logger.info("Testing search without required parameter...")
-        response = requests.post(f"{BASE_URL}/searchProduct", timeout=TIMEOUT)
+        session = get_api_session()
+        response = session.post(f"{BASE_URL}/searchProduct", timeout=TIMEOUT)
 
         assert response.status_code == 200
         data = response.json()
@@ -125,8 +129,9 @@ class TestVerifyLoginAPI:
         Parametrized from test_data.json → users (valid=true).
         """
         logger.info(f"Testing login verification for {user_id}: {email}")
+        session = get_api_session()
         payload = {"email": email, "password": password}
-        response = requests.post(
+        response = session.post(
             f"{BASE_URL}/verifyLogin", data=payload, timeout=TIMEOUT
         )
 
@@ -147,8 +152,9 @@ class TestVerifyLoginAPI:
         Verifies the endpoint returns responseCode 400 when email is missing.
         """
         logger.info("Testing login without email parameter...")
+        session = get_api_session()
         payload = {"password": "SomePassword123"}
-        response = requests.post(
+        response = session.post(
             f"{BASE_URL}/verifyLogin", data=payload, timeout=TIMEOUT
         )
 
@@ -168,7 +174,8 @@ class TestVerifyLoginAPI:
         Verifies the endpoint rejects DELETE method with responseCode 405.
         """
         logger.info("Testing DELETE to /verifyLogin (unsupported)...")
-        response = requests.delete(f"{BASE_URL}/verifyLogin", timeout=TIMEOUT)
+        session = get_api_session()
+        response = session.delete(f"{BASE_URL}/verifyLogin", timeout=TIMEOUT)
 
         assert response.status_code == 200
         data = response.json()
@@ -191,8 +198,9 @@ class TestVerifyLoginAPI:
         Parametrized from test_data.json → api.invalid_login_attempts.
         """
         logger.info(f"Testing invalid login [{cred_id}]: {email}")
+        session = get_api_session()
         payload = {"email": email, "password": password}
-        response = requests.post(
+        response = session.post(
             f"{BASE_URL}/verifyLogin", data=payload, timeout=TIMEOUT
         )
 

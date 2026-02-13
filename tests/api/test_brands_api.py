@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 import requests
 
+from .api_helpers import get_api_session
+
 logger = logging.getLogger(__name__)
 
 # Load config from test_data.json for consistency with other API test files
@@ -40,7 +42,8 @@ class TestBrandsAPI:
         - Each brand has 'id' and 'brand' fields
         """
         logger.info("Testing brands list endpoint...")
-        response = requests.get(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
+        session = get_api_session()
+        response = session.get(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
 
         assert response.status_code == 200
         data = response.json()
@@ -64,7 +67,8 @@ class TestBrandsAPI:
         - Response message indicates method not supported
         """
         logger.info("Testing PUT to brands list (unsupported method)...")
-        response = requests.put(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
+        session = get_api_session()
+        response = session.put(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
 
         assert response.status_code == 200  # HTTP status is 200
         data = response.json()

@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 import requests
 
+from .api_helpers import get_api_session
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -40,7 +42,8 @@ class TestProductAPI:
         """API 1: GET /productsList returns a non-empty products array."""
         logger.info("Testing products list endpoint...")
 
-        response = requests.get(f"{BASE_URL}/productsList", timeout=TIMEOUT)
+        session = get_api_session()
+        response = session.get(f"{BASE_URL}/productsList", timeout=TIMEOUT)
 
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
         data = response.json()
@@ -56,9 +59,10 @@ class TestProductAPI:
     def test_search_product(self, search_term: str):
         """API 5: POST /searchProduct returns matching products for the given term."""
         logger.info(f"Testing product search for '{search_term}'...")
+        session = get_api_session()
         payload = {"search_product": search_term}
 
-        response = requests.post(
+        response = session.post(
             f"{BASE_URL}/searchProduct", data=payload, timeout=TIMEOUT
         )
 
