@@ -9,11 +9,10 @@ Usage:
 """
 
 import os
+import shutil
 import subprocess
 import sys
-import shutil
 from pathlib import Path
-
 
 RESULTS_DIR = Path("reports/allure-results")
 REPORT_DIR = Path("reports/allure-report")
