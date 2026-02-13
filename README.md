@@ -1,83 +1,73 @@
 # automation_playwright_dele
 
-[![Tests Status](https://img.shields.io/badge/tests-maintained-brightgreen)]()
+[![Test Automation Pipeline](https://github.com/thompsonoloko-droid/automation_playwright_dele/actions/workflows/ci-cd.yml/badge.svg?branch=main)](https://github.com/thompsonoloko-droid/automation_playwright_dele/actions/workflows/ci-cd.yml)
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue)]()
-[![Playwright Version](https://img.shields.io/badge/playwright-latest-brightgreen)]()
-[![License](https://img.shields.io/badge/license-MIT-green)]()
+[![Playwright Version](https://img.shields.io/badge/playwright-1.58.0-brightgreen)]()
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A **professional-grade, production-ready Playwright-based test automation framework** for e-commerce testing with comprehensive Page Object Model (POM) architecture, data-driven testing, CI/CD integration and advanced reporting capabilities.
+A **production-ready Playwright-based test automation framework** for e-commerce testing with Page Object Model (POM) architecture, data-driven testing, CI/CD integration and advanced reporting.
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#-features)
-- [Quick Start](#-quick-start)
-- [Project Structure](#-project-structure)
-- [Configuration](#-configuration)
-- [Running Tests](#-running-tests)
-- [Test Organization](#-test-organization)
-- [Page Objects](#-page-objects)
-- [Utilities](#-utilities)
-- [Advanced Features](#-advanced-features)
-- [CI/CD Integration](#-cicd-integration)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Running Tests](#running-tests)
+- [Test Coverage](#test-coverage)
+- [Page Objects](#page-objects)
+- [Data-Driven Testing](#data-driven-testing)
+- [CI/CD Integration](#cicd-integration)
+- [Reports](#reports)
+- [Security](#security)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
 
-## 🎯 Features
+## Features
 
-✅ **Playwright Browser Automation** - Chromium, Firefox, WebKit support  
-✅ **Page Object Model (POM)** - Clean, maintainable, reusable test structure  
-✅ **Data-Driven Testing** - Parametrized tests with JSON/CSV test data  
-✅ **API Testing** - RESTful API integration and endpoint testing  
-✅ **Screenshot & Video Capture** - Automatic failure screenshots and optional video recording  
-✅ **Consent Banner Handling** - Auto-dismisses cookie and consent modals  
-✅ **Pytest Integration** - Comprehensive markers, fixtures, and configuration  
-✅ **Test Fixtures** - Reusable browser, page, and test data fixtures  
-✅ **Advanced Logging** - Detailed test execution logs with configurable levels  
-✅ **Allure Reporting** - Beautiful HTML test reports with trends and analytics  
-✅ **Error Handling** - Robust error handling with descriptive error messages  
-✅ **Performance Testing** - API response time and page load performance tests
+- **Cross-Browser Testing** — Chromium, Firefox, WebKit via Playwright
+- **Page Object Model** — Clean, maintainable, reusable test structure
+- **Data-Driven Testing** — Parametrized tests with JSON test data
+- **API Testing** — REST API endpoint verification with retry logic
+- **Performance Testing** — API response-time and page-load benchmarks
+- **Screenshot & Video** — Automatic failure screenshots, optional video recording
+- **Consent Banner Handling** — Network-level blocking + DOM removal of cookie overlays
+- **Allure & HTML Reporting** — Rich test reports with trends and analytics
+- **CI/CD Pipelines** — 4 GitHub Actions workflows (push, PR, scheduled, manual)
+- **Code Quality** — Ruff linting/formatting, mypy type checking, pre-commit hooks
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-- Python 3.11 or higher
-- pip (Python package manager)
-- Git (for cloning the repository)
+- Python 3.11+
+- pip
+- Git
 
-### 1. Setup Environment
+### 1. Setup
 
 ```bash
-# Clone repository
-git clone <repo-url>
+git clone https://github.com/thompsonoloko-droid/automation_playwright_dele.git
 cd automation_playwright_dele
 
-# Create virtual environment
 python -m venv .venv
 
-# Activate virtual environment
-# On Windows:
+# Windows
 .venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux
 source .venv/bin/activate
 
-# Install dependencies
 pip install -r requirements.txt
-
-# Install Playwright browsers (required before running tests)
 python -m playwright install
 ```
 
 ### 2. Configure Credentials
 
-Credentials are loaded from environment variables (never committed to git).
-Copy the example file and fill in your values:
+Copy the example file and fill in your test account details:
 
 ```bash
 cp .env.example .env
 ```
-
-Edit `.env` with your test account details:
 
 ```dotenv
 # Valid user login (automationexercise.com)
@@ -93,419 +83,241 @@ CARD_EXPIRY_MONTH=12
 CARD_EXPIRY_YEAR=2030
 ```
 
-Non-sensitive test data (invalid credentials, API config, selectors) lives in `test_data/test_data.json` — no changes needed there.
+Non-sensitive test data (invalid credentials, API config) lives in `test_data/test_data.json`.
 
 ### 3. Run Tests
 
 ```bash
-# Run all tests
-pytest tests/
-
-# Run only smoke tests (critical path)
-pytest tests/ -m smoke
-
-# Run UI tests only
-pytest tests/ui/ -v
-
-# Run API tests only
-pytest tests/api/ -v
-
-# Run with specific markers
-pytest -m "smoke or api" -v
-
-# Run single test file
-pytest tests/ui/test_login.py -v
-
-# Run single test
-pytest tests/ui/test_login.py::TestLogin::test_valid_login -v
-
-# Run with custom options
-pytest tests/ -v --tb=long --capture=no
+pytest tests/                      # All tests
+pytest tests/ -m smoke             # Smoke tests only
+pytest tests/ui/ -v                # UI tests
+pytest tests/api/ -v               # API tests
+pytest tests/performance/ -v       # Performance tests
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 automation_playwright_dele/
+├── pages/                              # Page Object Models
+│   ├── base_page.py                    # Base class — click, fill, wait, screenshot
+│   ├── home_page.py                    # Homepage navigation
+│   ├── login_page.py                   # Login & registration forms
+│   ├── product_page.py                 # Product listing & cart actions
+│   └── cart_page.py                    # Shopping cart interactions
 │
-├── pages/                          # Page Object Models
-│   ├── __init__.py
-│   ├── base_page.py               # Base class for all page objects
-│   ├── home_page.py               # Home/dashboard page interactions
-│   ├── login_page.py              # Login and registration page
-│   ├── product_page.py            # Product listing and details
-│   └── cart_page.py               # Shopping cart interactions
+├── tests/
+│   ├── conftest.py                     # Shared fixtures (page, test_data, browser config)
+│   ├── ui/                             # UI / E2E tests
+│   │   ├── test_smoke.py               # Homepage, registration, add-to-cart (3 tests)
+│   │   ├── test_login.py               # Data-driven login scenarios (2 parametrized)
+│   │   ├── test_checkout.py            # Cart & checkout (2 tests)
+│   │   └── test_payment.py             # Full order flow (1 test)
+│   ├── api/                            # REST API tests
+│   │   ├── conftest.py                 # Shared API session with retry logic
+│   │   ├── test_auth_api.py            # Authentication endpoints (5 tests)
+│   │   ├── test_brands_api.py          # Brands endpoint (2 tests)
+│   │   ├── test_product_api.py         # Product listing & search (4 tests)
+│   │   └── test_user_api.py            # User CRUD operations (5 tests)
+│   └── performance/                    # Performance benchmarks
+│       ├── test_api_performance.py     # API response time thresholds (3 tests)
+│       └── test_page_performance.py    # Page load, CLS, resource count (4 tests)
 │
-├── tests/                          # Test suite
-│   ├── __init__.py
-│   ├── conftest.py                # Pytest fixtures and configuration
-│   │
-│   ├── ui/                         # UI and E2E tests
-│   │   ├── test_smoke.py          # Critical path smoke tests
-│   │   ├── test_login.py          # Login/auth tests (data-driven)
-│   │   ├── test_checkout.py       # Checkout process tests
-│   │   └── __init__.py
-│   │
-│   ├── api/                        # REST API tests
-│   │   ├── conftest.py            # Shared API fixtures (BASE_URL, TIMEOUT)
-│   │   ├── test_product_api.py    # Product endpoint tests
-│   │   └── __init__.py
-│   │
-│   └── performance/                # API & page-load performance tests
+├── utils/
+│   ├── api_utils.py                    # APIUtils — HTTP client with response helpers
+│   └── web_utils.py                    # Deprecated — use BasePage instead
 │
-├── utils/                          # Utility modules
-│   ├── __init__.py
-│   ├── web_utils.py               # Web automation utilities
-│   ├── api_utils.py               # API testing utilities
-│   └── helpers/                    # Additional helpers (future)
+├── test_data/
+│   └── test_data.json                  # Non-sensitive test data & API config
 │
-├── test_data/                      # Test data and fixtures
-│   └── test_data.json             # Test credentials and data
+├── reports/                            # Generated at runtime (git-ignored)
+│   ├── screenshots/                    # Failure screenshots
+│   ├── videos/                         # Optional video recordings
+│   └── allure-results/                 # Allure report data
 │
-├── reports/                        # Test execution reports
-│   ├── screenshots/               # Failure screenshots
-│   ├── videos/                    # Test recordings (optional)
-│   ├── test-report.html          # HTML test report
-│   └── allure-results/           # Allure report data
-│
-├── docs/                          # Documentation
-│   └── *.md                       # Various guides
-│
-├── .vscode/                       # VS Code configuration
-│   ├── settings.json
-│   ├── launch.json
-│   ├── tasks.json
-│   └── extensions.json
-│
-├── .github/                       # GitHub CI/CD & automation
+├── .github/
 │   ├── workflows/
-│   │   ├── ci-cd.yml              # Main pipeline (push/PR/schedule)
-│   │   ├── pr-checks.yml          # PR validation & smoke tests
-│   │   ├── scheduled-smoke-tests.yml  # Scheduled health checks
-│   │   └── manual-test-run.yml    # On-demand test runs
-│   └── dependabot.yml             # Dependency vulnerability scanning
+│   │   ├── ci-cd.yml                   # Main pipeline (lint → test → coverage → report)
+│   │   ├── pr-checks.yml               # PR validation & smoke tests
+│   │   ├── scheduled-smoke-tests.yml   # Every-6-hour health checks
+│   │   └── manual-test-run.yml         # On-demand test runs
+│   ├── dependabot.yml                  # Dependency vulnerability scanning
+│   ├── ISSUE_TEMPLATE/bug_report.md    # Bug report template
+│   ├── PULL_REQUEST_TEMPLATE.md        # PR checklist
+│   └── copilot-instructions.md         # Copilot coding guidelines
 │
-├── .env.example                   # Template for credentials (committed)
-├── .env                           # Actual credentials (git-ignored)
-├── .gitignore
-├── pyproject.toml                  # Unified tool config (black, ruff, isort, mypy, pytest)
-├── pytest.ini                     # Pytest configuration
-├── generate_allure_report.py      # Allure report generator script
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
+├── docs/                               # Additional documentation
+├── scripts/                            # Utility scripts
+├── .env.example                        # Credential template (committed)
+├── .editorconfig                       # Editor formatting rules
+├── .pre-commit-config.yaml             # Pre-commit hooks (ruff, mypy)
+├── pyproject.toml                      # Unified tool config (ruff, mypy, pytest)
+├── pytest.ini                          # Pytest configuration & markers
+├── requirements.txt                    # Runtime dependencies
+├── requirements-dev.txt                # Dev/CI dependencies (ruff, mypy, black)
+├── generate_allure_report.py           # Allure report generator
+├── CHANGELOG.md                        # Release history
+├── CONTRIBUTING.md                     # Contributor guidelines
+├── SECURITY.md                         # Security policy
+├── CODE_OF_CONDUCT.md                  # Community standards
+└── LICENSE                             # MIT License
 ```
 
-## ⚙️ Configuration
-
-### Pytest Configuration (pytest.ini)
-
-The `pytest.ini` file contains:
-
-- Test discovery patterns (test file naming)
-- Execution options (verbosity, timeout, markers)
-- Logging configuration
-- Report generation settings
+## Running Tests
 
 ```bash
-# Key options:
-testpaths = tests              # Where to find tests
-python_files = test_*.py       # Test file naming pattern
-python_functions = test_*      # Test function naming pattern
+# Common commands
+pytest tests/ -v                       # Verbose output
+pytest tests/ -x                       # Stop on first failure
+pytest tests/ --maxfail=3              # Stop after 3 failures
+pytest tests/ -v -s                    # Show print/log output
+pytest tests/ -k "login"              # Match test name pattern
+pytest tests/ -n auto                  # Parallel execution (pytest-xdist)
 
-# Markers:
-@pytest.mark.smoke            # Critical path tests
-@pytest.mark.regression       # Full regression suite
-@pytest.mark.api              # API tests only
-@pytest.mark.ui               # UI tests only
-@pytest.mark.slow             # Long-running tests
-```
+# By marker
+pytest -m smoke                        # Critical path
+pytest -m "smoke or api"               # Multiple markers
+pytest -m regression                   # Full regression
 
-### Browser Configuration
-
-Browser configuration is in `tests/conftest.py`:
-
-- Viewport size: 1920x1080 (adjustable)
-- HTTPS error ignoring: Enabled
-- Video recording: Disabled by default (can be enabled)
-
-## 🧪 Running Tests
-
-### Common Commands
-
-```bash
-# Verbose output with test results
-pytest tests/ -v
-
-# Stop on first failure
-pytest tests/ -x
-
-# Stop after N failures
-pytest tests/ --maxfail=3
-
-# Show print statements
-pytest tests/ -v -s
-
-# Only run tests matching pattern
-pytest tests/ -k "login"
-
-# Run with specific marker
-pytest tests/ -m "smoke"
-
-# Run with HTML report
+# Reports
 pytest tests/ --html=reports/test-report.html --self-contained-html
-
-# Run with Allure report
 pytest tests/ --alluredir=reports/allure-results
 
-# Run with coverage (requires pytest-cov)
+# Coverage
 pytest tests/ --cov=pages --cov=utils --cov-report=html
-
-# Show test summary
-pytest tests/ -v --tb=short
-
-# Run in parallel (requires pytest-xdist)
-pytest tests/ -n auto
 ```
-
-## 🏗️ Test Organization
 
 ### Test Markers
 
-Organize and filter tests using pytest markers:
-
 ```python
-@pytest.mark.smoke              # Critical path
-@pytest.mark.regression         # Full regression
+@pytest.mark.smoke              # Critical path tests
+@pytest.mark.regression         # Full regression suite
 @pytest.mark.api                # API tests
 @pytest.mark.ui                 # UI tests
 @pytest.mark.login              # Login-specific
 @pytest.mark.cart               # Cart-specific
 @pytest.mark.checkout           # Checkout-specific
-@pytest.mark.slow               # Long-running
+@pytest.mark.performance        # Performance benchmarks
+@pytest.mark.slow               # Long-running tests
 @pytest.mark.skip_ci            # Skip in CI/CD
 ```
 
-### Test Scopes
+## Test Coverage
 
-Tests are organized by scope:
+**31 tests** across 3 test suites:
 
-- **Smoke Tests** - Quick critical path tests (5-10 minutes)
-- **UI Tests** - Full UI/E2E coverage
-- **API Tests** - REST API verification
-- **Integration Tests** - Full workflow testing
-- **Performance Tests** - API response-time and page-load benchmarks
+### UI Tests (8 tests)
 
-## 📄 Page Objects
+| File | Tests | Description |
+|------|-------|-------------|
+| `test_smoke.py` | 3 | Homepage load, user registration, add-to-cart flow |
+| `test_login.py` | 2 | Data-driven valid/invalid login (parametrized from JSON) |
+| `test_checkout.py` | 2 | Cart checkout button, item count verification |
+| `test_payment.py` | 1 | Full E2E: login → browse → cart → checkout → payment → logout |
 
-All page objects inherit from `BasePage` and provide:
+### API Tests (16 tests)
 
-- Element interaction methods (click, fill, get_text)
-- Wait mechanisms (implicit and explicit)
-- Error handling and logging
-- Screenshot capture
+| File | Tests | Description |
+|------|-------|-------------|
+| `test_auth_api.py` | 5 | Login verification, missing params, invalid methods/credentials |
+| `test_brands_api.py` | 2 | Brand listing, unsupported method rejection |
+| `test_product_api.py` | 4 | Product listing, search, edge cases (POST/missing params) |
+| `test_user_api.py` | 5 | Create, read, update, delete user accounts |
+
+### Performance Tests (7 tests)
+
+| File | Tests | Description |
+|------|-------|-------------|
+| `test_api_performance.py` | 3 | API response time thresholds, concurrent search burst |
+| `test_page_performance.py` | 4 | Page load times, resource count, Cumulative Layout Shift |
+
+## Page Objects
+
+All page objects inherit from `BasePage`, which provides:
+
+- **`click(selector)`** — Click with retry logic and automatic overlay dismissal
+- **`fill(selector, text)`** — Fill input with overlay retry
+- **`wait_for_element(selector)`** — Wait for visibility before interaction
+- **`get_text(selector)`** — Retrieve element text content
+- **`take_screenshot(name)`** — Manual screenshot capture
+- **`_dismiss_overlays()`** — Remove consent/cookie banners
 
 ### Creating a New Page Object
 
 ```python
 from pages.base_page import BasePage
-from playwright.sync_api import expect
 
-class YourPage(BasePage):
-    """Page Object for your page"""
+class CheckoutPage(BasePage):
+    """Page Object for the checkout page."""
 
-    # Define locators
-    BUTTON_SUBMIT = "button[type='submit']"
-    INPUT_EMAIL = "input[name='email']"
+    BUTTON_PLACE_ORDER = "button[data-qa='place-order']"
+    INPUT_CARD_NUMBER = "input[name='card_number']"
 
-    def fill_email(self, email: str) -> None:
-        """Fill email field"""
-        self.fill(self.INPUT_EMAIL, email)
+    def fill_card_number(self, number: str) -> None:
+        """Fill the card number field."""
+        self.fill(self.INPUT_CARD_NUMBER, number)
 
-    def click_submit(self) -> None:
-        """Click submit button"""
-        self.click(self.BUTTON_SUBMIT)
+    def place_order(self) -> None:
+        """Click the place order button."""
+        self.click(self.BUTTON_PLACE_ORDER)
 ```
 
-### Using Page Objects in Tests
+### Using in Tests
 
 ```python
-def test_example(page):
-    # Create page object
-    your_page = YourPage(page)
-
-    # Use page object methods
-    your_page.fill_email("test@example.com")
-    your_page.click_submit()
+def test_checkout(page):
+    checkout = CheckoutPage(page)
+    checkout.fill_card_number("4444333322221111")
+    checkout.place_order()
 ```
 
-## 🛠️ Utilities
+## Data-Driven Testing
 
-### WebUtils
-
-Web automation utilities in `utils/web_utils.py`:
-
-```python
-from utils.web_utils import WebUtils
-
-web_utils = WebUtils(page)
-
-# Click with wait
-web_utils.wait_and_click("button.save")
-
-# Fill form field
-web_utils.fill_field("input[name='name']", "John Doe")
-
-# Get element text
-text = web_utils.get_element_text("p.error")
-
-# Check visibility (non-blocking)
-if web_utils.is_element_visible("div.success"):
-    print("Success!")
-
-# Screenshot
-screenshot_path = web_utils.take_screenshot("test_success")
-
-# Scroll to element
-web_utils.scroll_to_element("button.checkout")
-```
-
-### APIUtils
-
-API testing utilities in `utils/api_utils.py`:
-
-```python
-from utils.api_utils import APIUtils
-
-api = APIUtils("https://api.example.com")
-
-# GET request
-response = api.get("/products", params={"page": 1})
-
-# POST request
-response = api.post("/users", data={"name": "John"})
-
-# Set authentication
-api.set_auth_token("your-token")
-
-# Verify status code
-api.verify_status_code(response, 200)
-
-# Save response
-api.save_response_to_file(response, "response.json")
-```
-
-## 🔧 Advanced Features
-
-### Data-Driven Testing
-
-Tests are parametrized from JSON test data:
+Tests are parametrized from `test_data/test_data.json`:
 
 ```python
 @pytest.mark.parametrize("user_id,email,password", get_valid_users())
 def test_login(page, user_id, email, password):
-    # Test runs once per user in test_data.json
-    pass
+    """Runs once per valid user defined in test_data.json."""
+    login_page = LoginPage(page)
+    login_page.login(email, password)
 ```
 
-### Screenshot Capture
+- **Valid credentials** load from environment variables (`TEST_USER_EMAIL`, etc.)
+- **Invalid credentials** and API config are stored directly in `test_data.json`
+- Tests are **automatically skipped** when required env vars are missing
 
-Automatic on failure, manual capture:
+Add new test scenarios by editing `test_data.json` — no code changes needed.
 
-```python
-# Automatic (in conftest.py)
-# Captured on test failure to reports/screenshots/
-
-# Manual capture
-page_obj.take_screenshot("custom_name")
-```
-
-### Video Recording
-
-Optional video recording (disabled by default):
-
-1. Uncomment in `conftest.py`:
-
-```python
-"record_video_dir": "./reports/videos"
-```
-
-2. Run tests - videos saved to `reports/videos/`
-
-3. Optional cleanup:
-
-```python
-def test_example(cleanup_videos, page):
-    # Video deleted if test passes
-    pass
-```
-
-### Logging
-
-Configure logging level in `pytest.ini` or code:
-
-```python
-logger.info("Test starting...")
-logger.debug("Debug information")
-logger.warning("Warning message")
-logger.error("Error occurred")
-```
-
-## 🔄 CI/CD Integration
+## CI/CD Integration
 
 ### GitHub Actions
 
-The project includes 4 production-ready workflow files — see the [CI/CD Integration](#-cicd-integration-1) section below for details.
+Four production-ready workflows in `.github/workflows/`:
 
-### Jenkins Example
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `ci-cd.yml` | Push, PR, schedule, manual | Full pipeline: Ruff lint → multi-browser tests → coverage → Allure report → Slack notify |
+| `pr-checks.yml` | Pull request | Validate commits, smoke tests, coverage gate |
+| `scheduled-smoke-tests.yml` | Every 6 hours + daily | Continuous health monitoring with Slack alerts |
+| `manual-test-run.yml` | Manual dispatch | On-demand runs with suite/browser/parallel selection |
 
-```groovy
-pipeline {
-    stages {
-        stage('Setup') {
-            steps {
-                sh 'python -m venv venv'
-                sh '. venv/bin/activate && pip install -r requirements.txt'
-                sh '. venv/bin/activate && python -m playwright install'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh '. venv/bin/activate && pytest tests/ -v --tb=short'
-            }
-        }
-        stage('Report') {
-            steps {
-                publishHTML([
-                    reportDir: 'reports',
-                    reportFiles: 'test-report.html',
-                    reportName: 'Test Report'
-                ])
-            }
-        }
-    }
-}
+**Security features:**
+- All actions pinned to commit SHAs (supply-chain protection)
+- Least-privilege permissions per job
+- Secret verification before test execution (fail-fast)
+- Concurrency controls to cancel stale duplicate runs
+- Dependabot scanning for pip + GitHub Actions dependencies
+
+### Pipeline Overview
+
+```
+Push/PR → Ruff Lint → Tests (Chromium + Firefox + WebKit) → Coverage Report → Allure Report → Slack Notification
 ```
 
-## 🚀 CI/CD Integration
-
-### GitHub Actions
-
-Four workflow files in `.github/workflows/`:
-
-| Workflow                    | Trigger                    | Purpose                                                             |
-| --------------------------- | -------------------------- | ------------------------------------------------------------------- |
-| `ci-cd.yml`                 | Push, PR, schedule, manual | Full pipeline: lint → multi-browser test → coverage → Allure report |
-| `pr-checks.yml`             | Pull request               | Validate commits, smoke tests, coverage gate (60%)                  |
-| `scheduled-smoke-tests.yml` | Every 6 hours              | Continuous health monitoring with Slack alerts                      |
-| `manual-test-run.yml`       | Manual dispatch            | On-demand runs with suite/browser/parallel selection                |
-
-All actions are **pinned to commit SHAs** and use **least-privilege permissions**.
-
-## 📊 Reports
+## Reports
 
 ### HTML Report
-
-Generate after test run:
 
 ```bash
 pytest tests/ --html=reports/test-report.html --self-contained-html
@@ -515,311 +327,137 @@ pytest tests/ --html=reports/test-report.html --self-contained-html
 
 ```bash
 pytest tests/ --alluredir=reports/allure-results
-allure serve reports/allure-results
+python generate_allure_report.py    # Or: allure serve reports/allure-results
 ```
 
-## 🐛 Troubleshooting
+### Failure Screenshots
 
-### Common Issues
+Captured automatically on test failure:
+```
+reports/screenshots/failure_<test_name>_<timestamp>.png
+```
+
+## Security
+
+- **Credentials in `.env`** — loaded via `python-dotenv`; `.env` is git-ignored
+- **CI/CD secrets** — `TEST_USER_*` and `CARD_*` set as GitHub repository secrets
+- **No secrets in code** — `test_data.json` contains only non-sensitive data
+- **Actions pinned to SHAs** — prevents supply-chain attacks
+- **Least-privilege permissions** — each CI job declares only what it needs
+- **Dependabot** — weekly vulnerability scanning for pip and GitHub Actions
+
+### Required Repository Secrets
+
+Set in **Settings → Secrets and variables → Actions**:
+
+| Secret | Purpose |
+|--------|---------|
+| `TEST_USER_NAME` | Test account display name |
+| `TEST_USER_EMAIL` | Test account email |
+| `TEST_USER_PASSWORD` | Test account password |
+| `CARD_NAME` | Payment card name |
+| `CARD_NUMBER` | Payment card number |
+| `CARD_CVC` | Card CVC code |
+| `CARD_EXPIRY_MONTH` | Card expiry month |
+| `CARD_EXPIRY_YEAR` | Card expiry year |
+| `SLACK_WEBHOOK_URL` | *(optional)* Slack notification webhook |
+
+## Configuration
+
+### pytest.ini
+
+- Test discovery paths and patterns
+- Strict markers, verbose output, short tracebacks
+- Live logging at INFO level
+- JUnit XML output (`xunit2`)
+
+### pyproject.toml
+
+Unified config for Ruff, mypy, isort, and Black — keeps tool settings in one place.
+
+### conftest.py Fixtures
+
+| Fixture | Scope | Description |
+|---------|-------|-------------|
+| `browser_context_args` | session | 1920×1080 viewport, HTTPS errors ignored |
+| `page` | function | Fresh page with consent banners blocked, navigated to base URL |
+| `test_data` | function | Loads `test_data.json` as a list of dicts |
+| `cleanup_videos` | function | Deletes video recordings for passing tests |
+
+### API Test Fixtures (`tests/api/conftest.py`)
+
+| Fixture / Constant | Description |
+|---------------------|-------------|
+| `BASE_URL` | API base URL from `test_data.json` |
+| `TIMEOUT` | Request timeout from config |
+| `api_session` | Session-scoped `requests.Session` with retry logic (3 retries, exponential backoff, handles Cloudflare 520-524) |
+| `api_config` | Session-scoped API configuration dict |
+
+## Troubleshooting
 
 **Playwright browsers not installed:**
-
 ```bash
 python -m playwright install
 ```
 
-**Port already in use:**
-
-```bash
-# Change browser port in conftest.py if needed
-```
-
-**Element not found:**
-
+**Element not found / Timeout errors:**
+- Consent overlay may be blocking — `BasePage.click()` retries with overlay dismissal
 - Check selector in browser DevTools
-- Verify page loaded (check network tab)
-- Add explicit waits
+- Increase timeout: `self.timeout = 60000` in BasePage
 
-**Timeout errors:**
+**Tests skipped with `[NOTSET]`:**
+- Valid-login tests require `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` env vars
+- Copy `.env.example` to `.env` and fill in credentials
 
-- Increase timeout in BasePage.timeout
-- Check internet connectivity
-- Verify selectors
+**Capture Playwright traces for debugging:**
+```bash
+pytest tests/ui/test_login.py -v --trace=retain-on-failure
+```
 
-**Screenshot/video not captured:**
+## Dependencies
 
-- Check `reports/` directory permissions
-- Ensure directory exists: `os.makedirs("reports/screenshots", exist_ok=True)`
+### Runtime (`requirements.txt`)
 
-## 📝 Best Practices
+| Package | Version | Purpose |
+|---------|---------|---------|
+| pytest | 9.0.2 | Test framework |
+| playwright | 1.58.0 | Cross-browser automation |
+| pytest-playwright | 0.7.2 | Pytest-Playwright integration |
+| requests | 2.32.5 | HTTP client for API testing |
+| python-dotenv | 1.2.1 | Load `.env` credentials |
+| pytest-html | 4.2.0 | HTML test reports |
+| allure-pytest | 2.15.3 | Allure reporting |
+| pytest-cov | 7.0.0 | Code coverage |
+| pytest-xdist | 3.8.0 | Parallel execution |
+| pytest-retry | 1.7.0 | Retry flaky tests |
+| pytest-timeout | 2.4.0 | Test timeout management |
+| pytest-base-url | 2.1.0 | Configurable base URLs |
+| pillow | 12.1.1 | Screenshot processing |
 
-1. **DRY Principle** - Use page objects and utilities
-2. **Explicit Waits** - Use `wait_for_element()` not `sleep()`
-3. **Meaningful Names** - Clear test and method names
-4. **One Assert** - One action per test
-5. **Test Data** - Externalize in JSON/CSV
-6. **Logging** - Log important steps
-7. **Error Handling** - Descriptive error messages
-8. **Isolation** - Each test independent
-9. **Cleanup** - Proper teardown (handled by fixtures)
-10. **Documentation** - Docstrings for complex logic
+### Development (`requirements-dev.txt`)
 
-## 🤝 Contributing
+| Package | Purpose |
+|---------|---------|
+| ruff | Linter & formatter (replaces black/flake8/isort in CI) |
+| mypy | Static type checking |
+| types-requests | Type stubs for requests |
 
-1. Follow existing code style
-2. Add comprehensive docstrings
-3. Update README for new features
-4. Test locally before submitting
-5. Use meaningful commit messages
+## Contributing
 
-## 📄 License
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines. In short:
 
-This project is licensed under the MIT License.
+1. Inherit page objects from `BasePage`
+2. Add type hints and Google-style docstrings
+3. Use pytest markers to categorize tests
+4. Store test data in `test_data.json`, credentials in `.env`
+5. Run `pre-commit run --all-files` before committing
+6. Test locally before submitting a PR
 
-## 📞 Support
+## License
 
-For issues, questions, or suggestions:
-
-1. Check existing issues/documentation
-2. Review test logs and screenshots
-3. Enable debug logging
-4. Check browser/network connectivity
+[MIT License](LICENSE)
 
 ---
 
-## 📊 Test Markers
-
-Markers help organize and run test groups:
-
-```bash
-pytest -m smoke              # Critical path tests
-pytest -m login              # Authentication tests
-pytest -m api                # API tests
-pytest -m checkout           # Checkout process tests
-pytest -m cart               # Shopping cart tests
-pytest -m regression         # Full regression suite
-```
-
-## 🧪 Test Coverage
-
-### UI Tests
-
-- **test_smoke.py** - Homepage, registration, cart operations (3 tests)
-- **test_login.py** - Data-driven valid/invalid login scenarios (3 parametrized tests)
-- **test_checkout.py** - Cart and checkout functionality (4 tests)
-- **test_payment.py** - Full order flow: login → browse → checkout → payment → logout (1 test)
-
-### API Tests
-
-- **test_product_api.py** - Product listing and search APIs (4 tests)
-- **test_auth_api.py** - Authentication endpoints (8 parametrized tests)
-- **test_user_api.py** - User CRUD operations (4 tests)
-
-### Performance Tests
-
-- **test_api_performance.py** - API response time thresholds (4 endpoint tests)
-- **test_page_performance.py** - Page load times and CLS metrics (8 parametrized tests)
-
-**Total: 39 tests**
-
-## 🔧 Configuration Files
-
-### pytest.ini
-
-Centralized pytest configuration:
-
-- Test paths and discovery patterns
-- Logging and output options
-- Test markers definition
-- Allure reporting
-
-### conftest.py
-
-Pytest fixtures:
-
-- `browser_context_args` - Browser viewport and settings
-- `page` - Auto-navigated Playwright page with consent banner blocked at network level
-- `test_data` - Loads non-sensitive config from test_data.json
-- `load_dotenv` - Credentials loaded from `.env` before any tests run
-- `cleanup_videos` - Optional cleanup fixture
-
-### .pre-commit-config.yaml
-
-Automated code quality hooks:
-
-- Ruff formatting & linting
-- Type checking with mypy
-- YAML validation
-- Trailing whitespace & end-of-file fixes
-
-## 📝 Data-Driven Testing
-
-Tests are parameterized using `pytest.parametrize` with data from `test_data.json`:
-
-```python
-# test_login.py automatically creates test variations:
-# - test_valid_login[valid_user_1]
-# - test_invalid_login[invalid_email_password]
-# - test_invalid_login[empty_email]
-```
-
-Add new test scenarios by updating `test_data.json` - no code changes needed!
-
-## 🛠️ Development Workflow
-
-### Adding New Tests
-
-1. Create page object in `pages/`
-2. Add test file in `tests/ui/` or `tests/api/`
-3. Use fixtures: `page`, `test_data`
-4. Add test data to `test_data.json` if data-driven
-
-### Example Test
-
-```python
-import pytest
-from pages.home_page import HomePage
-
-class TestNewFeature:
-    @pytest.mark.smoke
-    def test_feature_works(self, page, test_data):
-        """Test description"""
-        home_page = HomePage(page)
-        # Test implementation
-```
-
-### Pre-commit Hooks
-
-```bash
-# Install hooks
-pre-commit install
-
-# Run hooks on all files
-pre-commit run --all-files
-
-# Hooks run automatically on git commit
-```
-
-## 🐛 Debugging
-
-### Capture Traces
-
-Playwright traces help debug failures:
-
-```bash
-python -m pytest tests/ui/test_login.py -v --trace=retain-on-failure
-```
-
-Traces save to `.playwright/traces/` for inspection.
-
-### Screenshots
-
-Automatic screenshots on failures:
-
-```
-./reports/screenshots/failure_test_name_TIMESTAMP.png
-```
-
-### Logs
-
-Test logs in terminal output:
-
-```
-tests/ui/test_login.py::TestLogin::test_valid_login - Test execution logs
-```
-
-## 📊 Reports
-
-### HTML Report
-
-```bash
-python -m pytest tests/ -v --html=reports/test-report.html
-```
-
-### Allure Report
-
-```bash
-python -m pytest tests/ -v --alluredir=reports/allure-results
-allure serve reports/allure-results
-```
-
-## ✅ Quality Standards
-
-- ✅ All tests passing (39 tests)
-- ✅ Type hints on all functions
-- ✅ Docstrings on all classes/methods
-- ✅ Error handling with meaningful messages
-- ✅ Logging throughout test execution
-- ✅ Code formatted & linted with Ruff
-- ✅ Checked with Black (CI `--check --diff`)
-- ✅ Pre-commit hooks enabled
-
-## 📦 Dependencies
-
-| Package           | Version | Purpose               |
-| ----------------- | ------- | --------------------- |
-| pytest            | 9.0.2   | Test framework        |
-| playwright        | 1.58.0  | Browser automation    |
-| pytest-playwright | 0.7.2   | Pytest integration    |
-| python-dotenv     | 1.2.1   | Load .env credentials |
-| allure-pytest     | 2.15.3  | Advanced reporting    |
-| requests          | 2.32.5  | HTTP requests         |
-| pytest-html       | 4.2.0   | HTML reports          |
-| pytest-cov        | 7.0.0   | Code coverage         |
-| pytest-retry      | 1.7.0   | Retry flaky tests     |
-| black             | 26.1.0  | Code formatter        |
-| isort             | 7.0.0   | Import sorter         |
-| ruff              | latest  | Linter & formatter    |
-
-## 🔐 Security
-
-- **Credentials in `.env`** — loaded via `python-dotenv` at runtime; `.env` is git-ignored
-- **CI/CD secrets** — `TEST_USER_*` and `CARD_*` vars are set as GitHub repository secrets
-- **No secrets in committed files** — `test_data.json` contains only non-sensitive test data
-- **GitHub Actions pinned to commit SHAs** — prevents supply-chain attacks from mutable tags
-- **Least-privilege CI permissions** — each job declares only the permissions it needs
-- **Dependabot enabled** — weekly vulnerability scanning for pip packages and GitHub Actions
-- HTTPS errors ignored only in test context (`ignore_https_errors: True`)
-
-### Required Repository Secrets
-
-Set these in **Settings → Secrets → Actions**:
-
-| Secret               | Purpose                                 |
-| -------------------- | --------------------------------------- |
-| `TEST_USER_NAME`     | Valid test account name                 |
-| `TEST_USER_EMAIL`    | Valid test account email                |
-| `TEST_USER_PASSWORD` | Valid test account password             |
-| `CARD_NAME`          | Payment card name                       |
-| `CARD_NUMBER`        | Payment card number                     |
-| `CARD_CVC`           | Payment card CVC                        |
-| `CARD_EXPIRY_MONTH`  | Payment card expiry month               |
-| `CARD_EXPIRY_YEAR`   | Payment card expiry year                |
-| `SLACK_WEBHOOK_URL`  | _(optional)_ Slack notification webhook |
-
-## 📞 Support
-
-For issues or questions:
-
-1. Check logs in terminal output
-2. Review screenshots in `./reports/screenshots/`
-3. Capture Playwright trace with `--trace=on`
-4. Check `.pre-commit-config.yaml` for code quality
-
-## 📄 License
-
-MIT License
-
-## 👨‍💻 Contributing
-
-1. Follow POM pattern for new pages
-2. Add docstrings and type hints
-3. Keep tests atomic and independent
-4. Add test data instead of hardcoding
-5. Run pre-commit hooks before commit
-
----
-
-**Last Updated:** February 12, 2026  
-**Playwright Version:** 1.58.0  
-**Python Version:** 3.11+
+**Last Updated:** February 13, 2026
+**Playwright:** 1.58.0 | **Python:** 3.11+ | **Pytest:** 9.0.2
