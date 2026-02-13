@@ -208,28 +208,28 @@ pytest tests/ --cov=pages --cov=utils --cov-report=html
 
 ### UI Tests (8 tests)
 
-| File | Tests | Description |
-|------|-------|-------------|
-| `test_smoke.py` | 3 | Homepage load, user registration, add-to-cart flow |
-| `test_login.py` | 2 | Data-driven valid/invalid login (parametrized from JSON) |
-| `test_checkout.py` | 2 | Cart checkout button, item count verification |
-| `test_payment.py` | 1 | Full E2E: login → browse → cart → checkout → payment → logout |
+| File               | Tests | Description                                                   |
+| ------------------ | ----- | ------------------------------------------------------------- |
+| `test_smoke.py`    | 3     | Homepage load, user registration, add-to-cart flow            |
+| `test_login.py`    | 2     | Data-driven valid/invalid login (parametrized from JSON)      |
+| `test_checkout.py` | 2     | Cart checkout button, item count verification                 |
+| `test_payment.py`  | 1     | Full E2E: login → browse → cart → checkout → payment → logout |
 
 ### API Tests (16 tests)
 
-| File | Tests | Description |
-|------|-------|-------------|
-| `test_auth_api.py` | 5 | Login verification, missing params, invalid methods/credentials |
-| `test_brands_api.py` | 2 | Brand listing, unsupported method rejection |
-| `test_product_api.py` | 4 | Product listing, search, edge cases (POST/missing params) |
-| `test_user_api.py` | 5 | Create, read, update, delete user accounts |
+| File                  | Tests | Description                                                     |
+| --------------------- | ----- | --------------------------------------------------------------- |
+| `test_auth_api.py`    | 5     | Login verification, missing params, invalid methods/credentials |
+| `test_brands_api.py`  | 2     | Brand listing, unsupported method rejection                     |
+| `test_product_api.py` | 4     | Product listing, search, edge cases (POST/missing params)       |
+| `test_user_api.py`    | 5     | Create, read, update, delete user accounts                      |
 
 ### Performance Tests (7 tests)
 
-| File | Tests | Description |
-|------|-------|-------------|
-| `test_api_performance.py` | 3 | API response time thresholds, concurrent search burst |
-| `test_page_performance.py` | 4 | Page load times, resource count, Cumulative Layout Shift |
+| File                       | Tests | Description                                              |
+| -------------------------- | ----- | -------------------------------------------------------- |
+| `test_api_performance.py`  | 3     | API response time thresholds, concurrent search burst    |
+| `test_page_performance.py` | 4     | Page load times, resource count, Cumulative Layout Shift |
 
 ## Page Objects
 
@@ -295,14 +295,15 @@ Add new test scenarios by editing `test_data.json` — no code changes needed.
 
 Four production-ready workflows in `.github/workflows/`:
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `ci-cd.yml` | Push, PR, schedule, manual | Full pipeline: Ruff lint → multi-browser tests → coverage → Allure report → Slack notify |
-| `pr-checks.yml` | Pull request | Validate commits, smoke tests, coverage gate |
-| `scheduled-smoke-tests.yml` | Every 6 hours + daily | Continuous health monitoring with Slack alerts |
-| `manual-test-run.yml` | Manual dispatch | On-demand runs with suite/browser/parallel selection |
+| Workflow                    | Trigger                    | Purpose                                                                                  |
+| --------------------------- | -------------------------- | ---------------------------------------------------------------------------------------- |
+| `ci-cd.yml`                 | Push, PR, schedule, manual | Full pipeline: Ruff lint → multi-browser tests → coverage → Allure report → Slack notify |
+| `pr-checks.yml`             | Pull request               | Validate commits, smoke tests, coverage gate                                             |
+| `scheduled-smoke-tests.yml` | Every 6 hours + daily      | Continuous health monitoring with Slack alerts                                           |
+| `manual-test-run.yml`       | Manual dispatch            | On-demand runs with suite/browser/parallel selection                                     |
 
 **Security features:**
+
 - All actions pinned to commit SHAs (supply-chain protection)
 - Least-privilege permissions per job
 - Secret verification before test execution (fail-fast)
@@ -333,6 +334,7 @@ python generate_allure_report.py    # Or: allure serve reports/allure-results
 ### Failure Screenshots
 
 Captured automatically on test failure:
+
 ```
 reports/screenshots/failure_<test_name>_<timestamp>.png
 ```
@@ -350,17 +352,17 @@ reports/screenshots/failure_<test_name>_<timestamp>.png
 
 Set in **Settings → Secrets and variables → Actions**:
 
-| Secret | Purpose |
-|--------|---------|
-| `TEST_USER_NAME` | Test account display name |
-| `TEST_USER_EMAIL` | Test account email |
-| `TEST_USER_PASSWORD` | Test account password |
-| `CARD_NAME` | Payment card name |
-| `CARD_NUMBER` | Payment card number |
-| `CARD_CVC` | Card CVC code |
-| `CARD_EXPIRY_MONTH` | Card expiry month |
-| `CARD_EXPIRY_YEAR` | Card expiry year |
-| `SLACK_WEBHOOK_URL` | *(optional)* Slack notification webhook |
+| Secret               | Purpose                                 |
+| -------------------- | --------------------------------------- |
+| `TEST_USER_NAME`     | Test account display name               |
+| `TEST_USER_EMAIL`    | Test account email                      |
+| `TEST_USER_PASSWORD` | Test account password                   |
+| `CARD_NAME`          | Payment card name                       |
+| `CARD_NUMBER`        | Payment card number                     |
+| `CARD_CVC`           | Card CVC code                           |
+| `CARD_EXPIRY_MONTH`  | Card expiry month                       |
+| `CARD_EXPIRY_YEAR`   | Card expiry year                        |
+| `SLACK_WEBHOOK_URL`  | _(optional)_ Slack notification webhook |
 
 ## Configuration
 
@@ -377,39 +379,43 @@ Unified config for Ruff, mypy, isort, and Black — keeps tool settings in one p
 
 ### conftest.py Fixtures
 
-| Fixture | Scope | Description |
-|---------|-------|-------------|
-| `browser_context_args` | session | 1920×1080 viewport, HTTPS errors ignored |
-| `page` | function | Fresh page with consent banners blocked, navigated to base URL |
-| `test_data` | function | Loads `test_data.json` as a list of dicts |
-| `cleanup_videos` | function | Deletes video recordings for passing tests |
+| Fixture                | Scope    | Description                                                    |
+| ---------------------- | -------- | -------------------------------------------------------------- |
+| `browser_context_args` | session  | 1920×1080 viewport, HTTPS errors ignored                       |
+| `page`                 | function | Fresh page with consent banners blocked, navigated to base URL |
+| `test_data`            | function | Loads `test_data.json` as a list of dicts                      |
+| `cleanup_videos`       | function | Deletes video recordings for passing tests                     |
 
 ### API Test Fixtures (`tests/api/conftest.py`)
 
-| Fixture / Constant | Description |
-|---------------------|-------------|
-| `BASE_URL` | API base URL from `test_data.json` |
-| `TIMEOUT` | Request timeout from config |
-| `api_session` | Session-scoped `requests.Session` with retry logic (3 retries, exponential backoff, handles Cloudflare 520-524) |
-| `api_config` | Session-scoped API configuration dict |
+| Fixture / Constant | Description                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `BASE_URL`         | API base URL from `test_data.json`                                                                              |
+| `TIMEOUT`          | Request timeout from config                                                                                     |
+| `api_session`      | Session-scoped `requests.Session` with retry logic (3 retries, exponential backoff, handles Cloudflare 520-524) |
+| `api_config`       | Session-scoped API configuration dict                                                                           |
 
 ## Troubleshooting
 
 **Playwright browsers not installed:**
+
 ```bash
 python -m playwright install
 ```
 
 **Element not found / Timeout errors:**
+
 - Consent overlay may be blocking — `BasePage.click()` retries with overlay dismissal
 - Check selector in browser DevTools
 - Increase timeout: `self.timeout = 60000` in BasePage
 
 **Tests skipped with `[NOTSET]`:**
+
 - Valid-login tests require `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` env vars
 - Copy `.env.example` to `.env` and fill in credentials
 
 **Capture Playwright traces for debugging:**
+
 ```bash
 pytest tests/ui/test_login.py -v --trace=retain-on-failure
 ```
@@ -418,29 +424,29 @@ pytest tests/ui/test_login.py -v --trace=retain-on-failure
 
 ### Runtime (`requirements.txt`)
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| pytest | 9.0.2 | Test framework |
-| playwright | 1.58.0 | Cross-browser automation |
-| pytest-playwright | 0.7.2 | Pytest-Playwright integration |
-| requests | 2.32.5 | HTTP client for API testing |
-| python-dotenv | 1.2.1 | Load `.env` credentials |
-| pytest-html | 4.2.0 | HTML test reports |
-| allure-pytest | 2.15.3 | Allure reporting |
-| pytest-cov | 7.0.0 | Code coverage |
-| pytest-xdist | 3.8.0 | Parallel execution |
-| pytest-retry | 1.7.0 | Retry flaky tests |
-| pytest-timeout | 2.4.0 | Test timeout management |
-| pytest-base-url | 2.1.0 | Configurable base URLs |
-| pillow | 12.1.1 | Screenshot processing |
+| Package           | Version | Purpose                       |
+| ----------------- | ------- | ----------------------------- |
+| pytest            | 9.0.2   | Test framework                |
+| playwright        | 1.58.0  | Cross-browser automation      |
+| pytest-playwright | 0.7.2   | Pytest-Playwright integration |
+| requests          | 2.32.5  | HTTP client for API testing   |
+| python-dotenv     | 1.2.1   | Load `.env` credentials       |
+| pytest-html       | 4.2.0   | HTML test reports             |
+| allure-pytest     | 2.15.3  | Allure reporting              |
+| pytest-cov        | 7.0.0   | Code coverage                 |
+| pytest-xdist      | 3.8.0   | Parallel execution            |
+| pytest-retry      | 1.7.0   | Retry flaky tests             |
+| pytest-timeout    | 2.4.0   | Test timeout management       |
+| pytest-base-url   | 2.1.0   | Configurable base URLs        |
+| pillow            | 12.1.1  | Screenshot processing         |
 
 ### Development (`requirements-dev.txt`)
 
-| Package | Purpose |
-|---------|---------|
-| ruff | Linter & formatter (replaces black/flake8/isort in CI) |
-| mypy | Static type checking |
-| types-requests | Type stubs for requests |
+| Package        | Purpose                                                |
+| -------------- | ------------------------------------------------------ |
+| ruff           | Linter & formatter (replaces black/flake8/isort in CI) |
+| mypy           | Static type checking                                   |
+| types-requests | Type stubs for requests                                |
 
 ## Contributing
 

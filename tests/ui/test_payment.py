@@ -9,7 +9,10 @@ from playwright.sync_api import Page, expect
 
 
 def _valid_user() -> dict:
-    """Return valid user credentials from environment variables."""
+    """Return valid user credentials from environment variables.
+
+    Skips the test gracefully when required env vars are missing.
+    """
     user = {
         "name": os.environ.get("TEST_USER_NAME", ""),
         "email": os.environ.get("TEST_USER_EMAIL", ""),
@@ -17,7 +20,7 @@ def _valid_user() -> dict:
     }
     missing = [k for k, v in user.items() if not v]
     if missing:
-        raise EnvironmentError(
+        pytest.skip(
             f"Missing env vars: {', '.join(f'TEST_USER_{k.upper()}' for k in missing)}. "
             "Copy .env.example → .env and fill in test values."
         )
@@ -25,7 +28,10 @@ def _valid_user() -> dict:
 
 
 def _card_details() -> dict:
-    """Load card details from environment variables."""
+    """Load card details from environment variables.
+
+    Skips the test gracefully when required env vars are missing.
+    """
     card = {
         "name": os.environ.get("CARD_NAME", ""),
         "number": os.environ.get("CARD_NUMBER", ""),
@@ -35,7 +41,7 @@ def _card_details() -> dict:
     }
     missing = [k for k, v in card.items() if not v]
     if missing:
-        raise EnvironmentError(
+        pytest.skip(
             f"Missing card env vars: {', '.join(f'CARD_{k.upper()}' for k in missing)}. "
             "Copy .env.example → .env and fill in test values."
         )

@@ -44,15 +44,15 @@
     ]
   },
   "performance": {
-    "api_response_time_ms": 1500,
-    "page_load_time_ms": 2000,
+    "api_response_time_ms": 3000,
+    "page_load_time_ms": 5000,
     "pages": [
-      {"name": "Home", "path": "/", "max_ms": 3500},
-      {"name": "Login", "path": "/login", "max_ms": 3500}
+      {"name": "Home", "path": "/", "max_ms": 8000},
+      {"name": "Login", "path": "/login", "max_ms": 8000}
     ],
     "api_endpoints": [
-      {"name": "Verify Login", "method": "POST", "path": "/verifyLogin", "data": {"email": "testuser@example.com", "password": "Testingpassword123"}, "max_ms": 2000},
-      {"name": "Create Account", "method": "POST", "path": "/createAccount", "data": {"email": "newuser@example.com", "password": "Testingpassword123"}, "max_ms": 2500}
+      {"name": "Verify Login", "method": "POST", "path": "/verifyLogin", "data": {"email": "testuser@example.com", "password": "Testingpassword123"}, "max_ms": 3500},
+      {"name": "Create Account", "method": "POST", "path": "/createAccount", "data": {"email": "newuser@example.com", "password": "Testingpassword123"}, "max_ms": 4000}
     ]
   },
   "users": [

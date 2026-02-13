@@ -26,12 +26,22 @@ def load_test_data():
 def get_valid_users():
     """Return (user_id, email, password) tuples for valid users from env vars.
 
-    Returns an empty list when env vars are missing so the test is skipped.
+    Returns a skip-marked param when env vars are missing so the test
+    shows a clear skip reason instead of a bare [NOTSET].
     """
     email = os.environ.get("TEST_USER_EMAIL", "")
     password = os.environ.get("TEST_USER_PASSWORD", "")
     if not email or not password:
-        return []
+        return [
+            pytest.param(
+                "skip",
+                "",
+                "",
+                marks=pytest.mark.skip(
+                    reason="TEST_USER_EMAIL / TEST_USER_PASSWORD not set — copy .env.example → .env"
+                ),
+            )
+        ]
     data = load_test_data()
     return [
         (user["id"], email, password) for user in data.get("users", []) if user.get("valid", False)
