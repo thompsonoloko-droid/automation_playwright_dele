@@ -77,6 +77,7 @@ def test_order_flow(page: Page) -> None:
                 )
     page.get_by_role("link", name="Jeans").click()
     add_btn = page.locator(".productinfo .add-to-cart").first
+    add_btn.wait_for(state="visible", timeout=15000)
     add_btn.scroll_into_view_if_needed()
     add_btn.click()
 

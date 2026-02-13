@@ -24,16 +24,17 @@ def load_test_data():
 
 
 def get_valid_users():
-    """Return (user_id, email, password) tuples for valid users from env vars."""
+    """Return (user_id, email, password) tuples for valid users from env vars.
+
+    Returns an empty list when env vars are missing so the test is skipped.
+    """
+    email = os.environ.get("TEST_USER_EMAIL", "")
+    password = os.environ.get("TEST_USER_PASSWORD", "")
+    if not email or not password:
+        return []
     data = load_test_data()
     return [
-        (
-            user["id"],
-            os.environ.get("TEST_USER_EMAIL", ""),
-            os.environ.get("TEST_USER_PASSWORD", ""),
-        )
-        for user in data.get("users", [])
-        if user.get("valid", False)
+        (user["id"], email, password) for user in data.get("users", []) if user.get("valid", False)
     ]
 
 
@@ -59,6 +60,7 @@ class TestLogin:
 
         logger.info(f"Testing login for user: {user_id}")
 
+        page.wait_for_load_state("domcontentloaded")
         home_page.navigate_to_login()
 
         login_page.fill(login_page.EMAIL_INPUT, email)
@@ -81,7 +83,8 @@ class TestLogin:
 
         logger.info(f"Testing invalid login: {cred_id}")
 
-        # Navigate to login
+        # Navigate to login — wait for the page to be fully interactive first
+        page.wait_for_load_state("domcontentloaded")
         home_page.navigate_to_login()
 
         # Try to login with invalid credentials

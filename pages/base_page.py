@@ -167,6 +167,14 @@ class BasePage:
             self.wait_for_element(selector, timeout).fill(text)
             logger.debug(f"Filled element '{selector}' with text")
         except Exception as e:
+            # Overlays may have appeared after navigation — dismiss and retry once
+            self._dismiss_overlays()
+            try:
+                self.wait_for_element(selector, timeout).fill(text)
+                logger.debug(f"Filled element '{selector}' with text (after overlay dismiss)")
+                return
+            except Exception:
+                pass
             logger.error(f"Failed to fill element '{selector}': {str(e)}")
             raise RuntimeError(f"Failed to fill element '{selector}': {str(e)}")
 

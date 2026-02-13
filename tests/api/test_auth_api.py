@@ -17,17 +17,18 @@ logger = logging.getLogger(__name__)
 
 
 def _valid_users() -> list[tuple[str, str, str]]:
-    """Return parametrize-ready tuples (id, email, password) for valid users."""
+    """Return parametrize-ready tuples (id, email, password) for valid users.
+
+    Reads credentials from TEST_USER_EMAIL / TEST_USER_PASSWORD env vars.
+    Returns an empty list when the env vars are missing so the test is
+    automatically skipped (no parametrize args → collected 0 items).
+    """
+    email = os.environ.get("TEST_USER_EMAIL", "")
+    password = os.environ.get("TEST_USER_PASSWORD", "")
+    if not email or not password:
+        return []
     data = _load_test_data()
-    return [
-        (
-            u["id"],
-            os.environ.get("TEST_USER_EMAIL", ""),
-            os.environ.get("TEST_USER_PASSWORD", ""),
-        )
-        for u in data.get("users", [])
-        if u.get("valid")
-    ]
+    return [(u["id"], email, password) for u in data.get("users", []) if u.get("valid")]
 
 
 def _invalid_login_attempts() -> list[tuple[str, str, str, int, str]]:

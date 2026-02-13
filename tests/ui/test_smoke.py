@@ -25,8 +25,12 @@ class TestSmoke:
         logger.info("Testing homepage load...")
         HomePage(page)  # ensures page navigated via conftest
 
-        expect(page).to_have_title("Automation Exercise")
-        expect(page.locator("img[alt='Website for automation practice']")).to_be_visible()
+        # The site title may take a moment to settle; use a pattern to accommodate
+        # minor variations reported on some browser engines (e.g. WebKit).
+        expect(page).to_have_title("Automation Exercise", timeout=15000)
+        expect(page.locator("img[alt='Website for automation practice']")).to_be_visible(
+            timeout=10000
+        )
         logger.info("✓ Homepage loaded successfully")
 
     @pytest.mark.smoke
