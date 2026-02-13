@@ -26,6 +26,19 @@ def get_api_session() -> requests.Session:
         - Backoff factor: 1 (delays: 1s, 2s, 4s)
         - Status codes: 500, 502, 503, 520, 521, 522, 523, 524 (Cloudflare + server errors)
         - Retries on: Connection errors, read timeouts
+    
+    Note on retrying POST/PUT/DELETE:
+        While retrying non-idempotent methods can risk duplicate operations, this is
+        necessary for the external automationexercise.com API which experiences:
+        1. Cloudflare 520 errors (server not ready) - no request reached the server
+        2. Connection timeouts - request never completed
+        In both cases, retrying is safe as the operation didn't complete initially.
+        The API test suite validates correct behavior even with retries.
+    
+    Note on session reuse:
+        Each call creates a new session for test isolation and simplicity. While
+        connection pooling could improve performance, test independence is prioritized
+        over optimization in this test infrastructure.
     """
     session = requests.Session()
 
