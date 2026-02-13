@@ -6,7 +6,6 @@ import logging
 import pytest
 
 from pages.cart_page import CartPage
-from pages.home_page import HomePage
 
 logger = logging.getLogger(__name__)
 
