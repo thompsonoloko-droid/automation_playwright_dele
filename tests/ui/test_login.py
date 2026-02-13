@@ -119,7 +119,7 @@ class TestLogin:
                 logger.info(
                     f"✓ Invalid credentials properly rejected with error: {error_msg}"
                 )
-            except:
+            except Exception:
                 # If specific error doesn't appear, just verify we didn't log in
                 logger.warning(
                     "Could not verify exact error message, verifying login was prevented"

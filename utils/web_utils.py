@@ -82,7 +82,7 @@ class WebUtils:
         try:
             self.page.locator(selector).first.wait_for(state="visible", timeout=timeout)
             return True
-        except:
+        except Exception:
             return False
 
     def refresh_page(self) -> None:

@@ -6,7 +6,6 @@ import logging
 from pathlib import Path
 
 import pytest
-import requests
 
 from .api_helpers import get_api_session
 
