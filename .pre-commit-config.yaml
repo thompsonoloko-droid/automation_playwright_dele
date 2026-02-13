@@ -3,7 +3,7 @@
 # Hooks run automatically before each commit to maintain code standards
 
 default_language_version:
-  python: python3.14
+  python: python3.11
 
 repos:
   # General file checks
@@ -25,15 +25,6 @@ repos:
         name: Check for debug statements
       - id: detect-private-key
         name: Detect private keys
-
-  # Python code formatting (Black)
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
-    hooks:
-      - id: black
-        name: Format with Black
-        language_version: python3.14
-        args: ["--line-length=100"]
 
   # Python linting and code quality (Ruff)
   - repo: https://github.com/astral-sh/ruff-pre-commit

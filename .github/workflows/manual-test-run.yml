@@ -201,6 +201,7 @@ jobs:
   generate-report:
     name: Generate Test Report
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: run-tests
     if: always()
 
@@ -257,6 +258,7 @@ jobs:
   notify:
     name: Notification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: generate-report
     if: always()
 

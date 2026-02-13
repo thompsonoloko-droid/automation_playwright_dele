@@ -111,6 +111,7 @@ jobs:
   notify-slack:
     name: Slack Notification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: smoke-tests
     if: always()
     # 1. Map the secret to a job-level env variable to 'bridge' the context
@@ -149,6 +150,7 @@ jobs:
   report-summary:
     name: Generate Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: smoke-tests
     if: always()
 
