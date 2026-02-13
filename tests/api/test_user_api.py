@@ -9,6 +9,8 @@ from pathlib import Path
 import pytest
 import requests
 
+from .api_helpers import get_api_session
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -42,7 +44,8 @@ def _create_test_user(email: str, password: str | None = None) -> dict:
     """Register a user using the template from test data and return the response."""
     password = password or _USER_TEMPLATE["password"]
     payload = {**_USER_TEMPLATE, "email": email, "password": password}
-    response = requests.post(f"{BASE_URL}/createAccount", data=payload, timeout=TIMEOUT)
+    session = get_api_session()
+    response = session.post(f"{BASE_URL}/createAccount", data=payload, timeout=TIMEOUT)
     return response.json()
 
 
@@ -50,7 +53,8 @@ def _delete_test_user(email: str, password: str | None = None) -> dict:
     """Delete a user account."""
     password = password or _USER_TEMPLATE["password"]
     payload = {"email": email, "password": password}
-    response = requests.delete(
+    session = get_api_session()
+    response = session.delete(
         f"{BASE_URL}/deleteAccount", data=payload, timeout=TIMEOUT
     )
     return response.json()
@@ -118,7 +122,8 @@ class TestUserAccountAPI:
             "email": email,
             "password": password,
         }
-        response = requests.put(
+        session = get_api_session()
+        response = session.put(
             f"{BASE_URL}/updateAccount", data=update_payload, timeout=TIMEOUT
         )
         data = response.json()
@@ -144,7 +149,8 @@ class TestUserAccountAPI:
         _create_test_user(email, password)
         logger.info(f"Fetching user details for: {email}")
 
-        response = requests.get(
+        session = get_api_session()
+        response = session.get(
             f"{BASE_URL}/getUserDetailByEmail",
             params={"email": email},
             timeout=TIMEOUT,
@@ -174,7 +180,8 @@ class TestUserAccountAPI:
         Verifies responseCode 404 for unknown email.
         """
         logger.info("Testing user detail lookup for non-existent email...")
-        response = requests.get(
+        session = get_api_session()
+        response = session.get(
             f"{BASE_URL}/getUserDetailByEmail",
             params={"email": "absolutely_nobody@nope.com"},
             timeout=TIMEOUT,
