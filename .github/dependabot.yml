@@ -12,6 +12,10 @@ updates:
     labels:
       - "dependencies"
       - "security"
+    reviewers:
+      - "thompsonoloko-droid"
+    assignees:
+      - "thompsonoloko-droid"
 
   # Monitor GitHub Actions for new versions and security fixes
   - package-ecosystem: "github-actions"
@@ -23,3 +27,7 @@ updates:
     labels:
       - "dependencies"
       - "ci-cd"
+    reviewers:
+      - "thompsonoloko-droid"
+    assignees:
+      - "thompsonoloko-droid"

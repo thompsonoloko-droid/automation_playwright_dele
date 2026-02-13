@@ -17,7 +17,12 @@ venv/
 reports/screenshots/
 reports/videos/
 reports/allure-results/
+reports/coverage/
+reports/coverage-html/
 reports/*.html
+
+# Test data — track test_data.json (non-sensitive); ignore generated/secret files
+# test_data/*.json
 
 # IDE
 .vscode/
@@ -29,6 +34,17 @@ Thumbs.db
 
 # Secrets
 .env
+
+# Sensitive history/scanning artifacts
+.git_history_*.txt
+.secrets.baseline
+
+# Temp/debug artifacts
+.forks_list.txt
+.remote_branch*.txt
+.remote_branches.txt
+listing.txt
+uncommitted_files.txt
 
 # Misc
 README_temp.md

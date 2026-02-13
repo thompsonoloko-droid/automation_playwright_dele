@@ -1,3 +1,0 @@
-users,valid_user_1,Del Test,sparkko@gmail.com,Testingpassword123
-invalid_credentials,invalid_email_password,wronguser@example.com,Wrongpassword123
-invalid_credentials,empty_email,,SomePassword123

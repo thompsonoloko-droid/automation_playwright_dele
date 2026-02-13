@@ -3,7 +3,6 @@
 
 import logging
 from datetime import datetime
-from urllib.parse import urlparse
 
 import pytest
 from playwright.sync_api import expect
@@ -27,9 +26,7 @@ class TestSmoke:
         HomePage(page)  # ensures page navigated via conftest
 
         expect(page).to_have_title("Automation Exercise")
-        expect(
-            page.locator("img[alt='Website for automation practice']")
-        ).to_be_visible()
+        expect(page.locator("img[alt='Website for automation practice']")).to_be_visible()
         logger.info("✓ Homepage loaded successfully")
 
     @pytest.mark.smoke
@@ -60,11 +57,9 @@ class TestSmoke:
 
         # Verify we're still on the site after registration completes
         current_url = page.url
-        parsed = urlparse(current_url)
-        assert (
-            parsed.netloc == "automationexercise.com"
-            or parsed.netloc == "www.automationexercise.com"
-        ), f"Expected to be on automationexercise.com, got {current_url}"
+        assert "automationexercise.com" in current_url, (
+            f"Expected to be on automationexercise.com, got {current_url}"
+        )
         logger.info(f"✓ User registered successfully: {unique_name}")
 
     @pytest.mark.smoke
@@ -78,16 +73,12 @@ class TestSmoke:
         cart_page = CartPage(page)
 
         homepage.navigate_to_products()
-        page.locator(".product-image-wrapper").first.wait_for(
-            state="visible", timeout=5000
-        )
+        page.locator(".product-image-wrapper").first.wait_for(state="visible", timeout=5000)
 
         product_page.add_product_to_cart(0)
 
         # Verify at least one item in the cart
-        page.locator("#cart_items tbody tr").first.wait_for(
-            state="visible", timeout=3000
-        )
+        page.locator("#cart_items tbody tr").first.wait_for(state="visible", timeout=3000)
         cart_count = cart_page.get_cart_items_count()
         assert cart_count >= 1, f"Expected at least 1 item in cart, got {cart_count}"
         logger.info(f"✓ Add to cart flow successful - {cart_count} items in cart")

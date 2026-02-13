@@ -52,7 +52,7 @@ class HomePage(BasePage):
             username: The display name expected after login.
 
         Raises:
-            AssertionError: If the logged-in indicator is missing.
+            RuntimeError: If the logged-in indicator is missing.
         """
         expect(self.page.locator(self.LOGGED_IN_USER)).to_contain_text(username)
         logger.info(f"User '{username}' verified as logged in")

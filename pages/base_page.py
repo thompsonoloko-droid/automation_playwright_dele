@@ -87,7 +87,7 @@ class BasePage:
             retry_delay: Seconds between retries.
 
         Raises:
-            AssertionError: If click fails after all retries.
+            RuntimeError: If click fails after all retries.
         """
         last_error = None
         for attempt in range(1, max_retries + 1):
@@ -102,17 +102,15 @@ class BasePage:
                 # Try to dismiss consent/overlay dialogs
                 self._dismiss_overlays()
 
-                # Wait before retrying
+                # Wait before retrying (non-blocking Playwright wait)
                 self.page.wait_for_timeout(int(retry_delay * 1000))
-                logger.debug(
-                    f"Attempt {attempt}/{max_retries}: Retrying click for '{selector}'"
-                )
+                logger.debug(f"Attempt {attempt}/{max_retries}: Retrying click for '{selector}'")
                 continue
 
         logger.critical(
             f"Final attempt to click element '{selector}' failed after {max_retries} retries: {last_error}"
         )
-        raise AssertionError(
+        raise RuntimeError(
             f"Unable to click element '{selector}' after {max_retries} attempts: {last_error}"
         )
 
@@ -159,7 +157,7 @@ class BasePage:
             timeout (Optional[int]): Maximum time to wait for the element to become visible, in milliseconds.
 
         Raises:
-            AssertionError: If the input field cannot be filled.
+            RuntimeError: If the input field cannot be filled.
 
         Example:
             >>> page_obj.fill("input[name='email']", "test@example.com")
@@ -170,7 +168,7 @@ class BasePage:
             logger.debug(f"Filled element '{selector}' with text")
         except Exception as e:
             logger.error(f"Failed to fill element '{selector}': {str(e)}")
-            raise AssertionError(f"Failed to fill element '{selector}': {str(e)}")
+            raise RuntimeError(f"Failed to fill element '{selector}': {str(e)}")
 
     def get_text(self, selector: str, timeout: Optional[int] = None) -> str:
         """
@@ -184,7 +182,7 @@ class BasePage:
             str: The visible text content of the element, or an empty string if no text is found.
 
         Raises:
-            AssertionError: If the text content cannot be retrieved.
+            RuntimeError: If the text content cannot be retrieved.
 
         Example:
             >>> error_msg = page_obj.get_text("p.error")
@@ -198,9 +196,7 @@ class BasePage:
             return result
         except Exception as e:
             logger.error(f"Failed to get text from element '{selector}': {str(e)}")
-            raise AssertionError(
-                f"Failed to get text from element '{selector}': {str(e)}"
-            )
+            raise RuntimeError(f"Failed to get text from element '{selector}': {str(e)}")
 
     def take_screenshot(self, name: str) -> str:
         """
@@ -242,16 +238,14 @@ class BasePage:
             timeout (Optional[int]): Maximum time to wait for the URL to contain the text, in milliseconds.
 
         Raises:
-            AssertionError: If the URL does not contain the specified text within the timeout.
+            RuntimeError: If the URL does not contain the specified text within the timeout.
 
         Example:
             >>> page_obj.verify_url_contains("/dashboard")
         """
         try:
-            expect(self.page).to_have_url(
-                f".*{text}.*", timeout=timeout or self.timeout
-            )
+            expect(self.page).to_have_url(f".*{text}.*", timeout=timeout or self.timeout)
             logger.debug(f"URL verification passed: contains '{text}'")
         except Exception as e:
             logger.error(f"URL verification failed - doesn't contain '{text}'")
-            raise AssertionError(f"URL does not contain '{text}': {str(e)}")
+            raise RuntimeError(f"URL does not contain '{text}': {str(e)}")

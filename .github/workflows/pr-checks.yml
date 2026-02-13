@@ -22,6 +22,9 @@ concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 # ============================================================================
 # JOB 1: VALIDATE - Check commit message and file changes
 # Validates conventional commit format for changelogg generation
@@ -31,7 +34,6 @@ jobs:
   validate:
     name: Validate Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -74,7 +76,6 @@ jobs:
   smoke-test:
     name: Smoke Tests (PR)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     needs: validate
 
     steps:
@@ -128,7 +129,6 @@ jobs:
   test-coverage:
     name: Coverage Check
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     needs: validate
 
     steps:
@@ -170,15 +170,14 @@ jobs:
 
   # ============================================================================
   # JOB 4: CODE-QUALITY - Code style and linting checks
-  # Validates code formatting with black (PEP 8 compliant)
-  # Checks code quality with flake8 (max 120 char lines)
-  # Validates import sort order with isort
+  # Uses Ruff for fast, unified formatting and linting (replaces black/flake8/isort)
+  # Validates code formatting (PEP 8 compliant)
+  # Checks code quality (max 120 char lines)
   # Non-blocking: issues are reported but don't fail the check
   # ============================================================================
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
-    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -190,18 +189,14 @@ jobs:
 
       - name: Install linting tools
         run: |
-          pip install black flake8 isort pylint
+          pip install ruff
 
-      - name: Format check
-        run: black --check tests/ pages/ utils/ 2>&1 | head -20
+      - name: Check formatting with Ruff
+        run: ruff format --check tests/ pages/ utils/
         continue-on-error: true
 
-      - name: Lint check
-        run: flake8 tests/ pages/ utils/ --count --max-line-length=120
-        continue-on-error: true
-
-      - name: Import sort check
-        run: isort --check-only tests/ pages/ utils/
+      - name: Lint with Ruff
+        run: ruff check tests/ pages/ utils/
         continue-on-error: true
 
   # ============================================================================
@@ -213,7 +208,6 @@ jobs:
   summary:
     name: PR Summary
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     needs: [validate, smoke-test, test-coverage, code-quality]
     if: always()
 

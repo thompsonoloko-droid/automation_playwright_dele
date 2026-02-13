@@ -61,6 +61,9 @@ on:
         required: false
         default: "staging"
 
+permissions:
+  contents: read
+
 jobs:
   # PRIMARY JOB: Build dynamic pytest command and execute tests
   # Dynamically constructs the pytest command based on user-provided inputs
@@ -201,7 +204,6 @@ jobs:
   generate-report:
     name: Generate Test Report
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     needs: run-tests
     if: always()
 
@@ -258,18 +260,19 @@ jobs:
   notify:
     name: Notification
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     needs: generate-report
     if: always()
+    timeout-minutes: 5
+
     env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      HAS_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL != '' && secrets.SLACK_WEBHOOK_URL != null }}
 
     steps:
       # STEP: Send Slack notification with test run results
       # Only executes if SLACK_WEBHOOK_URL secret is configured in repository
       # Includes links to action run for quick access to full results
       - name: Slack notification
-        if: env.SLACK_WEBHOOK_URL != ''
+        if: env.HAS_SLACK_WEBHOOK
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

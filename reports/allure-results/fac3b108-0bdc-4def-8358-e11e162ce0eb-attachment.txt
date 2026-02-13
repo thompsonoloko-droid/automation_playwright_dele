@@ -1,5 +1,0 @@
-2026-02-09 16:40:09,169 - test_user_registration_flow[chromium] - INFO - Navigated to https://automationexercise.com/
-2026-02-09 16:40:12,051 - tests.conftest - INFO - Test data loaded from D:\Automation\automation_playwright_dele\tests\..\test_data\test_data.json
-2026-02-09 16:40:12,059 - tests.ui.test_smoke - INFO - Testing user registration flow...
-2026-02-09 16:40:12,068 - tests.ui.test_smoke - INFO - Attempting to register user: Del Test_20260209164012 (sparkko_20260209164012@gmail.com)
-2026-02-09 16:40:20,356 - tests.ui.test_smoke - INFO - ✓ User registered successfully (URL: https://automationexercise.com/signup): Del Test_20260209164012

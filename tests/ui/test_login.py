@@ -18,9 +18,7 @@ logger = logging.getLogger(__name__)
 # Load test data from JSON file
 def load_test_data():
     """Load test data from test_data.json."""
-    test_data_file = (
-        Path(__file__).parent.parent.parent / "test_data" / "test_data.json"
-    )
+    test_data_file = Path(__file__).parent.parent.parent / "test_data" / "test_data.json"
     with open(test_data_file) as f:
         return json.load(f)
 
@@ -54,9 +52,7 @@ class TestLogin:
     @pytest.mark.login
     @pytest.mark.regression
     @pytest.mark.parametrize("user_id,email,password", get_valid_users())
-    def test_valid_login(
-        self, page: Page, user_id: str, email: str, password: str
-    ) -> None:
+    def test_valid_login(self, page: Page, user_id: str, email: str, password: str) -> None:
         """Login with valid credentials and verify 'Logged in as' text appears."""
         home_page = HomePage(page)
         login_page = LoginPage(page)
@@ -75,9 +71,7 @@ class TestLogin:
 
     @pytest.mark.login
     @pytest.mark.regression
-    @pytest.mark.parametrize(
-        "cred_id,email,password,error_msg", get_invalid_credentials()
-    )
+    @pytest.mark.parametrize("cred_id,email,password,error_msg", get_invalid_credentials())
     def test_invalid_login(
         self, page: Page, cred_id: str, email: str, password: str, error_msg: str
     ) -> None:
@@ -100,9 +94,7 @@ class TestLogin:
         if not email:
             login_page.click(login_page.LOGIN_BTN)
             # Check that the email input triggers native validation (required field)
-            is_invalid = page.locator(login_page.EMAIL_INPUT).evaluate(
-                "el => !el.validity.valid"
-            )
+            is_invalid = page.locator(login_page.EMAIL_INPUT).evaluate("el => !el.validity.valid")
             assert is_invalid, "Expected email field to be invalid when empty"
             assert not page.get_by_text("Logged in as").is_visible()
             logger.info("✓ Empty email properly blocked by HTML5 validation")
@@ -113,12 +105,8 @@ class TestLogin:
         # Verify error message appears if expected
         if error_msg:
             try:
-                expect(page.get_by_text(error_msg, exact=False)).to_be_visible(
-                    timeout=5000
-                )
-                logger.info(
-                    f"✓ Invalid credentials properly rejected with error: {error_msg}"
-                )
+                expect(page.get_by_text(error_msg, exact=False)).to_be_visible(timeout=5000)
+                logger.info(f"✓ Invalid credentials properly rejected with error: {error_msg}")
             except Exception:
                 # If specific error doesn't appear, just verify we didn't log in
                 logger.warning(

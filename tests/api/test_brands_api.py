@@ -1,29 +1,14 @@
 # tests/api/test_brands_api.py
 """API tests for brand endpoints (API 3 & 4) — data-driven from test_data.json."""
 
-import json
 import logging
-from pathlib import Path
 
 import pytest
+import requests
 
-from .api_helpers import get_api_session
+from tests.api.conftest import BASE_URL, TIMEOUT
 
 logger = logging.getLogger(__name__)
-
-# Load config from test_data.json for consistency with other API test files
-_DATA_FILE = Path(__file__).parent.parent.parent / "test_data" / "test_data.json"
-
-
-def _load_api_config() -> dict:
-    """Load the 'api' section from test_data.json."""
-    with open(_DATA_FILE) as f:
-        return json.load(f)["api"]
-
-
-_cfg = _load_api_config()
-BASE_URL = _cfg["base_url"]
-TIMEOUT = _cfg["timeout"]
 
 
 class TestBrandsAPI:
@@ -41,8 +26,7 @@ class TestBrandsAPI:
         - Each brand has 'id' and 'brand' fields
         """
         logger.info("Testing brands list endpoint...")
-        session = get_api_session()
-        response = session.get(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
+        response = requests.get(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
 
         assert response.status_code == 200
         data = response.json()
@@ -66,8 +50,7 @@ class TestBrandsAPI:
         - Response message indicates method not supported
         """
         logger.info("Testing PUT to brands list (unsupported method)...")
-        session = get_api_session()
-        response = session.put(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
+        response = requests.put(f"{BASE_URL}/brandsList", timeout=TIMEOUT)
 
         assert response.status_code == 200  # HTTP status is 200
         data = response.json()

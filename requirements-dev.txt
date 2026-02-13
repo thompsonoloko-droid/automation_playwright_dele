@@ -1,0 +1,20 @@
+# =====================================
+# Development / CI-only Dependencies
+# =====================================
+# Install:  pip install -r requirements-dev.txt
+# =====================================
+
+# Pull in runtime dependencies first
+-r requirements.txt
+
+# Linting & Formatting (Ruff replaces black/flake8/isort in CI)
+ruff>=0.11.0                       # Fast Python linter & formatter
+
+# Static Type Checking
+mypy==1.19.1                       # Static type checker
+types-requests                     # Type stubs for requests
+
+# Legacy (kept for local use; CI uses Ruff)
+black==26.1.0                      # Code formatter
+flake8==7.3.0                      # Linter
+isort==7.0.0                       # Import sorter

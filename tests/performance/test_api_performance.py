@@ -136,9 +136,7 @@ class TestAPIPerformance:
 
         for term in search_terms:
             start = time.perf_counter()
-            response = requests.post(
-                url, data={"search_product": term}, timeout=TIMEOUT
-            )
+            response = requests.post(url, data={"search_product": term}, timeout=TIMEOUT)
             elapsed_ms = (time.perf_counter() - start) * 1000
             times_ms.append(elapsed_ms)
 

@@ -42,9 +42,17 @@ class APIUtils:
         """Set Authorization header for all subsequent requests."""
         self.session.headers.update({"Authorization": f"{auth_type} {token}"})
 
-    def get(
-        self, endpoint: str, params: Optional[Dict] = None, **kwargs
-    ) -> requests.Response:
+    @staticmethod
+    def _safe_json(response: requests.Response) -> Union[dict, list, str]:
+        """Return parsed JSON from *response*, or raw text on decode failure."""
+        if not response.content:
+            return {}
+        try:
+            return response.json()
+        except (json.JSONDecodeError, ValueError):
+            return response.text
+
+    def get(self, endpoint: str, params: Optional[Dict] = None, **kwargs) -> requests.Response:
         """Send GET request. *params* are appended as query-string parameters."""
         url = urljoin(self.base_url, endpoint)
         logger.debug(f"GET {url}")
@@ -64,9 +72,7 @@ class APIUtils:
         self._log_response(response)
         return response
 
-    def put(
-        self, endpoint: str, data: Optional[Dict] = None, **kwargs
-    ) -> requests.Response:
+    def put(self, endpoint: str, data: Optional[Dict] = None, **kwargs) -> requests.Response:
         """Send PUT request. *data* is serialised as JSON."""
         url = urljoin(self.base_url, endpoint)
         logger.debug(f"PUT {url}")
@@ -84,9 +90,7 @@ class APIUtils:
         self._log_response(response)
         return response
 
-    def patch(
-        self, endpoint: str, data: Optional[Dict] = None, **kwargs
-    ) -> requests.Response:
+    def patch(self, endpoint: str, data: Optional[Dict] = None, **kwargs) -> requests.Response:
         """Send PATCH request. *data* is serialised as JSON."""
         url = urljoin(self.base_url, endpoint)
         logger.debug(f"PATCH {url}")
@@ -99,9 +103,7 @@ class APIUtils:
         """Log status code, elapsed time, and first 500 chars of body."""
         try:
             response_data = response.json() if response.content else {}
-            response_data_str = json.dumps(response_data, indent=2)[
-                :500
-            ]  # Limit length
+            response_data_str = json.dumps(response_data, indent=2)[:500]  # Limit length
         except json.JSONDecodeError:
             response_data_str = response.text[:500]
 
@@ -110,9 +112,7 @@ class APIUtils:
         )
         logger.debug(f"Response Body: {response_data_str}")
 
-    def verify_status_code(
-        self, response: requests.Response, expected_code: int
-    ) -> None:
+    def verify_status_code(self, response: requests.Response, expected_code: int) -> None:
         """Assert the response status code equals *expected_code*."""
         assert response.status_code == expected_code, (
             f"Expected status {expected_code}, got {response.status_code}. Response: {response.text}"
@@ -136,16 +136,14 @@ class APIUtils:
                 f"Key '{key}' should be {expected_type}, got {type(response_data[key])}"
             )
 
-    def save_response_to_file(
-        self, response: requests.Response, file_path: str
-    ) -> None:
+    def save_response_to_file(self, response: requests.Response, file_path: str) -> None:
         """Dump status, headers and body as JSON to *file_path* (creates dirs)."""
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         response_data = {
             "status_code": response.status_code,
             "headers": dict(response.headers),
-            "body": response.json() if response.content else {},
+            "body": self._safe_json(response),
         }
 
         with open(file_path, "w") as f:

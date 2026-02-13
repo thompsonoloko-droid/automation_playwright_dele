@@ -98,9 +98,7 @@ class TestPageLoadPerformance:
         """
         page.goto(f"{_SITE_URL}/", wait_until="load", timeout=60000)
 
-        resource_count = page.evaluate(
-            "() => performance.getEntriesByType('resource').length"
-        )
+        resource_count = page.evaluate("() => performance.getEntriesByType('resource').length")
         total_size_kb = page.evaluate(
             """() => {
             const entries = performance.getEntriesByType('resource');
