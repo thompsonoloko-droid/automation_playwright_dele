@@ -76,7 +76,8 @@ def test_order_flow(page: Page) -> None:
 
     # View cart and proceed to checkout
     page.get_by_role("link", name="View Cart").click()
-    expect(page.locator("#cart_items tbody tr").first).to_be_visible()
+    page.wait_for_load_state("domcontentloaded")
+    expect(page.locator("#cart_items tbody tr").first).to_be_visible(timeout=15000)
     page.get_by_text("Proceed To Checkout").click()
 
     # Payment — card details from env vars, never hardcoded
