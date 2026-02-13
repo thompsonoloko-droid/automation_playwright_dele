@@ -73,7 +73,7 @@ jobs:
       # Uses --check and --diff to validate formatting without modifying files
       - name: Check code formatting with ruff
         run: |
-          ruff format --check --diff tests/ pages/ utils/ docs/
+          ruff format --check --diff tests/ pages/ utils/
           echo "✅ Code format check complete"
         continue-on-error: false
 

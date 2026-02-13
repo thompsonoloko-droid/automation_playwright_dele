@@ -103,7 +103,7 @@ class BasePage:
                 self._dismiss_overlays()
 
                 # Wait before retrying
-                time.sleep(retry_delay)
+                self.page.wait_for_timeout(int(retry_delay * 1000))
                 logger.debug(
                     f"Attempt {attempt}/{max_retries}: Retrying click for '{selector}'"
                 )

@@ -261,18 +261,18 @@ jobs:
     timeout-minutes: 10
     needs: generate-report
     if: always()
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
       # STEP: Send Slack notification with test run results
       # Only executes if SLACK_WEBHOOK_URL secret is configured in repository
       # Includes links to action run for quick access to full results
       - name: Slack notification
-        if: env.HAS_SLACK_WEBHOOK == 'true'
+        if: env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          # Create a helper flag to avoid 'Unrecognized named-value' errors
-          HAS_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
         with:
           payload: |
             {

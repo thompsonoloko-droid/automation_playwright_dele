@@ -72,8 +72,6 @@ jobs:
             -v \
             --tb=short \
             --timeout=30 \
-            --reruns=2 \
-            --reruns-delay=5 \
             --html=reports/smoke-${{ matrix.browser }}-${{ github.run_id }}.html \
             --self-contained-html \
             --junitxml=reports/junit-smoke-${{ matrix.browser }}.xml \
@@ -98,7 +96,8 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: reports-${{ matrix.browser }}
-          path: reports/smoke-${{ matrix.browser }}.html
+          path: |
+            reports/smoke-${{ matrix.browser }}-${{ github.run_id }}.html
             reports/allure-results/${{ matrix.browser }}
           retention-days: 7
 
