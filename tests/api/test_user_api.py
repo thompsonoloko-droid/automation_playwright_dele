@@ -77,9 +77,9 @@ class TestUserAccountAPI:
         logger.info(f"Creating test user: {email}")
 
         data = _create_test_user(email)
-        assert (
-            data["responseCode"] == 201
-        ), f"Expected 201, got {data['responseCode']}: {data.get('message', '')}"
+        assert data["responseCode"] == 201, (
+            f"Expected 201, got {data['responseCode']}: {data.get('message', '')}"
+        )
 
         logger.info("✓ User account created successfully")
 
@@ -99,9 +99,9 @@ class TestUserAccountAPI:
         logger.info(f"Deleting test user: {email}")
 
         data = _delete_test_user(email)
-        assert (
-            data["responseCode"] == 200
-        ), f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        assert data["responseCode"] == 200, (
+            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        )
 
         logger.info("✓ User account deleted successfully")
 
@@ -127,9 +127,9 @@ class TestUserAccountAPI:
             f"{BASE_URL}/updateAccount", data=update_payload, timeout=TIMEOUT
         )
         data = response.json()
-        assert (
-            data["responseCode"] == 200
-        ), f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        assert data["responseCode"] == 200, (
+            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        )
 
         logger.info("✓ User account updated successfully")
 
@@ -156,9 +156,9 @@ class TestUserAccountAPI:
             timeout=TIMEOUT,
         )
         data = response.json()
-        assert (
-            data["responseCode"] == 200
-        ), f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        assert data["responseCode"] == 200, (
+            f"Expected 200, got {data['responseCode']}: {data.get('message', '')}"
+        )
         assert "user" in data, "Response missing 'user' field"
 
         user = data["user"]

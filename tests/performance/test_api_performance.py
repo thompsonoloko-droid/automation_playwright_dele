@@ -104,12 +104,12 @@ class TestAPIPerformance:
             elapsed_ms = (time.perf_counter() - start) * 1000
             times_ms.append(elapsed_ms)
 
-            assert (
-                response.status_code == 200
-            ), f"[{name}] iteration {i+1}: HTTP {response.status_code}"
-            assert (
-                elapsed_ms < max_ms * 1.05
-            ), f"[{name}] iteration {i+1}: {elapsed_ms:.0f}ms exceeded {max_ms}ms threshold"
+            assert response.status_code == 200, (
+                f"[{name}] iteration {i + 1}: HTTP {response.status_code}"
+            )
+            assert elapsed_ms < max_ms * 1.05, (
+                f"[{name}] iteration {i + 1}: {elapsed_ms:.0f}ms exceeded {max_ms}ms threshold"
+            )
 
         avg_ms = sum(times_ms) / len(times_ms)
         min_ms = min(times_ms)
@@ -145,9 +145,9 @@ class TestAPIPerformance:
             assert response.status_code == 200
             # Apply 50% burst tolerance — sequential requests experience network queuing
             burst_max = GLOBAL_MAX_MS * 1.5
-            assert (
-                elapsed_ms < burst_max
-            ), f"Search '{term}': {elapsed_ms:.0f}ms exceeded {burst_max:.0f}ms burst threshold"
+            assert elapsed_ms < burst_max, (
+                f"Search '{term}': {elapsed_ms:.0f}ms exceeded {burst_max:.0f}ms burst threshold"
+            )
 
         avg_ms = sum(times_ms) / len(times_ms)
         logger.info(

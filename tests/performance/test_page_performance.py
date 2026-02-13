@@ -78,9 +78,9 @@ class TestPageLoadPerformance:
         ttfb_ms = timing["firstByte"]
         dom_interactive_ms = timing["domInteractive"]
 
-        assert (
-            dom_loaded_ms < max_ms
-        ), f"[{name}] DOM content loaded in {dom_loaded_ms}ms, exceeded {max_ms}ms threshold"
+        assert dom_loaded_ms < max_ms, (
+            f"[{name}] DOM content loaded in {dom_loaded_ms}ms, exceeded {max_ms}ms threshold"
+        )
 
         logger.info(
             f"✓ {name}: TTFB={ttfb_ms}ms  DOMInteractive={dom_interactive_ms}ms  "
@@ -119,9 +119,9 @@ class TestPageLoadPerformance:
             )
 
         # Hard limit — fail if wildly excessive
-        assert (
-            resource_count < 200
-        ), f"Homepage loaded {resource_count} resources — likely a performance issue"
+        assert resource_count < 200, (
+            f"Homepage loaded {resource_count} resources — likely a performance issue"
+        )
 
     @pytest.mark.performance
     @pytest.mark.ui
@@ -155,9 +155,9 @@ class TestPageLoadPerformance:
         )
 
         cls_threshold = _load_perf_config().get("cls_threshold", 0.35)
-        assert (
-            cls_score < cls_threshold
-        ), f"CLS score {cls_score} exceeds {cls_threshold} threshold (poor experience)"
+        assert cls_score < cls_threshold, (
+            f"CLS score {cls_score} exceeds {cls_threshold} threshold (poor experience)"
+        )
 
         if cls_score < 0.1:
             logger.info(f"✓ CLS score: {cls_score} (good)")

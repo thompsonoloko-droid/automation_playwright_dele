@@ -114,9 +114,9 @@ class APIUtils:
         self, response: requests.Response, expected_code: int
     ) -> None:
         """Assert the response status code equals *expected_code*."""
-        assert (
-            response.status_code == expected_code
-        ), f"Expected status {expected_code}, got {response.status_code}. Response: {response.text}"
+        assert response.status_code == expected_code, (
+            f"Expected status {expected_code}, got {response.status_code}. Response: {response.text}"
+        )
 
     def verify_response_schema(self, response: requests.Response, schema: Dict) -> None:
         """
@@ -132,9 +132,9 @@ class APIUtils:
         # Basic schema validation (for full validation, consider using jsonschema library)
         for key, expected_type in schema.items():
             assert key in response_data, f"Missing key in response: {key}"
-            assert isinstance(
-                response_data[key], expected_type
-            ), f"Key '{key}' should be {expected_type}, got {type(response_data[key])}"
+            assert isinstance(response_data[key], expected_type), (
+                f"Key '{key}' should be {expected_type}, got {type(response_data[key])}"
+            )
 
     def save_response_to_file(
         self, response: requests.Response, file_path: str
