@@ -4,6 +4,7 @@
 
 import os
 
+import pytest
 from playwright.sync_api import Page, expect
 
 
@@ -41,6 +42,8 @@ def _card_details() -> dict:
     return card
 
 
+@pytest.mark.smoke
+@pytest.mark.checkout
 def test_order_flow(page: Page) -> None:
     """End-to-end: login → browse → add to cart → checkout → payment → logout."""
     user = _valid_user()
