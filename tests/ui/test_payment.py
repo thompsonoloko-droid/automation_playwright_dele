@@ -69,22 +69,32 @@ def test_order_flow(page: Page) -> None:
     # The hover-overlay add-to-cart on listing pages is unreliable across
     # browsers (Firefox overlay doesn't register, WebKit needs explicit hover).
     # The detail page always shows the button without a hover overlay.
-    page.goto(
-        "https://automationexercise.com/product_details/33",
-        wait_until="domcontentloaded",
-    )
-    add_btn = page.locator("button.btn-default.cart")
-    add_btn.wait_for(state="visible", timeout=15000)
-    add_btn.click()
+    # Retry up to 2 times — in CI the first click can silently fail due to
+    # ad-network redirects or transient overlays.
+    for attempt in range(3):
+        page.goto(
+            "https://automationexercise.com/product_details/33",
+            wait_until="domcontentloaded",
+        )
+        add_btn = page.locator("button.btn-default.cart")
+        add_btn.wait_for(state="visible", timeout=15000)
+        add_btn.click()
 
-    # Dismiss the "Added!" modal if it appears
-    page.wait_for_timeout(1000)
-    cart_modal = page.locator("#cartModal")
-    if cart_modal.is_visible(timeout=3000):
+        # Wait for the "Added!" confirmation modal — this proves the
+        # server accepted the add-to-cart request.
+        cart_modal = page.locator("#cartModal")
+        try:
+            cart_modal.wait_for(state="visible", timeout=5000)
+        except Exception:
+            # Modal didn't appear — click may not have registered; retry
+            if attempt < 2:
+                continue
+        # Modal appeared (or last attempt) — dismiss and move on
         close_btn = cart_modal.locator("button.close-modal, .close")
         if close_btn.first.is_visible(timeout=2000):
             close_btn.first.click()
         page.wait_for_timeout(500)
+        break
 
     # Navigate to cart and verify the item is present
     page.goto("https://automationexercise.com/view_cart", wait_until="domcontentloaded")
