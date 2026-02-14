@@ -187,6 +187,12 @@ def mobile_page(playwright: Playwright, browser_type, request):
 
     logger.info(f"Launching mobile emulation: {device_name}")
 
+    # Firefox does not support the isMobile option — strip it to avoid errors
+    browser_name = browser_type.name
+    if browser_name == "firefox" and "is_mobile" in device_config:
+        device_config = {k: v for k, v in device_config.items() if k != "is_mobile"}
+        logger.info("Stripped is_mobile for Firefox (unsupported)")
+
     context = browser_type.launch().new_context(
         **device_config,
         ignore_https_errors=True,
