@@ -61,9 +61,9 @@ class TestSmoke:
 
         # Verify we're still on the site after registration completes
         current_url = page.url
-        assert (
-            "automationexercise.com" in current_url
-        ), f"Expected to be on automationexercise.com, got {current_url}"
+        assert "automationexercise.com" in current_url, (
+            f"Expected to be on automationexercise.com, got {current_url}"
+        )
         logger.info(f"✓ User registered successfully: {unique_name}")
 
     @pytest.mark.smoke
