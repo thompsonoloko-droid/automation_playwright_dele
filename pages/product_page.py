@@ -87,7 +87,9 @@ class ProductPage(BasePage):
                 logger.warning(
                     f"View Cart modal not available ({modal_error}). Navigating directly to cart."
                 )
-                self.page.goto("/view_cart")
+                # Use absolute URL — Firefox rejects relative paths in page.goto()
+                base = self.page.url.split("/", 3)[:3]
+                self.page.goto("/".join(base) + "/view_cart")
 
             logger.info(f"Product {product_index} added to cart successfully")
 
