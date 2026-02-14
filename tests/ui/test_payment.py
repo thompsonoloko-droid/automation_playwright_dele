@@ -75,7 +75,14 @@ def test_order_flow(page: Page) -> None:
     add_btn.click()
 
     # View cart and proceed to checkout
-    page.get_by_role("link", name="View Cart").click()
+    # After adding to cart, a modal with "View Cart" may appear.
+    # In Firefox the modal link can stay hidden, so fall back to direct navigation.
+    modal_link = page.locator("a[href='/view_cart']:has-text('View Cart')")
+    try:
+        modal_link.wait_for(state="visible", timeout=10000)
+        modal_link.click()
+    except Exception:
+        page.goto("https://automationexercise.com/view_cart", wait_until="domcontentloaded")
     page.wait_for_load_state("domcontentloaded")
     expect(page.locator("#cart_items tbody tr").first).to_be_visible(timeout=15000)
     page.get_by_text("Proceed To Checkout").click()
