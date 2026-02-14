@@ -6,6 +6,7 @@ Key fixtures:
   - browser_context_args — viewport, HTTPS settings, optional video recording
   - page — fresh Playwright page pre-navigated to the base URL,
            with consent/cookie overlays blocked at the network level
+  - mobile_page — page emulating a mobile device (iPhone 13 by default)
   - test_data — loads test credentials from test_data/test_data.json
   - cleanup_videos — deletes video recordings for passing tests
 """
@@ -18,7 +19,7 @@ from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
-from playwright.sync_api import BrowserContext
+from playwright.sync_api import BrowserContext, Playwright
 
 # Load .env from project root before any tests run (git-ignored, safe for secrets)
 load_dotenv(Path(__file__).parent.parent / ".env")
@@ -105,6 +106,114 @@ def page(context: BrowserContext, request):
         page.screenshot(path=screenshot_path)
         logging.error(f"Test failed. Screenshot saved: {screenshot_path}")
     page.close()
+
+
+# ---------------------------------------------------------------------------
+# Mobile device emulation configuration
+# ---------------------------------------------------------------------------
+
+# Supported mobile devices for testing — maps short names to Playwright device IDs.
+# Full list: https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/deviceDescriptorsSource.json
+MOBILE_DEVICES: dict[str, str] = {
+    "iphone_13": "iPhone 13",
+    "iphone_14": "iPhone 14",
+    "iphone_15": "iPhone 15",
+    "pixel_7": "Pixel 7",
+    "galaxy_s9": "Galaxy S9+",
+    "ipad_mini": "iPad Mini",
+}
+
+# Default device used when --mobile-device is not specified
+DEFAULT_MOBILE_DEVICE = "iPhone 13"
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register custom CLI options for mobile testing."""
+    parser.addoption(
+        "--mobile-device",
+        action="store",
+        default=DEFAULT_MOBILE_DEVICE,
+        help=f"Playwright device to emulate (default: {DEFAULT_MOBILE_DEVICE}). "
+        f"Shorthand keys: {', '.join(MOBILE_DEVICES.keys())}",
+    )
+
+
+def _resolve_device_name(raw: str) -> str:
+    """Map a shorthand key (e.g. 'iphone_13') to the canonical Playwright name."""
+    return MOBILE_DEVICES.get(raw.lower().replace(" ", "_").replace("-", "_"), raw)
+
+
+def _setup_page_blocking(page) -> None:
+    """Apply consent-banner blocking routes and overlay removal to a page."""
+    page.route("**/*fundingchoices*/**", lambda route: route.abort())
+    page.route("**/*fc.yahoo*/**", lambda route: route.abort())
+    page.route("**/fundingchoicesmessages*", lambda route: route.abort())
+    page.route("**/*googleads*/**", lambda route: route.abort())
+
+    page.add_init_script(
+        """
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll('.fc-consent-root, .fc-dialog-overlay')
+                .forEach(el => el.remove());
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+    """
+    )
+
+
+@pytest.fixture(scope="function")
+def mobile_page(playwright: Playwright, browser_type, request):
+    """
+    Yield a Playwright page emulating a mobile device.
+
+    The device can be selected via the ``--mobile-device`` CLI option
+    (default: iPhone 13).  Includes the same consent-banner blocking
+    and failure-screenshot behaviour as the desktop ``page`` fixture.
+
+    Usage in tests::
+
+        @pytest.mark.mobile
+        def test_homepage_mobile(mobile_page):
+            expect(mobile_page).to_have_title("Automation Exercise")
+
+    Available devices (shorthand or full Playwright name):
+        iphone_13, iphone_14, iphone_15, pixel_7, galaxy_s9, ipad_mini
+    """
+    device_name = _resolve_device_name(request.config.getoption("--mobile-device"))
+    device_config = playwright.devices.get(device_name)
+    if device_config is None:
+        available = ", ".join(sorted(playwright.devices.keys()))
+        raise ValueError(f"Unknown device '{device_name}'. Available: {available}")
+
+    logger.info(f"Launching mobile emulation: {device_name}")
+
+    context = browser_type.launch().new_context(
+        **device_config,
+        ignore_https_errors=True,
+    )
+    page = context.new_page()
+
+    _setup_page_blocking(page)
+
+    base_url = os.environ.get("BASE_URL", "https://automationexercise.com/")
+    try:
+        page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
+    except Exception as e:
+        logging.error(f"[mobile] Failed to navigate to {base_url}: {e}")
+        page.close()
+        context.close()
+        raise
+
+    yield page
+
+    rep = getattr(request.node, "rep_call", None)
+    if rep and getattr(rep, "failed", False):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        screenshot_path = f"./reports/screenshots/failure_{request.node.name}_{timestamp}.png"
+        page.screenshot(path=screenshot_path)
+        logging.error(f"Test failed. Screenshot saved: {screenshot_path}")
+    page.close()
+    context.close()
 
 
 @pytest.fixture(scope="function")

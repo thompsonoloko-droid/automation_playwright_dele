@@ -5,6 +5,7 @@
 This is a **production-ready Playwright-based test automation framework** for e-commerce testing with comprehensive Page Object Model (POM) architecture, data-driven testing, CI/CD integration and advanced reporting capabilities.
 
 **Tech Stack:**
+
 - Python 3.8+
 - Playwright 1.58.0 (cross-browser automation)
 - Pytest 9.0.2 (test framework)
@@ -29,6 +30,7 @@ automation_playwright_dele/
 ## Build & Test Commands
 
 ### Setup
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -38,6 +40,7 @@ python -m playwright install
 ```
 
 ### Running Tests
+
 ```bash
 # Run all tests
 pytest tests/
@@ -59,6 +62,7 @@ pytest tests/ --alluredir=reports/allure-results
 ```
 
 ### Code Quality
+
 ```bash
 # Format code with Black
 black .
@@ -76,6 +80,7 @@ pre-commit run --all-files
 ## Code Style Standards
 
 ### Formatting & Linting
+
 - **Black** for code formatting (line length: 88)
 - **Ruff** for linting
 - **mypy** for static type checking
@@ -83,6 +88,7 @@ pre-commit run --all-files
 - Pre-commit hooks MUST pass before committing
 
 ### Python Standards
+
 - Use type hints on all functions and methods
 - Add comprehensive docstrings (Google style)
 - Follow PEP 8 naming conventions
@@ -90,24 +96,25 @@ pre-commit run --all-files
 - One assertion per test (when possible)
 
 ### Example Code Style
+
 ```python
 from playwright.sync_api import Page, expect
 from pages.base_page import BasePage
 
 class YourPage(BasePage):
     """Page Object for your page.
-    
+
     Attributes:
         BUTTON_SUBMIT: CSS selector for submit button
         INPUT_EMAIL: CSS selector for email input
     """
-    
+
     BUTTON_SUBMIT: str = "button[type='submit']"
     INPUT_EMAIL: str = "input[name='email']"
-    
+
     def fill_email(self, email: str) -> None:
         """Fill email field with provided value.
-        
+
         Args:
             email: Email address to enter
         """
@@ -117,7 +124,9 @@ class YourPage(BasePage):
 ## Test Organization
 
 ### Test Markers
+
 Use pytest markers to organize tests:
+
 ```python
 @pytest.mark.smoke              # Critical path tests
 @pytest.mark.regression         # Full regression suite
@@ -128,21 +137,23 @@ Use pytest markers to organize tests:
 @pytest.mark.checkout           # Checkout-specific
 @pytest.mark.slow               # Long-running tests
 @pytest.mark.performance        # Performance tests
+@pytest.mark.mobile             # Mobile device emulation tests
 @pytest.mark.skip_ci            # Skip in CI/CD
 ```
 
 ### Test Structure
+
 ```python
 import pytest
 from pages.home_page import HomePage
 
 class TestFeature:
     """Test suite for feature X."""
-    
+
     @pytest.mark.smoke
     def test_feature_works(self, page: Page, test_data: dict) -> None:
         """Test that feature X works correctly.
-        
+
         Args:
             page: Playwright page fixture
             test_data: Test data from test_data.json
@@ -153,10 +164,46 @@ class TestFeature:
 ```
 
 ### Fixtures Available
+
 - `page`: Playwright page fixture (auto-navigated with consent banners blocked)
 - `test_data`: Loads non-sensitive config from test_data.json
 - `browser_context_args`: Browser viewport and settings configuration
 - `cleanup_videos`: Optional cleanup fixture for video recordings
+- `mobile_page`: Mobile device emulation page (iPhone, Pixel, Galaxy, iPad)
+
+## Mobile Device Emulation Testing
+
+The framework supports mobile device emulation via the `mobile_page` fixture.
+
+### Supported Devices
+
+- `iPhone 13`, `Pixel 7`, `Galaxy S21`, `iPad Mini`
+
+### Writing Mobile Tests
+
+```python
+import pytest
+
+@pytest.mark.mobile
+def test_mobile_feature(mobile_page):
+    """Test feature on mobile viewport."""
+    mobile_page.goto("https://automationexercise.com")
+    assert mobile_page.viewport_size["width"] < 1000
+```
+
+### Running Mobile Tests
+
+```bash
+pytest tests/ui/test_mobile.py -m mobile -v
+pytest tests/ui/test_mobile.py --mobile-device "Pixel 7" -v
+```
+
+All mobile tests must:
+
+- Use the `mobile_page` fixture (not `page`)
+- Be decorated with `@pytest.mark.mobile`
+- Avoid relying on hover interactions (touch devices don't hover)
+- Use `mobile_page.viewport_size` to verify responsive behaviour
 
 ## Data-Driven Testing
 
@@ -185,15 +232,15 @@ from pages.base_page import BasePage
 
 class NewPage(BasePage):
     """Page Object for new page."""
-    
+
     # Locators
     BUTTON_SUBMIT = "button[type='submit']"
     INPUT_NAME = "input[name='fullname']"
-    
+
     def fill_name(self, name: str) -> None:
         """Fill name input field."""
         self.fill(self.INPUT_NAME, name)
-    
+
     def submit_form(self) -> None:
         """Click submit button."""
         self.click(self.BUTTON_SUBMIT)
@@ -211,12 +258,14 @@ def test_example(page):
 ## Security Guidelines
 
 ### Credentials Management
+
 - **NEVER** commit credentials or secrets to git
 - Credentials MUST be in `.env` file (git-ignored)
 - Load credentials using `python-dotenv` at runtime
 - Use environment variables for CI/CD secrets
 
 ### .env File Structure
+
 ```dotenv
 # Valid user login
 TEST_USER_NAME=Your Name
@@ -232,13 +281,16 @@ CARD_EXPIRY_YEAR=2030
 ```
 
 ### test_data.json
+
 - Contains **only non-sensitive** test data
 - Invalid credentials for negative tests
 - API configuration
 - Selectors and test constants
 
 ### Required GitHub Secrets
+
 For CI/CD workflows, set these in **Settings → Secrets → Actions**:
+
 - `TEST_USER_NAME`
 - `TEST_USER_EMAIL`
 - `TEST_USER_PASSWORD`
@@ -253,18 +305,19 @@ For CI/CD workflows, set these in **Settings → Secrets → Actions**:
 
 Four GitHub Actions workflows in `.github/workflows/`:
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `ci-cd.yml` | Push, PR, schedule, manual | Full pipeline with multi-browser testing |
-| `pr-checks.yml` | Pull request | Validate commits, smoke tests, coverage gate |
-| `scheduled-smoke-tests.yml` | Every 6 hours | Continuous health monitoring |
-| `manual-test-run.yml` | Manual dispatch | On-demand test runs |
+| Workflow                    | Trigger                    | Purpose                                      |
+| --------------------------- | -------------------------- | -------------------------------------------- |
+| `ci-cd.yml`                 | Push, PR, schedule, manual | Full pipeline with multi-browser testing     |
+| `pr-checks.yml`             | Pull request               | Validate commits, smoke tests, coverage gate |
+| `scheduled-smoke-tests.yml` | Every 6 hours              | Continuous health monitoring                 |
+| `manual-test-run.yml`       | Manual dispatch            | On-demand test runs                          |
 
 **Security:** All GitHub Actions are pinned to commit SHAs for supply-chain security.
 
 ## Common Pitfalls & Best Practices
 
 ### DO:
+
 ✅ Use explicit waits (`wait_for_element()`) instead of `sleep()`
 ✅ Inherit all page objects from `BasePage`
 ✅ Add type hints and docstrings to all functions
@@ -277,6 +330,7 @@ Four GitHub Actions workflows in `.github/workflows/`:
 ✅ Capture screenshots on failures (automatic)
 
 ### DON'T:
+
 ❌ Hardcode credentials in test files
 ❌ Commit `.env` file to git
 ❌ Use `time.sleep()` for waits
@@ -290,6 +344,7 @@ Four GitHub Actions workflows in `.github/workflows/`:
 ## Utilities
 
 ### WebUtils (`utils/web_utils.py`)
+
 ```python
 from utils.web_utils import WebUtils
 
@@ -301,6 +356,7 @@ web_utils.take_screenshot("test_success")
 ```
 
 ### APIUtils (`utils/api_utils.py`)
+
 ```python
 from utils.api_utils import APIUtils
 
@@ -312,6 +368,7 @@ api.verify_status_code(response, 200)
 ## Adding New Features
 
 ### Adding a New Test
+
 1. Create page object in `pages/` (if needed)
 2. Add test file in `tests/ui/` or `tests/api/`
 3. Use fixtures: `page`, `test_data`
@@ -320,6 +377,7 @@ api.verify_status_code(response, 200)
 6. Run test locally before committing
 
 ### Adding a New Page Object
+
 1. Create file in `pages/` directory
 2. Inherit from `BasePage`
 3. Define locators as class constants
@@ -327,6 +385,7 @@ api.verify_status_code(response, 200)
 5. Add type hints and docstrings
 
 ### Adding Test Data
+
 1. Edit `test_data/test_data.json`
 2. Follow existing JSON structure
 3. Use descriptive keys
@@ -335,19 +394,23 @@ api.verify_status_code(response, 200)
 ## Debugging
 
 ### Capture Traces
+
 ```bash
 pytest tests/ui/test_login.py -v --trace=retain-on-failure
 ```
 
 ### Screenshots
+
 Automatic screenshots on failures: `./reports/screenshots/failure_test_name_TIMESTAMP.png`
 
 ### Logs
+
 Test logs appear in terminal output with INFO level by default.
 
 ## Dependencies
 
 Install from `requirements.txt`:
+
 - pytest, pytest-playwright, playwright
 - requests (API testing)
 - pytest-html, allure-pytest (reporting)

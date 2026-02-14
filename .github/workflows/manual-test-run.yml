@@ -22,6 +22,18 @@ on:
           - api
           - ui-only
           - high-priority
+          - mobile
+      # Mobile device selection - which device to emulate
+      mobile_device:
+        description: "Mobile device to emulate (used with mobile suite)"
+        required: false
+        type: choice
+        options:
+          - "iPhone 13"
+          - "Pixel 7"
+          - "Galaxy S21"
+          - "iPad Mini"
+        default: "iPhone 13"
       # Browser selection - which browser to test with
       browser:
         description: "Browser to test"
@@ -120,6 +132,9 @@ jobs:
             high-priority)
               CMD="$CMD tests/ -m 'smoke or api'"
               ;;
+            mobile)
+              CMD="$CMD tests/ui/test_mobile.py -m mobile"
+              ;;
             *)
               CMD="$CMD tests/"
               ;;
@@ -131,6 +146,11 @@ jobs:
           # (all-browsers is handled by running command three times)
           if [ "${{ github.event.inputs.browser }}" != "all-browsers" ]; then
             CMD="$CMD --browser=${{ github.event.inputs.browser }}"
+          fi
+
+          # Add mobile device flag if running mobile suite
+          if [ "${{ github.event.inputs.test_suite }}" = "mobile" ]; then
+            CMD="$CMD --mobile-device=\"${{ github.event.inputs.mobile_device }}\""
           fi
 
           # Enable pytest-xdist plugin for parallel execution across CPU cores

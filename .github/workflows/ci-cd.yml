@@ -219,6 +219,24 @@ jobs:
             # --alluredir=reports/allure-results/api    ## allure report is disabled here
         continue-on-error: false
 
+      - name: Run Mobile Tests
+        id: mobile-tests
+        if: matrix.browser == 'chromium'
+        env:
+          TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          pytest tests/ui/test_mobile.py -m mobile \
+            --browser=chromium \
+            --mobile-device "iPhone 13" \
+            -v \
+            --tb=short \
+            --html=reports/mobile-iphone13.html \
+            --self-contained-html \
+            --junitxml=reports/junit-mobile-iphone13.xml
+        continue-on-error: true
+
       # Skip collecting results - junit files are generated in reports/ directory
       # They are uploaded as artifacts for later processing
       - name: Upload Test Artifacts
@@ -245,14 +263,16 @@ jobs:
           SMOKE='${{ steps.smoke-tests.outcome }}'
           REGRESSION='${{ steps.regression-tests.outcome }}'
           API='${{ steps.api-tests.outcome }}'
+          MOBILE='${{ steps.mobile-tests.outcome }}'
 
           echo "## Test Results - ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| Smoke Tests | $([ "$SMOKE" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
-          echo "| Regression Tests | $([ "$REGRESSION" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
-          echo "| API Tests | $([ "$API" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | $([ \"$SMOKE\" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Regression Tests | $([ \"$REGRESSION\" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Tests | $([ \"$API\" = 'success' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mobile Tests | $([ \"$MOBILE\" = 'success' ] && echo '✅' || echo '⏭️') |" >> $GITHUB_STEP_SUMMARY
 
   # ============================================================================
   # JOB 3: CODE COVERAGE - Measure test coverage and integration

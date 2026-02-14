@@ -21,6 +21,7 @@ A **production-ready Playwright-based test automation framework** for e-commerce
 - [Security](#security)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
+- [Mobile Testing](#mobile-testing)
 - [Contributing](#contributing)
 
 ## Features
@@ -34,6 +35,7 @@ A **production-ready Playwright-based test automation framework** for e-commerce
 - **Consent Banner Handling** — Network-level blocking + DOM removal of cookie overlays
 - **Allure & HTML Reporting** — Rich test reports with trends and analytics
 - **CI/CD Pipelines** — 4 GitHub Actions workflows (push, PR, scheduled, manual)
+- **Mobile Device Emulation** — Test on iPhone, Pixel, Galaxy, iPad viewports
 - **Code Quality** — Ruff linting/formatting, mypy type checking, pre-commit hooks
 
 ## Quick Start
@@ -93,6 +95,7 @@ pytest tests/ -m smoke             # Smoke tests only
 pytest tests/ui/ -v                # UI tests
 pytest tests/api/ -v               # API tests
 pytest tests/performance/ -v       # Performance tests
+pytest tests/ui/test_mobile.py -v --mobile-device "iPhone 13"  # Mobile tests
 ```
 
 ## Project Structure
@@ -112,7 +115,8 @@ automation_playwright_dele/
 │   │   ├── test_smoke.py               # Homepage, registration, add-to-cart (3 tests)
 │   │   ├── test_login.py               # Data-driven login scenarios (2 parametrized)
 │   │   ├── test_checkout.py            # Cart & checkout (2 tests)
-│   │   └── test_payment.py             # Full order flow (1 test)
+│   │   ├── test_payment.py             # Full order flow (1 test)
+│   │   └── test_mobile.py              # Mobile device emulation (6 tests)
 │   ├── api/                            # REST API tests
 │   │   ├── conftest.py                 # Shared API session with retry logic
 │   │   ├── test_auth_api.py            # Authentication endpoints (5 tests)
@@ -198,6 +202,7 @@ pytest tests/ --cov=pages --cov=utils --cov-report=html
 @pytest.mark.cart               # Cart-specific
 @pytest.mark.checkout           # Checkout-specific
 @pytest.mark.performance        # Performance benchmarks
+@pytest.mark.mobile             # Mobile device emulation tests
 @pytest.mark.slow               # Long-running tests
 @pytest.mark.skip_ci            # Skip in CI/CD
 ```
@@ -206,14 +211,15 @@ pytest tests/ --cov=pages --cov=utils --cov-report=html
 
 **31 tests** across 3 test suites:
 
-### UI Tests (8 tests)
+### UI Tests (14 tests)
 
-| File               | Tests | Description                                                   |
-| ------------------ | ----- | ------------------------------------------------------------- |
-| `test_smoke.py`    | 3     | Homepage load, user registration, add-to-cart flow            |
-| `test_login.py`    | 2     | Data-driven valid/invalid login (parametrized from JSON)      |
-| `test_checkout.py` | 2     | Cart checkout button, item count verification                 |
-| `test_payment.py`  | 1     | Full E2E: login → browse → cart → checkout → payment → logout |
+| File               | Tests | Description                                                    |
+| ------------------ | ----- | -------------------------------------------------------------- |
+| `test_smoke.py`    | 3     | Homepage load, user registration, add-to-cart flow             |
+| `test_login.py`    | 2     | Data-driven valid/invalid login (parametrized from JSON)       |
+| `test_checkout.py` | 2     | Cart checkout button, item count verification                  |
+| `test_payment.py`  | 1     | Full E2E: login → browse → cart → checkout → payment → logout  |
+| `test_mobile.py`   | 6     | Mobile emulation: homepage, nav, products, login, cart, layout |
 
 ### API Tests (16 tests)
 
@@ -385,6 +391,7 @@ Unified config for Ruff, mypy, isort, and Black — keeps tool settings in one p
 | `page`                 | function | Fresh page with consent banners blocked, navigated to base URL |
 | `test_data`            | function | Loads `test_data.json` as a list of dicts                      |
 | `cleanup_videos`       | function | Deletes video recordings for passing tests                     |
+| `mobile_page`          | function | Mobile device emulation page (iPhone, Pixel, Galaxy, iPad)     |
 
 ### API Test Fixtures (`tests/api/conftest.py`)
 
@@ -419,6 +426,52 @@ python -m playwright install
 ```bash
 pytest tests/ui/test_login.py -v --trace=retain-on-failure
 ```
+
+## Mobile Testing
+
+The framework supports mobile device emulation using Playwright's built-in device profiles.
+
+### Supported Devices
+
+| Shorthand    | Playwright Device |
+| ------------ | ----------------- |
+| `iPhone 13`  | iPhone 13         |
+| `Pixel 7`    | Pixel 7           |
+| `Galaxy S21` | Galaxy S21        |
+| `iPad Mini`  | iPad Mini         |
+
+### Running Mobile Tests
+
+```bash
+# Run all mobile tests with default device (iPhone 13)
+pytest tests/ui/test_mobile.py -m mobile -v
+
+# Specify a device
+pytest tests/ui/test_mobile.py -m mobile --mobile-device "Pixel 7" -v
+
+# Run on a specific browser engine
+pytest tests/ui/test_mobile.py -m mobile --browser chromium --mobile-device "Galaxy S21" -v
+```
+
+### Mobile Test Fixture
+
+Use the `mobile_page` fixture in your tests:
+
+```python
+import pytest
+
+@pytest.mark.mobile
+def test_responsive_feature(mobile_page):
+    """Test that a feature works on mobile viewport."""
+    mobile_page.goto("https://automationexercise.com")
+    assert mobile_page.viewport_size["width"] < 1000
+```
+
+The `mobile_page` fixture automatically:
+
+- Launches a browser with the selected device profile (viewport, user agent, touch support)
+- Blocks consent/cookie banners via network-level interception
+- Captures screenshots on test failure
 
 ## Dependencies
 
@@ -466,4 +519,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines. In short:
 ---
 
 **Last Updated:** February 13, 2026
-**Playwright:** 1.58.0 | **Python:** 3.11+ | **Pytest:** 9.0.2
+**Playwright:** 1.58.0 | **Python:** 3.11+ | **Pytest:** 9.0.2 | **Tests:** 37
