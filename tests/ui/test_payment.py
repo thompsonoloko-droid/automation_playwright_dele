@@ -65,57 +65,28 @@ def test_order_flow(page: Page) -> None:
     page.get_by_role("textbox", name="Password").fill(user["password"])
     page.get_by_role("button", name="Login").click()
 
-    # Browse Men → Jeans and add a product to cart
-    # Navigate directly to the category page — sidebar accordion clicks are
-    # unreliable across browsers (the anchor #Men doesn't expand the panel).
-    page.goto("https://automationexercise.com/category_products/6", wait_until="domcontentloaded")
+    # Add a product to cart via the product detail page.
+    # The hover-overlay add-to-cart on listing pages is unreliable across
+    # browsers (Firefox overlay doesn't register, WebKit needs explicit hover).
+    # The detail page always shows the button without a hover overlay.
+    page.goto(
+        "https://automationexercise.com/product_details/33",
+        wait_until="domcontentloaded",
+    )
+    add_btn = page.locator("button.btn-default.cart")
+    add_btn.wait_for(state="visible", timeout=15000)
+    add_btn.click()
 
-    # Hover over the product first — the add-to-cart button is inside a hover
-    # overlay and WebKit won't register a click without hovering first.
-    product = page.locator(".product-image-wrapper").first
-    product.wait_for(state="visible", timeout=15000)
-    product.scroll_into_view_if_needed()
-    product.hover()
-    page.wait_for_timeout(500)
-
-    add_btn = product.locator(".add-to-cart").first
-    add_btn.click(force=True)
-
-    # The add-to-cart click may trigger a "#cartModal" overlay.  If it appeared,
-    # the item was added successfully — dismiss it.  If the modal did NOT appear
-    # (overlay click didn't register, common in Firefox), fall back to the
-    # product detail page where the button is always visible.
-    page.wait_for_timeout(1500)
-
+    # Dismiss the "Added!" modal if it appears
+    page.wait_for_timeout(1000)
     cart_modal = page.locator("#cartModal")
-    if cart_modal.is_visible(timeout=2000):
-        # Modal appeared → item was added.  Close it before continuing.
+    if cart_modal.is_visible(timeout=3000):
         close_btn = cart_modal.locator("button.close-modal, .close")
         if close_btn.first.is_visible(timeout=2000):
             close_btn.first.click()
         page.wait_for_timeout(500)
-    else:
-        # Fallback: navigate to the product detail page and add from there
-        page.goto(
-            "https://automationexercise.com/product_details/33",
-            wait_until="domcontentloaded",
-        )
-        detail_add = page.locator("button.btn-default.cart").first
-        detail_add.wait_for(state="visible", timeout=10000)
-        detail_add.click()
-        page.wait_for_timeout(1000)
-        # Dismiss the detail-page modal if it appeared
-        detail_modal = page.locator("#cartModal")
-        if detail_modal.is_visible(timeout=2000):
-            close_btn = detail_modal.locator("button.close-modal, .close")
-            if close_btn.first.is_visible(timeout=2000):
-                close_btn.first.click()
-            page.wait_for_timeout(500)
 
-    # Navigate to cart — the modal "View Cart" link is unreliable in
-    # Firefox and WebKit, so go directly after a brief pause for the
-    # server-side cart update to complete.
-    page.wait_for_timeout(1000)
+    # Navigate to cart and verify the item is present
     page.goto("https://automationexercise.com/view_cart", wait_until="domcontentloaded")
     expect(page.locator("#cart_items tbody tr").first).to_be_visible(timeout=15000)
     page.get_by_text("Proceed To Checkout").click()
