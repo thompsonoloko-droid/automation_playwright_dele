@@ -69,21 +69,23 @@ def test_order_flow(page: Page) -> None:
     # Navigate directly to the category page — sidebar accordion clicks are
     # unreliable across browsers (the anchor #Men doesn't expand the panel).
     page.goto("https://automationexercise.com/category_products/6", wait_until="domcontentloaded")
-    add_btn = page.locator(".productinfo .add-to-cart").first
-    add_btn.wait_for(state="visible", timeout=15000)
-    add_btn.scroll_into_view_if_needed()
-    add_btn.click()
 
-    # View cart and proceed to checkout
-    # After adding to cart, a modal with "View Cart" may appear.
-    # In Firefox the modal link can stay hidden, so fall back to direct navigation.
-    modal_link = page.locator("a[href='/view_cart']:has-text('View Cart')")
-    try:
-        modal_link.wait_for(state="visible", timeout=10000)
-        modal_link.click()
-    except Exception:
-        page.goto("https://automationexercise.com/view_cart", wait_until="domcontentloaded")
-    page.wait_for_load_state("domcontentloaded")
+    # Hover over the product first — the add-to-cart button is inside a hover
+    # overlay and WebKit won't register a click without hovering first.
+    product = page.locator(".product-image-wrapper").first
+    product.wait_for(state="visible", timeout=15000)
+    product.scroll_into_view_if_needed()
+    product.hover()
+    page.wait_for_timeout(500)
+
+    add_btn = product.locator(".add-to-cart").first
+    add_btn.click(force=True)
+
+    # Navigate to cart — the modal "View Cart" link is unreliable in
+    # Firefox and WebKit, so go directly after a brief pause for the
+    # server-side cart update to complete.
+    page.wait_for_timeout(1000)
+    page.goto("https://automationexercise.com/view_cart", wait_until="domcontentloaded")
     expect(page.locator("#cart_items tbody tr").first).to_be_visible(timeout=15000)
     page.get_by_text("Proceed To Checkout").click()
 
