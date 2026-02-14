@@ -81,6 +81,26 @@ def test_order_flow(page: Page) -> None:
     add_btn = product.locator(".add-to-cart").first
     add_btn.click(force=True)
 
+    # Verify the "Added!" modal appeared — if not, the overlay click didn't
+    # register (common in Firefox).  Fall back to the product detail page
+    # where the add-to-cart button is always visible without a hover overlay.
+    modal_visible = page.locator("#cartModal .modal-body").first.is_visible(timeout=3000)
+    if not modal_visible:
+        # Fallback: open product detail page and add from there
+        product_link = product.locator("a[href*='/product_details/']").first
+        if product_link.is_visible(timeout=3000):
+            product_link.click()
+        else:
+            page.goto(
+                "https://automationexercise.com/product_details/1",
+                wait_until="domcontentloaded",
+            )
+        page.wait_for_load_state("domcontentloaded")
+        detail_add = page.locator("button.btn-default.cart").first
+        detail_add.wait_for(state="visible", timeout=10000)
+        detail_add.click()
+        page.wait_for_timeout(1000)
+
     # Navigate to cart — the modal "View Cart" link is unreliable in
     # Firefox and WebKit, so go directly after a brief pause for the
     # server-side cart update to complete.
