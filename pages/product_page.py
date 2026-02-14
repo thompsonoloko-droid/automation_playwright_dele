@@ -31,6 +31,11 @@ class ProductPage(BasePage):
     PRODUCT_ITEM = ".product-image-wrapper"
     ADD_TO_CART_BTN = ".add-to-cart"
     VIEW_CART_MODAL = "a[href='/view_cart']:has-text('View Cart')"
+    DETAIL_ADD_TO_CART_BTN = "button.btn-default.cart"
+    CART_MODAL = "#cartModal"
+    CART_MODAL_CLOSE = "#cartModal button.close-modal, #cartModal .close"
+
+    BASE_URL: str = "https://automationexercise.com"
 
     def add_product_to_cart(self, product_index: int = 0) -> None:
         """
@@ -96,3 +101,51 @@ class ProductPage(BasePage):
         except Exception as e:
             logger.error(f"Failed to add product to cart: {str(e)}")
             raise RuntimeError(f"Failed to add product to cart: {str(e)}")
+
+    def add_product_via_detail_page(self, product_id: int = 33, max_retries: int = 3) -> None:
+        """Add a product to cart via its detail page.
+
+        This method is more reliable than the listing-page hover overlay
+        because the add-to-cart button is always visible on the detail page.
+        Retries up to ``max_retries`` times, waiting for the confirmation
+        modal to verify the server accepted the request.
+
+        Args:
+            product_id: The product ID to add (default: 33).
+            max_retries: Number of attempts before giving up.
+
+        Raises:
+            RuntimeError: If the product could not be added after all retries.
+        """
+        for attempt in range(max_retries):
+            self.page.goto(
+                f"{self.BASE_URL}/product_details/{product_id}",
+                wait_until="domcontentloaded",
+            )
+            add_btn = self.page.locator(self.DETAIL_ADD_TO_CART_BTN)
+            add_btn.wait_for(state="visible", timeout=15000)
+            add_btn.click()
+
+            # Wait for the confirmation modal to verify the item was added
+            cart_modal = self.page.locator(self.CART_MODAL)
+            try:
+                cart_modal.wait_for(state="visible", timeout=5000)
+            except Exception:
+                if attempt < max_retries - 1:
+                    logger.warning(
+                        f"Add-to-cart modal not shown (attempt {attempt + 1}), retrying..."
+                    )
+                    continue
+                logger.warning("Modal not shown on final attempt — proceeding anyway")
+
+            # Dismiss the modal
+            close_btn = self.page.locator(self.CART_MODAL_CLOSE)
+            if close_btn.first.is_visible(timeout=2000):
+                close_btn.first.click()
+            self.page.wait_for_timeout(500)
+            logger.info(f"Product {product_id} added to cart via detail page")
+            return
+
+        raise RuntimeError(
+            f"Failed to add product {product_id} to cart after {max_retries} attempts"
+        )

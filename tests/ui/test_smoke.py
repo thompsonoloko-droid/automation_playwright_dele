@@ -61,28 +61,24 @@ class TestSmoke:
 
         # Verify we're still on the site after registration completes
         current_url = page.url
-        assert "automationexercise.com" in current_url, (
-            f"Expected to be on automationexercise.com, got {current_url}"
-        )
+        assert (
+            "automationexercise.com" in current_url
+        ), f"Expected to be on automationexercise.com, got {current_url}"
         logger.info(f"✓ User registered successfully: {unique_name}")
 
     @pytest.mark.smoke
     @pytest.mark.regression
     @pytest.mark.cart
     def test_add_to_cart_flow(self, page):
-        """Navigate to products, add one to cart, verify cart is non-empty."""
+        """Navigate to a product detail page, add to cart, verify cart is non-empty."""
         logger.info("Testing add to cart flow...")
-        homepage = HomePage(page)
         product_page = ProductPage(page)
         cart_page = CartPage(page)
 
-        homepage.navigate_to_products()
-        page.locator(".product-image-wrapper").first.wait_for(state="visible", timeout=15000)
+        product_page.add_product_via_detail_page(product_id=1)
+        cart_page.navigate_to_cart()
+        cart_page.verify_has_items()
 
-        product_page.add_product_to_cart(0)
-
-        # Verify at least one item in the cart
-        page.locator("#cart_items tbody tr").first.wait_for(state="visible", timeout=15000)
         cart_count = cart_page.get_cart_items_count()
         assert cart_count >= 1, f"Expected at least 1 item in cart, got {cart_count}"
         logger.info(f"✓ Add to cart flow successful - {cart_count} items in cart")

@@ -5,7 +5,14 @@
 import os
 
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
+
+from pages.cart_page import CartPage
+from pages.checkout_page import CheckoutPage
+from pages.home_page import HomePage
+from pages.login_page import LoginPage
+from pages.payment_page import PaymentPage
+from pages.product_page import ProductPage
 
 
 def _valid_user() -> dict:
@@ -57,99 +64,34 @@ def test_order_flow(page: Page) -> None:
     user = _valid_user()
     card = _card_details()
 
-    # Login
-    page.get_by_role("link", name=" Signup / Login").click()
-    page.locator("form").filter(has_text="Login").get_by_placeholder("Email Address").fill(
-        user["email"]
-    )
-    page.get_by_role("textbox", name="Password").fill(user["password"])
-    page.get_by_role("button", name="Login").click()
+    # --- Login ---
+    home_page = HomePage(page)
+    home_page.navigate_to_login()
 
-    # Add a product to cart via the product detail page.
-    # The hover-overlay add-to-cart on listing pages is unreliable across
-    # browsers (Firefox overlay doesn't register, WebKit needs explicit hover).
-    # The detail page always shows the button without a hover overlay.
-    # Retry up to 2 times — in CI the first click can silently fail due to
-    # ad-network redirects or transient overlays.
-    for attempt in range(3):
-        page.goto(
-            "https://automationexercise.com/product_details/33",
-            wait_until="domcontentloaded",
-        )
-        add_btn = page.locator("button.btn-default.cart")
-        add_btn.wait_for(state="visible", timeout=15000)
-        add_btn.click()
+    login_page = LoginPage(page)
+    login_page.login(user["email"], user["password"])
 
-        # Wait for the "Added!" confirmation modal — this proves the
-        # server accepted the add-to-cart request.
-        cart_modal = page.locator("#cartModal")
-        try:
-            cart_modal.wait_for(state="visible", timeout=5000)
-        except Exception:
-            # Modal didn't appear — click may not have registered; retry
-            if attempt < 2:
-                continue
-        # Modal appeared (or last attempt) — dismiss and move on
-        close_btn = cart_modal.locator("button.close-modal, .close")
-        if close_btn.first.is_visible(timeout=2000):
-            close_btn.first.click()
-        page.wait_for_timeout(500)
-        break
+    # --- Add product to cart via detail page (reliable across all browsers) ---
+    product_page = ProductPage(page)
+    product_page.add_product_via_detail_page(product_id=33)
 
-    # Navigate to cart and verify the item is present
-    page.goto("https://automationexercise.com/view_cart", wait_until="domcontentloaded")
-    expect(page.locator("#cart_items tbody tr").first).to_be_visible(timeout=15000)
-    page.get_by_text("Proceed To Checkout").click()
+    # --- Verify cart and proceed to checkout ---
+    cart_page = CartPage(page)
+    cart_page.navigate_to_cart()
+    cart_page.verify_has_items()
+    cart_page.proceed_to_checkout()
 
-    # After "Proceed To Checkout", verify we actually landed on the checkout page.
-    # In WebKit the click may not navigate (e.g. a "Register / Login" modal can
-    # appear if the session cookie was dropped). Handle gracefully.
-    try:
-        page.wait_for_url("**/checkout**", timeout=10000)
-    except Exception:
-        # Dismiss any modal that may have appeared and navigate directly
-        modal_close = page.locator("#checkoutModal .close, #checkoutModal a[href='/login']")
-        if modal_close.first.is_visible(timeout=2000):
-            modal_close.first.click()
-        page.goto("https://automationexercise.com/checkout", wait_until="domcontentloaded")
-    page.wait_for_load_state("domcontentloaded")
+    # --- Checkout → Place Order ---
+    checkout_page = CheckoutPage(page)
+    checkout_page.ensure_on_checkout()
+    checkout_page.place_order()
 
-    # Payment — card details from env vars, never hardcoded
-    # Scroll to and click "Place Order" — in WebKit the link may be off-screen
-    # and the role locator can be fragile, so use the direct href selector.
-    place_order = page.locator("a[href='/payment']")
-    try:
-        place_order.wait_for(state="visible", timeout=20000)
-        place_order.scroll_into_view_if_needed()
-        place_order.click()
-    except Exception:
-        # Last resort: navigate directly to the payment page
-        page.goto("https://automationexercise.com/payment", wait_until="domcontentloaded")
-    page.wait_for_load_state("domcontentloaded")
-    page.locator('input[name="name_on_card"]').fill(card["name"])
-    page.locator('input[name="card_number"]').fill(card["number"])
-    page.get_by_role("textbox", name="ex.").fill(card["cvc"])
-    page.get_by_role("textbox", name="MM").fill(card["month"])
-    page.get_by_role("textbox", name="YYYY").fill(card["year"])
-    page.get_by_role("button", name="Pay and Confirm Order").click()
-    expect(page.locator("#form")).to_contain_text("Congratulations! Your order has been confirmed!")
+    # --- Payment ---
+    payment_page = PaymentPage(page)
+    payment_page.fill_card_details(card)
+    payment_page.pay_and_confirm()
 
-    # Logout and verify we land back on the login page.
-    # After "Continue", WebKit may drop the session (the user is already
-    # logged out and we land on the login page directly).  Handle both cases.
-    page.get_by_role("link", name="Continue").click()
-    page.wait_for_load_state("domcontentloaded")
-
-    logout_link = page.locator("a[href='/logout']")
-    if logout_link.is_visible(timeout=5000):
-        logout_link.click()
-        page.wait_for_load_state("domcontentloaded")
-    else:
-        # Session was dropped — navigate to login page directly
-        page.goto(
-            "https://automationexercise.com/login",
-            wait_until="domcontentloaded",
-        )
-
-    expect(page.get_by_role("heading", name="Login to your account")).to_be_visible()
-    expect(page.get_by_role("heading", name="New User Signup!")).to_be_visible()
+    # --- Logout and verify ---
+    payment_page.continue_after_payment()
+    payment_page.logout()
+    payment_page.verify_on_login_page()

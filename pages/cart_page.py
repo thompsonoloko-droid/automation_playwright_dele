@@ -34,6 +34,8 @@ class CartPage(BasePage):
     PROCEED_TO_CHECKOUT = ".check_out"
     CART_EMPTY_MSG = "//p[contains(text(),'Cart is empty')]"
 
+    BASE_URL: str = "https://automationexercise.com"
+
     def get_cart_items_count(self) -> int:
         """Return the number of product rows in the cart (0 if empty)."""
         count = self.page.locator(self.CART_ITEMS).count()
@@ -49,3 +51,25 @@ class CartPage(BasePage):
     def is_cart_empty(self) -> bool:
         """Return True if the 'Cart is empty' message is visible."""
         return self.page.locator(self.CART_EMPTY_MSG).count() > 0
+
+    def navigate_to_cart(self) -> None:
+        """Navigate directly to the cart page."""
+        self.page.goto(
+            f"{self.BASE_URL}/view_cart",
+            wait_until="domcontentloaded",
+        )
+        logger.info("Navigated to cart page")
+
+    def verify_has_items(self, timeout: int = 15000) -> None:
+        """Verify the cart contains at least one product row.
+
+        Args:
+            timeout: Max time to wait for cart items to appear.
+
+        Raises:
+            AssertionError: If no cart items are visible.
+        """
+        from playwright.sync_api import expect
+
+        expect(self.page.locator(self.CART_ITEMS).first).to_be_visible(timeout=timeout)
+        logger.info(f"Cart verified — {self.get_cart_items_count()} item(s)")
