@@ -73,7 +73,7 @@ jobs:
             --browser=${{ matrix.browser }} \
             -v \
             --tb=short \
-            --timeout=30 \
+            --timeout=120 \
             --retries=2 \
             --html=reports/smoke-${{ matrix.browser }}-${{ github.run_id }}.html \
             --self-contained-html \

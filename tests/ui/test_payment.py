@@ -87,10 +87,18 @@ def test_order_flow(page: Page) -> None:
     expect(page.locator("#cart_items tbody tr").first).to_be_visible(timeout=15000)
     page.get_by_text("Proceed To Checkout").click()
 
+    # After "Proceed To Checkout", wait for the checkout page to fully load.
+    # On automationexercise.com the checkout page URL contains /checkout.
+    page.wait_for_load_state("domcontentloaded")
+
     # Payment — card details from env vars, never hardcoded
-    # Wait for 'Place Order' link to be visible before clicking
-    page.get_by_role("link", name="Place Order").wait_for(state="visible", timeout=15000)
-    page.get_by_role("link", name="Place Order").click()
+    # Scroll to and click "Place Order" — in WebKit the link may be off-screen
+    # and the role locator can be fragile, so use the direct href selector.
+    place_order = page.locator("a[href='/payment']")
+    place_order.wait_for(state="visible", timeout=20000)
+    place_order.scroll_into_view_if_needed()
+    place_order.click()
+    page.wait_for_load_state("domcontentloaded")
     page.locator('input[name="name_on_card"]').fill(card["name"])
     page.locator('input[name="card_number"]').fill(card["number"])
     page.get_by_role("textbox", name="ex.").fill(card["cvc"])
@@ -101,6 +109,7 @@ def test_order_flow(page: Page) -> None:
 
     # Logout and verify we land back on the login page
     page.get_by_role("link", name="Continue").click()
+    page.wait_for_load_state("domcontentloaded")
     page.get_by_role("link", name=" Logout").click()
     expect(page.get_by_role("heading", name="Login to your account")).to_be_visible()
     expect(page.get_by_role("heading", name="New User Signup!")).to_be_visible()

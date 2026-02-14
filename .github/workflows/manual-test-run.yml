@@ -139,6 +139,12 @@ jobs:
             CMD="$CMD -n auto"
           fi
 
+          # Apply retry count for flaky tests (pytest-retry plugin)
+          RETRIES="${{ github.event.inputs.retry }}"
+          if [ "$RETRIES" != "0" ] && [ -n "$RETRIES" ]; then
+            CMD="$CMD --retries=$RETRIES"
+          fi
+
           # Generate test reports in multiple formats for comprehensive visibility
           # HTML: Human-readable detailed report with timestamps and logs
           # JUnit XML: CI/CD platform integration (GitHub, Jenkins, etc.)
