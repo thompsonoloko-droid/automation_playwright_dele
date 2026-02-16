@@ -39,9 +39,29 @@ class HomePage(BasePage):
     CART_BTN = "a[href='/view_cart']"
     CONTACT_US_BTN = "a[href='/contact_us']"
 
+    BASE_URL: str = "https://automationexercise.com"
+
     def navigate_to_login(self) -> None:
-        """Click the Sign Up / Login link to open the auth page."""
+        """Click the Sign Up / Login link to open the auth page.
+
+        Falls back to direct navigation if the login form does not
+        appear within a few seconds (e.g. when an ad overlay blocks
+        the click).
+        """
         self.click(self.SIGNUP_LOGIN_BTN)
+
+        # Verify the login form actually loaded
+        login_email = self.page.locator("input[data-qa='login-email']")
+        try:
+            login_email.wait_for(state="visible", timeout=10000)
+        except Exception:
+            logger.warning("Login form not visible after click — navigating directly to /login")
+            self.page.goto(
+                f"{self.BASE_URL}/login",
+                wait_until="domcontentloaded",
+            )
+            login_email.wait_for(state="visible", timeout=15000)
+
         logger.info("Navigated to login page")
 
     def verify_logged_in(self, username: str) -> None:
