@@ -36,9 +36,9 @@ class TestMobileSmoke:
         # Verify mobile viewport is smaller than desktop (1920)
         viewport = mobile_page.viewport_size
         assert viewport is not None, "Viewport size should be set"
-        assert (
-            viewport["width"] < 1000
-        ), f"Expected mobile viewport width < 1000px, got {viewport['width']}px"
+        assert viewport["width"] < 1000, (
+            f"Expected mobile viewport width < 1000px, got {viewport['width']}px"
+        )
         logger.info(
             f"✓ Mobile homepage loaded — viewport: {viewport['width']}×{viewport['height']}"
         )
@@ -59,9 +59,9 @@ class TestMobileSmoke:
         for name, selector in nav_links.items():
             link = mobile_page.locator(selector).first
             # On mobile, links may be in a collapsed menu — just verify they exist in DOM
-            assert (
-                link.count() > 0 or mobile_page.locator(selector).count() > 0
-            ), f"Navigation link '{name}' not found in DOM"
+            assert link.count() > 0 or mobile_page.locator(selector).count() > 0, (
+                f"Navigation link '{name}' not found in DOM"
+            )
             logger.info(f"  ✓ '{name}' link present")
 
         logger.info("✓ Mobile navigation links verified")
@@ -164,9 +164,9 @@ class TestMobileSmoke:
 
         # Check that the page body doesn't overflow horizontally
         body_width = mobile_page.evaluate("document.body.scrollWidth")
-        assert (
-            body_width <= viewport["width"] + 20
-        ), f"Page overflows horizontally: body={body_width}px, viewport={viewport['width']}px"
+        assert body_width <= viewport["width"] + 20, (
+            f"Page overflows horizontally: body={body_width}px, viewport={viewport['width']}px"
+        )
 
         logger.info(
             f"✓ Responsive layout OK — body: {body_width}px, viewport: {viewport['width']}px"
