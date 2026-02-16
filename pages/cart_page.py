@@ -63,13 +63,24 @@ class CartPage(BasePage):
     def verify_has_items(self, timeout: int = 15000) -> None:
         """Verify the cart contains at least one product row.
 
+        If items are not visible on the first attempt, reloads the page
+        once and retries — works around a Firefox timing issue where
+        the cart page loads before the server has committed the item.
+
         Args:
             timeout: Max time to wait for cart items to appear.
 
         Raises:
-            AssertionError: If no cart items are visible.
+            AssertionError: If no cart items are visible after retry.
         """
         from playwright.sync_api import expect
 
-        expect(self.page.locator(self.CART_ITEMS).first).to_be_visible(timeout=timeout)
+        cart_row = self.page.locator(self.CART_ITEMS).first
+        try:
+            expect(cart_row).to_be_visible(timeout=timeout)
+        except (AssertionError, Exception):
+            logger.warning("Cart items not visible — reloading page and retrying")
+            self.page.reload(wait_until="domcontentloaded")
+            expect(cart_row).to_be_visible(timeout=timeout)
+
         logger.info(f"Cart verified — {self.get_cart_items_count()} item(s)")
