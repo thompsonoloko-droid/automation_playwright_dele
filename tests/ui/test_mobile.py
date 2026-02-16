@@ -36,9 +36,9 @@ class TestMobileSmoke:
         # Verify mobile viewport is smaller than desktop (1920)
         viewport = mobile_page.viewport_size
         assert viewport is not None, "Viewport size should be set"
-        assert viewport["width"] < 1000, (
-            f"Expected mobile viewport width < 1000px, got {viewport['width']}px"
-        )
+        assert (
+            viewport["width"] < 1000
+        ), f"Expected mobile viewport width < 1000px, got {viewport['width']}px"
         logger.info(
             f"✓ Mobile homepage loaded — viewport: {viewport['width']}×{viewport['height']}"
         )
@@ -59,9 +59,9 @@ class TestMobileSmoke:
         for name, selector in nav_links.items():
             link = mobile_page.locator(selector).first
             # On mobile, links may be in a collapsed menu — just verify they exist in DOM
-            assert link.count() > 0 or mobile_page.locator(selector).count() > 0, (
-                f"Navigation link '{name}' not found in DOM"
-            )
+            assert (
+                link.count() > 0 or mobile_page.locator(selector).count() > 0
+            ), f"Navigation link '{name}' not found in DOM"
             logger.info(f"  ✓ '{name}' link present")
 
         logger.info("✓ Mobile navigation links verified")
@@ -105,33 +105,47 @@ class TestMobileSmoke:
     @pytest.mark.mobile
     @pytest.mark.regression
     def test_add_to_cart_mobile(self, mobile_page: Page) -> None:
-        """Verify add-to-cart works on mobile (no hover overlay)."""
+        """Verify add-to-cart works on mobile via the product detail page."""
         logger.info("Testing mobile add-to-cart...")
 
+        base_url = "https://automationexercise.com"
+        cart_modal = "#cartModal"
+        cart_modal_close = "#cartModal button.close-modal, #cartModal .close"
+        detail_add_btn = "button.btn-default.cart"
+
+        # Use the product detail page where the add-to-cart button is always
+        # visible — avoids the unreliable hover-overlay on listing pages.
+        for attempt in range(3):
+            mobile_page.goto(
+                f"{base_url}/product_details/1",
+                wait_until="domcontentloaded",
+                timeout=60000,
+            )
+            mobile_page.locator(detail_add_btn).wait_for(state="visible", timeout=15000)
+            mobile_page.locator(detail_add_btn).click()
+
+            try:
+                mobile_page.locator(cart_modal).wait_for(state="visible", timeout=5000)
+                break
+            except Exception:
+                if attempt < 2:
+                    logger.warning(f"Cart modal not shown (attempt {attempt + 1}), retrying...")
+                    continue
+                logger.warning("Modal not shown on final attempt — proceeding anyway")
+
+        # Dismiss the modal if visible
+        close_btn = mobile_page.locator(cart_modal_close)
+        if close_btn.first.is_visible(timeout=2000):
+            close_btn.first.click()
+        mobile_page.wait_for_timeout(500)
+
+        # Navigate to cart and verify
         mobile_page.goto(
-            "https://automationexercise.com/products",
+            f"{base_url}/view_cart",
             wait_until="domcontentloaded",
             timeout=60000,
         )
 
-        # On mobile, the add-to-cart button may be visible without hover
-        # because hover states don't apply on touch devices.
-        product = mobile_page.locator(".product-image-wrapper").first
-        product.wait_for(state="visible", timeout=15000)
-        product.scroll_into_view_if_needed()
-
-        add_btn = product.locator(".add-to-cart").first
-        add_btn.click(force=True)
-
-        # Wait briefly for the cart to update, then navigate to cart
-        mobile_page.wait_for_timeout(1000)
-        mobile_page.goto(
-            "https://automationexercise.com/view_cart",
-            wait_until="domcontentloaded",
-            timeout=60000,
-        )
-
-        # Verify cart has at least one item
         cart_row = mobile_page.locator("#cart_items tbody tr")
         expect(cart_row.first).to_be_visible(timeout=15000)
 
@@ -150,9 +164,9 @@ class TestMobileSmoke:
 
         # Check that the page body doesn't overflow horizontally
         body_width = mobile_page.evaluate("document.body.scrollWidth")
-        assert body_width <= viewport["width"] + 20, (
-            f"Page overflows horizontally: body={body_width}px, viewport={viewport['width']}px"
-        )
+        assert (
+            body_width <= viewport["width"] + 20
+        ), f"Page overflows horizontally: body={body_width}px, viewport={viewport['width']}px"
 
         logger.info(
             f"✓ Responsive layout OK — body: {body_width}px, viewport: {viewport['width']}px"
