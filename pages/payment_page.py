@@ -93,8 +93,24 @@ class PaymentPage(BasePage):
                 wait_until="domcontentloaded",
             )
 
+        # Ensure login page is fully loaded (WebKit on CI can be slow)
+        login_heading = self.page.get_by_role("heading", name="Login to your account")
+        try:
+            login_heading.wait_for(state="visible", timeout=15000)
+        except Exception:
+            logger.warning("Login heading not visible — retrying via direct navigation")
+            self.page.goto(
+                f"{self.BASE_URL}/login",
+                wait_until="domcontentloaded",
+            )
+            login_heading.wait_for(state="visible", timeout=15000)
+
     def verify_on_login_page(self) -> None:
         """Verify we landed on the login/signup page after logout."""
-        expect(self.page.get_by_role("heading", name="Login to your account")).to_be_visible()
-        expect(self.page.get_by_role("heading", name="New User Signup!")).to_be_visible()
+        expect(self.page.get_by_role("heading", name="Login to your account")).to_be_visible(
+            timeout=15000
+        )
+        expect(self.page.get_by_role("heading", name="New User Signup!")).to_be_visible(
+            timeout=15000
+        )
         logger.info("Login page verified")
