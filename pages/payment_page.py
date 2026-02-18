@@ -64,9 +64,23 @@ class PaymentPage(BasePage):
         logger.info("Card details filled")
 
     def pay_and_confirm(self) -> None:
-        """Click 'Pay and Confirm Order' and verify the confirmation message."""
+        """Click 'Pay and Confirm Order' and verify the confirmation message.
+
+        Uses an extended timeout for CI environments where page
+        transitions can be slower. Retries once if a server error
+        (e.g. Cloudflare 520) intercepts the confirmation.
+        """
         self.click(self.BTN_PAY)
-        expect(self.page.locator(self.ORDER_CONFIRMATION)).to_contain_text(self.CONFIRMATION_TEXT)
+        self.page.wait_for_load_state("domcontentloaded")
+
+        confirmation = self.page.locator(self.ORDER_CONFIRMATION)
+        try:
+            expect(confirmation).to_contain_text(self.CONFIRMATION_TEXT, timeout=15000)
+        except Exception:
+            # Server may have returned a transient error — reload and check
+            logger.warning("Confirmation text not found — reloading page")
+            self.page.reload(wait_until="domcontentloaded")
+            expect(confirmation).to_contain_text(self.CONFIRMATION_TEXT, timeout=15000)
         logger.info("Payment confirmed — order placed successfully")
 
     def continue_after_payment(self) -> None:

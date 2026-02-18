@@ -121,12 +121,29 @@ class TestMobileSmoke:
         # Use the product detail page where the add-to-cart button is always
         # visible — avoids the unreliable hover-overlay on listing pages.
         for attempt in range(3):
-            mobile_page.goto(
+            response = mobile_page.goto(
                 f"{base_url}/product_details/1",
                 wait_until="domcontentloaded",
                 timeout=60000,
             )
-            mobile_page.locator(detail_add_btn).wait_for(state="visible", timeout=15000)
+
+            # Handle transient server errors (Cloudflare 520/503)
+            if response and response.status >= 500:
+                logger.warning(
+                    f"Server returned {response.status} (attempt {attempt + 1}) — retrying"
+                )
+                mobile_page.wait_for_timeout(2000)
+                continue
+
+            try:
+                mobile_page.locator(detail_add_btn).wait_for(state="visible", timeout=15000)
+            except Exception:
+                logger.warning(
+                    f"Add-to-cart button not visible (attempt {attempt + 1}) — reloading"
+                )
+                mobile_page.reload(wait_until="domcontentloaded")
+                mobile_page.locator(detail_add_btn).wait_for(state="visible", timeout=15000)
+
             mobile_page.locator(detail_add_btn).click()
 
             try:
