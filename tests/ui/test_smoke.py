@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 
 import pytest
+import requests
 from playwright.sync_api import expect
 
 from pages.cart_page import CartPage
@@ -13,6 +14,20 @@ from pages.login_page import LoginPage
 from pages.product_page import ProductPage
 
 logger = logging.getLogger(__name__)
+
+API_BASE = "https://automationexercise.com/api"
+
+
+def _delete_user_via_api(email: str, password: str = "TestPassword123!") -> None:
+    """Best-effort cleanup: delete a registered user via the API."""
+    try:
+        requests.delete(
+            f"{API_BASE}/deleteAccount",
+            data={"email": email, "password": password},
+            timeout=10,
+        )
+    except Exception:
+        pass  # Don't break teardown if API is unreachable
 
 
 class TestSmoke:
@@ -61,10 +76,14 @@ class TestSmoke:
 
         # Verify we're still on the site after registration completes
         current_url = page.url
-        assert "automationexercise.com" in current_url, (
-            f"Expected to be on automationexercise.com, got {current_url}"
-        )
+        assert (
+            "automationexercise.com" in current_url
+        ), f"Expected to be on automationexercise.com, got {current_url}"
         logger.info(f"✓ User registered successfully: {unique_name}")
+
+        # Teardown: clean up the registered user via API
+        _delete_user_via_api(unique_email)
+        logger.info(f"✓ Test user cleaned up: {unique_email}")
 
     @pytest.mark.smoke
     @pytest.mark.regression

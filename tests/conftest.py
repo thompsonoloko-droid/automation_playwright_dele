@@ -198,6 +198,8 @@ def mobile_page(playwright: Playwright, browser_type, request):
         ignore_https_errors=True,
     )
     page = context.new_page()
+    # Keep a reference to the browser so we can close it in teardown
+    browser = context.browser
 
     _setup_page_blocking(page)
 
@@ -220,6 +222,21 @@ def mobile_page(playwright: Playwright, browser_type, request):
         logging.error(f"Test failed. Screenshot saved: {screenshot_path}")
     page.close()
     context.close()
+    if browser:
+        browser.close()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_old_artifacts():
+    """Remove stale screenshots and videos from previous runs before the session starts."""
+    dirs_to_clean = ["./reports/screenshots", "./reports/videos"]
+    for dir_path in dirs_to_clean:
+        p = Path(dir_path)
+        if p.exists():
+            for f in p.iterdir():
+                if f.is_file():
+                    f.unlink(missing_ok=True)
+    yield
 
 
 @pytest.fixture(scope="function")
