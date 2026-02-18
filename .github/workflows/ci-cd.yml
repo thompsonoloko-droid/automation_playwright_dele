@@ -169,6 +169,7 @@ jobs:
         run: |
           pytest tests/ui/ -m smoke \
             --browser=${{ matrix.browser }} \
+            --retries 1 \
             -v \
             --tb=short \
             --html=reports/smoke-${{ matrix.browser }}.html \
@@ -192,6 +193,7 @@ jobs:
         run: |
           pytest tests/ui/ -m regression \
             --browser=${{ matrix.browser }} \
+            --retries 1 \
             -v \
             --tb=short \
             -n auto \

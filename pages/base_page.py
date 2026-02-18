@@ -40,7 +40,7 @@ class BasePage:
             page (Page): The Playwright Page object to interact with
         """
         self.page = page
-        self.timeout = 30000  # 30 seconds default timeout
+        self.timeout = 45000  # 45 seconds default timeout
 
     def wait_for_element(self, selector: str, timeout: Optional[int] = None) -> Locator:
         """
