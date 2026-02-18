@@ -38,7 +38,7 @@ class CartPage(BasePage):
 
     def get_cart_items_count(self) -> int:
         """Return the number of product rows in the cart (0 if empty)."""
-        count = self.page.locator(self.CART_ITEMS).count()
+        count: int = self.page.locator(self.CART_ITEMS).count()
         logger.info(f"Cart items count: {count}")
         return count
 
@@ -50,7 +50,8 @@ class CartPage(BasePage):
 
     def is_cart_empty(self) -> bool:
         """Return True if the 'Cart is empty' message is visible."""
-        return self.page.locator(self.CART_EMPTY_MSG).count() > 0
+        empty: bool = self.page.locator(self.CART_EMPTY_MSG).count() > 0
+        return empty
 
     def navigate_to_cart(self) -> None:
         """Navigate directly to the cart page."""

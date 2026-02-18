@@ -76,7 +76,7 @@ cat > requirements.txt << 'EOF'
 # =====================================
 # Test Automation Framework Dependencies
 # =====================================
-# 
+#
 # Core Testing & Automation
 pytest==8.4.0                      # Test framework with advanced features
 pytest-playwright==0.8.0           # Pytest integration for Playwright
@@ -136,7 +136,7 @@ python_classes = Test*
 python_functions = test_*
 
 # Core execution options
-addopts = 
+addopts =
     --strict-markers
     --tb=short
     --maxfail=5

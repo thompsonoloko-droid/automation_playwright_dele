@@ -187,16 +187,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install linting tools
-        run: |
-          pip install ruff
+      - name: Install pre-commit
+        run: pip install pre-commit
 
-      - name: Check formatting with Ruff
-        run: ruff format --check tests/ pages/ utils/
-        continue-on-error: true
-
-      - name: Lint with Ruff
-        run: ruff check tests/ pages/ utils/
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files
         continue-on-error: true
 
   # ============================================================================

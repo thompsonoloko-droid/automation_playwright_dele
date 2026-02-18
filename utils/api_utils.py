@@ -48,9 +48,10 @@ class APIUtils:
         if not response.content:
             return {}
         try:
-            return response.json()
+            result: Union[dict, list, str] = response.json()
+            return result
         except (json.JSONDecodeError, ValueError):
-            return response.text
+            return response.text or ""
 
     def get(self, endpoint: str, params: Optional[Dict] = None, **kwargs) -> requests.Response:
         """Send GET request. *params* are appended as query-string parameters."""
@@ -114,9 +115,9 @@ class APIUtils:
 
     def verify_status_code(self, response: requests.Response, expected_code: int) -> None:
         """Assert the response status code equals *expected_code*."""
-        assert response.status_code == expected_code, (
-            f"Expected status {expected_code}, got {response.status_code}. Response: {response.text}"
-        )
+        assert (
+            response.status_code == expected_code
+        ), f"Expected status {expected_code}, got {response.status_code}. Response: {response.text}"
 
     def verify_response_schema(self, response: requests.Response, schema: Dict) -> None:
         """
@@ -132,9 +133,9 @@ class APIUtils:
         # Basic schema validation (for full validation, consider using jsonschema library)
         for key, expected_type in schema.items():
             assert key in response_data, f"Missing key in response: {key}"
-            assert isinstance(response_data[key], expected_type), (
-                f"Key '{key}' should be {expected_type}, got {type(response_data[key])}"
-            )
+            assert isinstance(
+                response_data[key], expected_type
+            ), f"Key '{key}' should be {expected_type}, got {type(response_data[key])}"
 
     def save_response_to_file(self, response: requests.Response, file_path: str) -> None:
         """Dump status, headers and body as JSON to *file_path* (creates dirs)."""
