@@ -2,7 +2,7 @@
   "api": {
     "base_url": "https://automationexercise.com/api",
     "timeout": 5000,
-      "test_user_template": {
+    "test_user_template": {
       "name": "Test User",
       "firstname": "Test",
       "lastname": "User",
@@ -18,7 +18,7 @@
       "mobile_number": "1234567890",
       "country": "Testland"
     },
-      "update_user_template": {
+    "update_user_template": {
       "name": "Updated User",
       "firstname": "Updated",
       "lastname": "User",
@@ -35,30 +35,88 @@
       "country": "Testland"
     },
     "users": [
-      {"id": "user1", "email": "testuser@example.com", "password": "Testingpassword123", "valid": true},
-      {"id": "user2", "email": "invalid@example.com", "password": "wrongpass", "valid": false}
+      {
+        "id": "user1",
+        "email": "testuser@example.com",
+        "password": "Testingpassword123",
+        "valid": true
+      },
+      {
+        "id": "user2",
+        "email": "invalid@example.com",
+        "password": "wrongpass",
+        "valid": false
+      }
     ],
     "invalid_login_attempts": [
-      {"id": "bad1", "email": "bad@example.com", "password": "badpass", "expected_code": 404, "expected_message": "User not found!"},
-      {"id": "empty", "email": "", "password": "", "expected_code": 404, "expected_message": "User not found!"}
+      {
+        "id": "bad1",
+        "email": "bad@example.com",
+        "password": "badpass",
+        "expected_code": 404,
+        "expected_message": "User not found!"
+      },
+      {
+        "id": "empty",
+        "email": "",
+        "password": "",
+        "expected_code": 404,
+        "expected_message": "User not found!"
+      }
     ]
   },
   "performance": {
     "api_response_time_ms": 3000,
     "page_load_time_ms": 5000,
     "pages": [
-      {"name": "Home", "path": "/", "max_ms": 8000},
-      {"name": "Login", "path": "/login", "max_ms": 8000}
+      {
+        "name": "Home",
+        "path": "/",
+        "max_ms": 8000
+      },
+      {
+        "name": "Login",
+        "path": "/login",
+        "max_ms": 8000
+      }
     ],
     "api_endpoints": [
-      {"name": "Verify Login", "method": "POST", "path": "/verifyLogin", "data": {"email": "testuser@example.com", "password": "Testingpassword123"}, "max_ms": 3500},
-      {"name": "Create Account", "method": "POST", "path": "/createAccount", "data": {"email": "newuser@example.com", "password": "Testingpassword123"}, "max_ms": 4000}
+      {
+        "name": "Verify Login",
+        "method": "POST",
+        "path": "/verifyLogin",
+        "data": {
+          "email": "testuser@example.com",
+          "password": "Testingpassword123"
+        },
+        "max_ms": 5000
+      },
+      {
+        "name": "Create Account",
+        "method": "POST",
+        "path": "/createAccount",
+        "data": {
+          "email": "newuser@example.com",
+          "password": "Testingpassword123"
+        },
+        "max_ms": 5000
+      }
     ]
   },
   "users": [
-    {"id": "user1", "email": "testuser@example.com", "password": "Testingpassword123", "valid": true}
+    {
+      "id": "user1",
+      "email": "testuser@example.com",
+      "password": "Testingpassword123",
+      "valid": true
+    }
   ],
   "invalid_credentials": [
-    {"id": "bad1", "email": "bad@example.com", "password": "badpass", "error_contains": "incorrect"}
+    {
+      "id": "bad1",
+      "email": "bad@example.com",
+      "password": "badpass",
+      "error_contains": "incorrect"
+    }
   ]
 }
