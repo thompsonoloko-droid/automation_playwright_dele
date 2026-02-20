@@ -1,16 +1,6 @@
 # pyproject.toml
 # Unified configuration for Python code quality tools
 
-[tool.black]
-line-length = 100
-target-version = ["py311"]
-include = '\.pyi?$'
-
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = ["pages", "utils", "tests"]
-
 [tool.ruff]
 line-length = 100
 target-version = "py311"

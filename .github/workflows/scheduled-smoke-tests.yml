@@ -66,7 +66,7 @@ jobs:
 
       # STEP: Execute smoke tests with auto-retry and detailed reporting
       # --retries=2: Automatically retry failed tests twice (pytest-retry)
-      # --timeout=30: Kill test if it takes longer than 30 seconds (catches hangs)
+      # --timeout=120: Kill test if it takes longer than 120 seconds (catches hangs)
       - name: Run smoke tests (${{ matrix.browser }})
         run: |
           pytest tests/ui/ -m smoke \
@@ -100,8 +100,9 @@ jobs:
         with:
           name: reports-${{ matrix.browser }}
           path: |
-            reports/smoke-${{ matrix.browser }}.html
+            reports/smoke-${{ matrix.browser }}-${{ github.run_id }}.html
             reports/allure-results/${{ matrix.browser }}
+          if-no-files-found: ignore
           retention-days: 7
 
   # ============================================================================

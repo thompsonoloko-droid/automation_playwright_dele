@@ -119,6 +119,7 @@ MOBILE_DEVICES: dict[str, str] = {
     "iphone_14": "iPhone 14",
     "iphone_15": "iPhone 15",
     "pixel_7": "Pixel 7",
+    "galaxy_s21": "Galaxy S21",
     "galaxy_s9": "Galaxy S9+",
     "ipad_mini": "iPad Mini",
 }

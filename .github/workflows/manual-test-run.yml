@@ -222,6 +222,7 @@ jobs:
           path: |
             reports/
             logs/
+          if-no-files-found: ignore
           retention-days: 30
 
   # SECONDARY JOB: Merge and consolidate all test reports
@@ -255,10 +256,12 @@ jobs:
       # STEP: Archive final consolidated reports
       # Available for download from GitHub Actions UI for 30 days
       - name: Upload final reports
+        if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-final
           path: final-reports/
+          if-no-files-found: ignore
           retention-days: 30
 
       # STEP: Generate a summary visible in GitHub Actions UI and workflow run emails
@@ -291,17 +294,17 @@ jobs:
     timeout-minutes: 5
 
     env:
-      HAS_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL != '' && secrets.SLACK_WEBHOOK_URL != null }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
       # STEP: Send Slack notification with test run results
       # Only executes if SLACK_WEBHOOK_URL secret is configured in repository
       # Includes links to action run for quick access to full results
       - name: Slack notification
-        if: env.HAS_SLACK_WEBHOOK
+        if: env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {

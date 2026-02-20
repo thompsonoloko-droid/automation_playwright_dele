@@ -119,6 +119,7 @@ jobs:
         with:
           name: smoke-test-results
           path: reports/
+          if-no-files-found: ignore
 
   # ============================================================================
   # JOB 3: TEST-COVERAGE - Enforce code coverage minimum threshold
