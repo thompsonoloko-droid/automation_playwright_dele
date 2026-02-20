@@ -94,11 +94,31 @@ class TestMobileSmoke:
 
         # On mobile viewports the nav links may be behind a hamburger
         # menu.  Navigate directly to avoid click-target issues.
-        mobile_page.goto(
-            "https://automationexercise.com/login",
-            wait_until="domcontentloaded",
-            timeout=60000,
-        )
+        for attempt in range(3):
+            response = mobile_page.goto(
+                "https://automationexercise.com/login",
+                wait_until="domcontentloaded",
+                timeout=60000,
+            )
+
+            # Handle transient server errors (Cloudflare 520/503)
+            if response and response.status >= 500:
+                logger.warning(
+                    f"Server returned {response.status} (attempt {attempt + 1}) — retrying"
+                )
+                mobile_page.wait_for_timeout(2000)
+                continue
+
+            try:
+                mobile_page.locator("input[data-qa='login-email']").wait_for(
+                    state="visible", timeout=15000
+                )
+                break  # Page loaded successfully
+            except Exception:
+                logger.warning(f"Login form not visible (attempt {attempt + 1}) — reloading")
+                mobile_page.reload(wait_until="domcontentloaded", timeout=60000)
+        else:
+            pytest.fail("Login page failed to render after 3 attempts")
 
         # Login form elements should be visible on mobile
         expect(mobile_page.locator("input[data-qa='login-email']")).to_be_visible(timeout=10000)
