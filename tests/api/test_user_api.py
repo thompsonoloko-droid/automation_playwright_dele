@@ -32,7 +32,14 @@ def _create_test_user(email: str, password: str | None = None) -> dict:
     password = password or _USER_TEMPLATE["password"]
     payload = {**_USER_TEMPLATE, "email": email, "password": password}
     response = requests.post(f"{BASE_URL}/createAccount", data=payload, timeout=TIMEOUT)
-    return response.json()
+    try:
+        return response.json()
+    except requests.exceptions.JSONDecodeError:
+        logger.error(
+            f"Empty/invalid JSON from /createAccount (HTTP {response.status_code}): "
+            f"{response.text[:200]!r}"
+        )
+        return {"responseCode": response.status_code, "message": "Empty response body"}
 
 
 def _delete_test_user(email: str, password: str | None = None) -> dict:
@@ -40,7 +47,14 @@ def _delete_test_user(email: str, password: str | None = None) -> dict:
     password = password or _USER_TEMPLATE["password"]
     payload = {"email": email, "password": password}
     response = requests.delete(f"{BASE_URL}/deleteAccount", data=payload, timeout=TIMEOUT)
-    return response.json()
+    try:
+        return response.json()
+    except requests.exceptions.JSONDecodeError:
+        logger.error(
+            f"Empty/invalid JSON from /deleteAccount (HTTP {response.status_code}): "
+            f"{response.text[:200]!r}"
+        )
+        return {"responseCode": response.status_code, "message": "Empty response body"}
 
 
 # ---------------------------------------------------------------------------

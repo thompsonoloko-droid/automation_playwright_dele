@@ -118,12 +118,31 @@ class ProductPage(BasePage):
             RuntimeError: If the product could not be added after all retries.
         """
         for attempt in range(max_retries):
-            self.page.goto(
+            response = self.page.goto(
                 f"{self.BASE_URL}/product_details/{product_id}",
                 wait_until="domcontentloaded",
             )
+
+            # Handle transient server errors (Cloudflare 520/503)
+            if response and response.status >= 500:
+                logger.warning(
+                    f"Server returned {response.status} on detail page "
+                    f"(attempt {attempt + 1}) — retrying"
+                )
+                self.page.wait_for_timeout(2000)
+                continue
+
             add_btn = self.page.locator(self.DETAIL_ADD_TO_CART_BTN)
-            add_btn.wait_for(state="visible", timeout=15000)
+            try:
+                add_btn.wait_for(state="visible", timeout=20000)
+            except Exception:
+                if attempt < max_retries - 1:
+                    logger.warning(
+                        f"Add-to-cart button not visible (attempt {attempt + 1}) — reloading"
+                    )
+                    self.page.reload(wait_until="domcontentloaded")
+                    continue
+                raise
             add_btn.click()
 
             # Wait for the confirmation modal to verify the item was added
