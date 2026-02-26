@@ -93,6 +93,31 @@ jobs:
           pip install -r requirements.txt
           playwright install chromium --with-deps
 
+      - name: Verify required secrets present
+        env:
+          TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          CARD_NAME: ${{ secrets.CARD_NAME }}
+          CARD_NUMBER: ${{ secrets.CARD_NUMBER }}
+          CARD_CVC: ${{ secrets.CARD_CVC }}
+          CARD_EXPIRY_MONTH: ${{ secrets.CARD_EXPIRY_MONTH }}
+          CARD_EXPIRY_YEAR: ${{ secrets.CARD_EXPIRY_YEAR }}
+        run: |
+          MISSING=0
+          for v in TEST_USER_NAME TEST_USER_EMAIL TEST_USER_PASSWORD CARD_NAME CARD_NUMBER CARD_CVC CARD_EXPIRY_MONTH CARD_EXPIRY_YEAR; do
+            if [ -z "${!v}" ]; then
+              echo "MISSING: $v"
+              MISSING=1
+            else
+              echo "FOUND: $v"
+            fi
+          done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "One or more required secrets are missing. Please add them in repository Secrets."
+            exit 1
+          fi
+
       - name: Run smoke tests
         env:
           TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
