@@ -15,7 +15,7 @@ pytest-html==4.2.0                 # HTML test reports
 allure-pytest==2.15.3              # Allure reporting integration
 
 # Environment & Configuration
-python-dotenv==1.2.1               # Load .env files
+python-dotenv==1.2.2               # Load .env files
 
 # Test Execution Plugins
 pytest-cov==7.0.0                  # Code coverage
