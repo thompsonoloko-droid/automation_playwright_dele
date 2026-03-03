@@ -42,17 +42,18 @@ python -m playwright install
 ### Running Tests
 
 ```bash
+
 # Run all tests
-pytest tests/
+pytest tests/ | tee reports/test-results.txt
 
 # Run smoke tests (critical path)
-pytest tests/ -m smoke
+pytest tests/ -m smoke | tee reports/smoke-test-results.txt
 
 # Run UI tests only
-pytest tests/ui/ -v
+pytest tests/ui/ -v | tee reports/ui-test-results.txt
 
 # Run API tests only
-pytest tests/api/ -v
+pytest tests/api/ -v | tee reports/api-test-results.txt
 
 # Run with HTML report
 pytest tests/ --html=reports/test-report.html --self-contained-html
