@@ -4,7 +4,7 @@
 #
 # Core Testing & Automation
 pytest==8.3.5                      # Test framework
-pytest-playwright==0.7.2           # Playwright integration for pytest
+pytest-playwright==0.5.2           # Playwright integration for pytest
 playwright==1.58.0                 # Cross-browser automation (Chromium, Firefox, WebKit)
 
 # API Testing
@@ -18,7 +18,7 @@ allure-pytest==2.15.3              # Allure reporting integration
 python-dotenv==1.2.1               # Load .env files
 
 # Test Execution Plugins
-pytest-cov==7.0.0                  # Code coverage
+pytest-cov==6.1.0                  # Code coverage
 pytest-xdist==3.8.0                # Parallel test execution
 pytest-timeout==2.4.0              # Timeout management
 pytest-retry==1.7.0                # Retry flaky tests
