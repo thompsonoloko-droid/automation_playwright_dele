@@ -1,0 +1,57 @@
+# Azure DevOps Pipeline for automation_playwright_dele (Windows agent)
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  PYTHON_VERSION: '3.8'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(PYTHON_VERSION)'
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+    python -m playwright install
+  displayName: 'Install dependencies'
+
+- script: |
+    pytest tests/ --alluredir=reports/allure-results
+  displayName: 'Run tests'
+
+- script: |
+    pip install allure-pytest
+    allure generate reports/allure-results -o reports/allure-report --clean
+  displayName: 'Generate Allure Report'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'reports/allure-report'
+    artifactName: 'allure-report'
+    publishLocation: 'Container'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'reports/test-report.html'
+    artifactName: 'html-report'
+    publishLocation: 'Container'
+
+- script: |
+    black --check .
+    ruff check .
+    mypy .
+  displayName: 'Lint and Type Check'
+
+- script: pre-commit run --all-files
+  displayName: 'Run pre-commit hooks'
+
+- script: python -m playwright uninstall
+  displayName: 'Clean up Playwright'
