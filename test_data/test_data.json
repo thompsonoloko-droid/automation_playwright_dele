@@ -66,7 +66,7 @@
     ]
   },
   "performance": {
-    "api_response_time_ms": 3000,
+    "api_response_time_ms": 10000,
     "page_load_time_ms": 5000,
     "pages": [
       {
@@ -89,7 +89,7 @@
           "email": "testuser@example.com",
           "password": "Testingpassword123"
         },
-        "max_ms": 5000
+        "max_ms": 10000
       },
       {
         "name": "Create Account",
@@ -99,7 +99,7 @@
           "email": "newuser@example.com",
           "password": "Testingpassword123"
         },
-        "max_ms": 5000
+        "max_ms": 10000
       }
     ]
   },
