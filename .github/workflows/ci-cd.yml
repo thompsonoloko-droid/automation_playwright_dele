@@ -26,9 +26,11 @@ jobs:
           python -m playwright install
       - name: Run tests
         run: pytest tests/ --alluredir=reports/allure-results
+      - name: Install Allure CLI
+        run: |
+          npm install -g allure-commandline --save-dev
       - name: Generate Allure Report
         run: |
-          pip install allure-pytest
           allure generate reports/allure-results -o reports/allure-report --clean
       - name: Upload Allure Report Artifact
         uses: actions/upload-artifact@v4
