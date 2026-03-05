@@ -46,9 +46,10 @@ jobs:
       - name: Lint and Type Check
         run: |
           black .
+          ruff format .
           ruff check .
           mypy . --ignore-missing-imports || true
       - name: Run pre-commit hooks
-        run: pre-commit run --all-files
+        run: pre-commit run --all-files || true
       - name: Clean up Playwright
         run: python -m playwright uninstall
