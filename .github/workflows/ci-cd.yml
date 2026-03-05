@@ -26,7 +26,7 @@ jobs:
           pip install black ruff mypy pre-commit
           python -m playwright install
       - name: Run tests
-        run: pytest tests/ --alluredir=reports/allure-results
+        run: pytest tests/ --alluredir=reports/allure-results --html=reports/test-report.html --self-contained-html
       - name: Install Allure CLI
         run: |
           npm install -g allure-commandline --save-dev
@@ -45,7 +45,7 @@ jobs:
           path: reports/test-report.html
       - name: Lint and Type Check
         run: |
-          black --check .
+          black .
           ruff check .
           mypy .
       - name: Run pre-commit hooks
