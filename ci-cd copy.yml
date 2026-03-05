@@ -1,0 +1,51 @@
+# Minimal, valid GitHub Actions CI/CD workflow for automation_playwright_dele
+name: CI/CD Pipeline
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: '3.8'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m playwright install
+      - name: Run tests
+        run: pytest tests/ --alluredir=reports/allure-results
+      - name: Generate Allure Report
+        run: |
+          pip install allure-pytest
+          allure generate reports/allure-results -o reports/allure-report --clean
+      - name: Upload Allure Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-report
+      - name: Upload HTML Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: reports/test-report.html
+      - name: Lint and Type Check
+        run: |
+          black --check .
+          ruff check .
+          mypy .
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files
+      - name: Clean up Playwright
+        run: python -m playwright uninstall
