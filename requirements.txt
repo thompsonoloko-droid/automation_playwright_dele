@@ -3,7 +3,7 @@
 # =====================================
 #
 # Core Testing & Automation
-pytest==9.0.2                      # Test framework
+pytest==8.3.5                      # Test framework
 pytest-playwright==0.7.2           # Playwright integration for pytest
 playwright==1.58.0                 # Cross-browser automation (Chromium, Firefox, WebKit)
 
