@@ -18,7 +18,7 @@ allure-pytest==2.15.3              # Allure reporting integration
 python-dotenv==1.2.2               # Load .env files
 
 # Test Execution Plugins
-pytest-cov==6.1.0                  # Code coverage
+pytest-cov==7.0.0                  # Code coverage
 pytest-xdist==3.8.0                # Parallel test execution
 pytest-timeout==2.4.0              # Timeout management
 pytest-retry==1.7.0                # Retry flaky tests
