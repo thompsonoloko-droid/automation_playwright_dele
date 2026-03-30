@@ -8,7 +8,7 @@ pytest-playwright==0.7.2           # Playwright integration for pytest
 playwright==1.58.0                 # Cross-browser automation (Chromium, Firefox, WebKit)
 
 # API Testing
-requests==2.32.5                   # HTTP client for REST API testing
+requests==2.33.0                   # HTTP client for REST API testing
 
 # Test Reporting
 pytest-html==4.2.0                 # HTML test reports
