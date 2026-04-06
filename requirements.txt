@@ -26,7 +26,7 @@ pytest-base-url==2.1.0             # Configurable base URLs
 pytest-metadata==3.1.1             # Test run metadata
 
 # Image Processing
-pillow==12.1.1                     # Screenshot management
+pillow==12.2.0                     # Screenshot management
 
 # =====================================
 # Install:  pip install -r requirements.txt
