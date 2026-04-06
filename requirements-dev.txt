@@ -12,5 +12,5 @@ ruff>=0.11.0                       # Fast Python linter & formatter
 pre-commit>=4.0.0                  # Git hook framework for quality checks
 
 # Static Type Checking
-mypy==1.19.1                       # Static type checker
+mypy==1.20.0                       # Static type checker
 types-requests                     # Type stubs for requests
